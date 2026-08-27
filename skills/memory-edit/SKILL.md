@@ -1,12 +1,15 @@
 ---
 name: memory-edit
 description: >
-  Safely applies approved Project Memory changes to repository documentation.
+  Safely applies approved Project Memory changes to repository documentation,
+  including multi-source reconstruction edits that consolidate knowledge
+  scattered across pre-existing origin tools (AGENTS.md, CLAUDE.md,
+  .cursor/rules/, .claude/, docs/, and similar) into one canonical location.
   Executes scoped additions, modifications, moves, consolidations, deletions,
-  and navigation updates while preserving canonical knowledge ownership,
-  progressive loading, historical boundaries, and reference integrity.
-  Uses cavecrew-builder for bounded mechanical edits and avoids blind bulk
-  documentation rewrites.
+  thin-pointer conversions, and navigation updates while preserving canonical
+  knowledge ownership, progressive loading, historical boundaries, and
+  reference integrity. Uses cavecrew-builder for bounded mechanical edits and
+  avoids blind bulk documentation rewrites.
 ---
 
 # Memory Edit
@@ -38,6 +41,8 @@ Do not edit Project Memory by improvisation.
 The expected flow is:
 
 ```text
+Existing Knowledge Discovery (if applicable)
+    ↓
 Evidence
     ↓
 Knowledge Classification
@@ -93,15 +98,18 @@ This Skill is responsible for:
 1. Creating approved knowledge units.
 2. Updating existing knowledge units.
 3. Moving knowledge to approved canonical locations.
-4. Consolidating duplicate knowledge.
+4. Consolidating duplicate knowledge, including duplicates spanning
+   multiple pre-existing origin tools.
 5. Removing approved obsolete knowledge.
 6. Marking approved knowledge as deprecated.
 7. Marking approved knowledge as superseded.
-8. Updating navigation.
-9. Updating cross-references.
-10. Preserving historical context during migrations.
-11. Applying minimal formatting corrections required by the change.
-12. Producing an edit receipt for later verification.
+8. Converting a pre-existing tool-specific entry point into a thin pointer
+   to the canonical entry point, per an approved reconciliation plan.
+9. Updating navigation.
+10. Updating cross-references.
+11. Preserving historical context during migrations.
+12. Applying minimal formatting corrections required by the change.
+13. Producing an edit receipt for later verification.
 
 ---
 
@@ -111,6 +119,8 @@ Do not:
 
 * independently determine repository truth
 * perform broad repository auditing
+* discover or extract existing knowledge sources — that is
+  `knowledge-discovery`
 * decide whether knowledge is valuable
 * invent missing knowledge
 * redesign the memory architecture
@@ -123,6 +133,7 @@ Do not:
 Use:
 
 ```text
+knowledge-discovery
 repository-audit
 knowledge-classification
 knowledge-compounding
@@ -152,6 +163,7 @@ Replacement
 Content Scope
 Reference Impact
 Historical Treatment
+Origin Tool(s) Involved (for multi-source reconstruction edits)
 ```
 
 Example:
@@ -177,6 +189,30 @@ AGENTS.md
 docs/architecture/README.md
 ```
 
+Multi-source example:
+
+```text
+Action:
+Merge + Thin-Pointer Conversion
+
+Sources:
+AGENTS.md (§ Authentication)
+CLAUDE.md (§ Authentication)
+.cursor/rules/auth.md
+
+Destination:
+docs/architecture/security/authentication.md
+
+Reason:
+Three origin tools independently described the same authentication flow;
+repository evidence confirms only one description matches current code.
+
+Disposition:
+AGENTS.md   → keep pointer + minimal orientation, link to destination
+CLAUDE.md   → convert to thin pointer to AGENTS.md
+.cursor/rules/auth.md → delete (fully redundant once merged)
+```
+
 If the required information is missing and the edit cannot be performed safely,
 stop and report the missing decision.
 
@@ -196,6 +232,7 @@ Merge
 Delete
 Mark Deprecated
 Mark Superseded
+Thin-Pointer Conversion
 Reference Update
 Navigation Update
 Rename
@@ -212,13 +249,14 @@ Prefer this order:
 ```text
 1. Establish target structure
 2. Create new canonical knowledge
-3. Move or consolidate existing knowledge
-4. Update references
-5. Update indexes
-6. Update AGENTS.md
-7. Remove obsolete copies
-8. Re-read affected files
-9. Produce edit receipt
+3. Move or consolidate existing knowledge (across all origin tools)
+4. Convert non-canonical origin sources to thin pointers, or remove them
+5. Update references
+6. Update indexes
+7. Update AGENTS.md
+8. Remove obsolete copies
+9. Re-read affected files
+10. Produce edit receipt
 ```
 
 Do not delete the only copy of valuable knowledge before its replacement or
@@ -298,7 +336,8 @@ Before inserting content, identify the canonical owner.
 
 Ask:
 
-> Is this information already owned by another knowledge unit?
+> Is this information already owned by another knowledge unit — in `docs/`
+> or in any other origin tool?
 
 If yes:
 
@@ -312,8 +351,8 @@ Do not create another copy.
 
 # Duplicate Prevention
 
-Before creating a new document, check whether an existing document already
-contains the same knowledge.
+Before creating a new document, check whether an existing document —
+regardless of origin tool — already contains the same knowledge.
 
 Prefer:
 
@@ -416,11 +455,13 @@ Do not create duplicate long-term copies unless explicitly required.
 
 # Merge
 
-When consolidating documents:
+When consolidating documents — including documents from different origin
+tools:
 
 ```text
-Document A
-Document B
+Document A (origin tool 1)
+Document B (origin tool 2)
+Document C (origin tool 3)
         ↓
 Identify canonical owner
         ↓
@@ -432,7 +473,7 @@ Preserve important historical context
         ↓
 Update references
         ↓
-Remove obsolete documents
+Remove or thin-point obsolete documents
 ```
 
 Do not concatenate documents blindly.
@@ -454,6 +495,50 @@ No important section lost
 
 ---
 
+# Multi-Source Reconstruction Edits
+
+When executing an approved reconstruction plan spanning multiple origin
+tools (e.g. consolidating `AGENTS.md` + `CLAUDE.md` + `.cursor/rules/` +
+`docs/architecture/auth.md` into one canonical document plus a thin
+pointer), follow the same Atomic Migration Principle as any merge, applied
+across tool boundaries:
+
+```text
+1. Establish canonical destination content from verified knowledge
+        ↓
+2. Write canonical destination
+        ↓
+3. Convert non-canonical origin sources to thin pointers, or remove them,
+   per the approved disposition — one file at a time
+        ↓
+4. Update AGENTS.md navigation
+        ↓
+5. Re-read every touched origin file
+        ↓
+6. Produce edit receipt covering all origin tools touched
+```
+
+Do not delete a competing entry point (`CLAUDE.md`, `.cursor/rules/`, etc.)
+outright unless the approved plan says so. The default disposition for a
+tool-specific entry point that must keep existing for the tool to function
+is **thin pointer**, not deletion:
+
+```markdown
+<!-- CLAUDE.md -->
+See [AGENTS.md](./AGENTS.md) for project rules, architecture orientation,
+and documentation navigation. This file is intentionally kept minimal.
+```
+
+Treat a thin-pointer conversion as a `Modify`, and record it in the edit
+receipt under both `Modified` and a dedicated `Reconciled` entry noting
+which dual-entry-point finding it resolves.
+
+Do not perform a multi-source reconstruction edit touching 3+ origin files
+through `cavecrew-builder` — this always requires the deliberate scoped
+workflow below, never mechanical delegation.
+
+---
+
 # Delete
 
 Delete only when the deletion is explicitly supported by the approved plan.
@@ -466,9 +551,12 @@ Duplicate after successful consolidation
 Invalid placeholder
 Superseded document with no remaining value
 Migrated document whose canonical replacement is verified
+A losing claim in a resolved cross-source conflict with no historical value
 ```
 
-Do not delete merely because a file appears unused.
+Do not delete merely because a file appears unused, and do not delete a
+pre-existing knowledge source merely because it originated from a different
+Agent, Skill, or AI IDE than this one.
 
 ---
 
@@ -481,7 +569,7 @@ Read file
         ↓
 Identify outgoing references
         ↓
-Check incoming references
+Check incoming references (including from other origin tools)
         ↓
 Confirm replacement where applicable
         ↓
@@ -547,6 +635,7 @@ Renamed
 Deleted
 Merged
 Superseded
+Converted to a thin pointer
 ```
 
 inspect references that may be affected.
@@ -555,6 +644,8 @@ Potential references include:
 
 ```text
 AGENTS.md
+CLAUDE.md
+.cursor/rules/
 README.md
 Domain README
 Index files
@@ -668,6 +759,7 @@ Changed critical rule
 Changed critical constraint
 Changed minimal architecture orientation
 Changed verification requirement
+Entry-point reconciliation (becoming the sole canonical entry point)
 ```
 
 Do not add detailed knowledge to `AGENTS.md` simply because it is convenient.
@@ -718,6 +810,7 @@ Small wording change
 Single status update
 One-link update
 Small formatting-preserving edit
+Single thin-pointer conversion (1 file, text already drafted)
 ```
 
 Required flow:
@@ -748,6 +841,7 @@ Do not delegate to `cavecrew-builder` when the change requires:
 Broad architecture reasoning
 Repository-wide restructuring
 Large multi-file migration
+Multi-source knowledge consolidation
 Knowledge classification
 Historical interpretation
 Complex document consolidation
@@ -768,7 +862,7 @@ Use a deliberate scoped edit workflow.
 For larger changes:
 
 ```text
-1. Define exact affected files
+1. Define exact affected files (across all origin tools)
 2. Read each relevant file
 3. Establish dependency/order
 4. Apply scoped changes
@@ -988,6 +1082,15 @@ Deprecated
 
 make the limited validity explicit.
 
+If:
+
+```text
+Thin-Pointer
+```
+
+replace its content with a pointer to the canonical location, per the
+Multi-Source Reconstruction Edits section above.
+
 Do not change the classification during editing unless new evidence makes the
 approved plan impossible or unsafe.
 
@@ -1014,6 +1117,8 @@ A supposedly obsolete document is still referenced by active workflows.
 A supposed duplicate contains unique historical rationale.
 A replacement path does not exist.
 The target file is already modified unexpectedly.
+A fourth origin tool contains the same knowledge and was not in the
+approved plan.
 ```
 
 ---
@@ -1054,6 +1159,7 @@ Before editing, establish:
 Allowed Files
 Allowed Directories
 Allowed Operations
+Allowed Origin Tools
 ```
 
 Do not expand scope because unrelated cleanup is visible.
@@ -1104,6 +1210,10 @@ Use:
 ### Merged
 
 - `<sources>` → `<canonical destination>`
+
+### Reconciled (Dual/Competing Sources)
+
+- `<origin path>` — converted to thin pointer to `<canonical path>`
 
 ### Deleted
 
@@ -1178,6 +1288,7 @@ Re-read every changed file
 Check created files exist
 Check moved destination exists
 Check deleted source is gone
+Check thin-pointer conversions actually point to the canonical destination
 Check obvious affected links
 Check index entries
 Check AGENTS.md references
@@ -1198,6 +1309,7 @@ Changed Files
 Created Files
 Moved Files
 Deleted Files
+Reconciled Files (thin-pointer conversions)
 Updated References
 Remaining Known References
 Unexpected Findings
@@ -1257,23 +1369,27 @@ until the destination and references can be safely established.
 * Do not independently redesign memory architecture.
 * Do not independently classify knowledge.
 * Do not guess replacement paths.
-* Do not blindly delete documents.
+* Do not blindly delete documents, including pre-existing ones from other
+  tools or Agents.
 * Do not blindly rewrite documents.
 * Do not perform repository-wide replacements without explicit approval.
 * Do not perform opportunistic cleanup.
 * Do not modify unrelated files.
-* Do not duplicate canonical knowledge.
+* Do not duplicate canonical knowledge, including across origin tools.
 * Do not delete the source before a migration destination is established.
 * Do not remove historical rationale without an explicit decision.
 * Do not turn historical knowledge into current guidance.
 * Do not put detailed knowledge into `AGENTS.md`.
 * Do not use `cavecrew-builder` for broad restructuring.
 * Do not use `cavecrew-builder` for 3+ file changes.
+* Do not use `cavecrew-builder` for multi-source consolidation.
 * Do not treat an edit receipt as final verification.
 * Do not claim repository-wide correctness.
 * Do not claim final link integrity without verification.
 * Do not silently expand scope.
 * Do not overwrite unexpected concurrent changes.
+* Do not delete a tool-specific entry point outright when a thin pointer is
+  the approved disposition.
 * Stop when new evidence materially invalidates the edit plan.
 * Re-read changed files.
 * Preserve durable knowledge during rewrites.
@@ -1290,7 +1406,7 @@ The edit phase is complete when:
 ```text
 Approved edit plan understood
         ✓
-Scope established
+Scope established, including all origin tools involved
         ✓
 Canonical ownership preserved
         ✓
@@ -1303,6 +1419,8 @@ References updated
 Navigation updated
         ✓
 Historical boundaries preserved
+        ✓
+Thin-pointer conversions verified to point correctly
         ✓
 Changed files re-read
         ✓
@@ -1347,7 +1465,9 @@ What should no longer be treated as current.
 `memory-edit` decides only:
 
 ```text
-How to safely apply those approved decisions.
+How to safely apply those approved decisions —
+whether the knowledge originated from this system or from any other tool
+or Agent that touched the repository before it.
 ```
 
 The desired execution model is:
@@ -1371,4 +1491,5 @@ memory-verification
 A successful memory edit is not the largest cleanup.
 
 It is the smallest safe change that makes the approved Project Memory architecture
-real.
+real — for the whole repository's knowledge, not just the part this Agent
+originally wrote.

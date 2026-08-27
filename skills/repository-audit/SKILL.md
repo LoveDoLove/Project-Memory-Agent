@@ -4,8 +4,11 @@ description: >
   Evidence-first repository auditing skill. Discovers and verifies repository
   state across source code, tests, configuration, dependencies, build/CI,
   Git history, documentation, agent instructions, skills, and engineering
-  artifacts. Produces a scoped evidence inventory and identifies mismatches,
-  coverage limitations, and candidate knowledge without modifying the repository.
+  artifacts. Verifies claims surfaced by knowledge-discovery from existing
+  multi-source project knowledge (AGENTS.md, CLAUDE.md, .cursor/rules/,
+  .claude/, and similar). Produces a scoped evidence inventory and identifies
+  mismatches, coverage limitations, and candidate knowledge without modifying
+  the repository.
 ---
 
 # Repository Audit
@@ -73,9 +76,10 @@ This Skill is responsible for:
 5. Git-history investigation.
 6. Documentation comparison.
 7. Existing-memory discovery.
-8. Candidate mismatch detection.
-9. Evidence coverage assessment.
-10. Evidence limitation reporting.
+8. Verification of claims surfaced by `knowledge-discovery`.
+9. Candidate mismatch detection.
+10. Evidence coverage assessment.
+11. Evidence limitation reporting.
 
 It may identify candidate knowledge, but must not decide its final classification.
 
@@ -94,6 +98,9 @@ Do not:
 * claim repository-wide correctness from a partial audit
 * treat documentation as authoritative without verification
 * treat `codebase-memory` output as proof of repository completeness
+* perform the discovery/extraction/clustering of existing knowledge sources
+  itself — that is `knowledge-discovery`'s job; this Skill verifies what
+  `knowledge-discovery` finds
 
 ---
 
@@ -327,6 +334,38 @@ Determine:
 * referenced workflows
 
 Do not modify them during this audit.
+
+---
+
+## 8. Existing Knowledge Inventory (from `knowledge-discovery`)
+
+When `knowledge-discovery` has already run, treat its Existing Knowledge
+Inventory as a list of claims requiring verification — not as established
+fact.
+
+For each claim or cluster in the inventory:
+
+```text
+Claim
+    ↓
+Locate corresponding evidence (source, tests, config, build/CI, Git history)
+    ↓
+Verified Current | Verified Historical | Contradicted | Partially Verified | Unverifiable
+```
+
+Prioritize verification of:
+
+- `Conflicting` clusters — repository evidence is what resolves them.
+- Claims backing current operational guidance in `AGENTS.md`, `CLAUDE.md`,
+  `.cursor/rules/`, or any other Agent-facing entry point.
+- Claims that, if wrong, would cause a future Agent to violate a constraint
+  or repeat a rejected approach.
+
+Do not re-derive the inventory yourself if `knowledge-discovery` has already
+produced one — verify it. If no inventory was produced and existing
+knowledge sources are present, note this as a scope limitation and, if the
+task warrants it, recommend the parent Agent load `knowledge-discovery`
+before proceeding.
 
 ---
 
@@ -645,10 +684,18 @@ Do not treat a commit message as sufficient evidence for current behavior.
 
 # Existing Memory Audit
 
-When auditing Project Memory, inspect existing:
+When auditing Project Memory, inspect existing knowledge across **every**
+origin tool, not only `docs/`:
 
 ```text
 AGENTS.md
+CLAUDE.md
+.cursor/rules/
+.windsurfrules
+.github/copilot-instructions.md
+.claude/
+skills/
+agents/
 docs/
 architecture/
 decisions/
@@ -829,7 +876,15 @@ When relevant, locate:
 
 ---
 
-## Step 11 — Build Evidence Inventory
+## Step 11 — Verify the Existing Knowledge Inventory
+
+When `knowledge-discovery` supplied an inventory, work through its clusters
+(see "Existing Knowledge Inventory" above) and record a verification result
+for each.
+
+---
+
+## Step 12 — Build Evidence Inventory
 
 For each important finding:
 
@@ -843,7 +898,7 @@ Limitations
 
 ---
 
-## Step 12 — Return to Parent Agent
+## Step 13 — Return to Parent Agent
 
 Return the evidence without making decisions owned by other skills.
 
@@ -931,6 +986,16 @@ Use:
 - Confidence:
 - Limitations:
 
+## Existing Knowledge Inventory Verification
+
+### Cluster: <subject>
+
+- Claims:
+- Verification Result: Verified Current | Verified Historical | Contradicted | Partially Verified | Unverifiable
+- Evidence:
+- Confidence:
+- Limitations:
+
 ## Documentation Mismatches
 
 ### <title>
@@ -1006,6 +1071,12 @@ The parent Agent will load `memory-edit` when appropriate.
 
 Hand off to:
 
+## `knowledge-discovery`
+
+When existing knowledge sources have not yet been inventoried and the task
+requires understanding what the repository already claims about itself
+before verification can proceed meaningfully.
+
 ## `knowledge-classification`
 
 When evidence has been gathered and the next question is:
@@ -1065,6 +1136,8 @@ When changes have been made and repository/memory consistency must be checked.
 * Do not invent history.
 * Do not treat documentation as current automatically.
 * Do not treat code as automatically sufficient proof.
+* Do not treat an existing knowledge source as correct because
+  `knowledge-discovery` found it — verify it like any other claim.
 * Use `codebase-memory` for material graph-based repository claims.
 * Verify exact implementation evidence where necessary.
 * Use source fallback when graph coverage is incomplete.
@@ -1109,6 +1182,8 @@ Documentation compared
 Git history investigated where relevant
         ✓
 Existing memory inspected where relevant
+        ✓
+Existing Knowledge Inventory verified where supplied
         ✓
 Candidate knowledge identified
         ✓

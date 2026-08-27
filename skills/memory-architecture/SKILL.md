@@ -4,8 +4,12 @@ description: >
   Designs and restructures the repository's Project Knowledge / Memory
   architecture for progressive loading, low redundancy, clear knowledge
   ownership, stable navigation, and long-term maintainability. Determines
-  knowledge domains, canonical locations, indexes, cross-references, document
-  boundaries, current-versus-historical separation, and AGENTS.md navigation
+  knowledge domains, canonical locations, indexes, cross-references,
+  document boundaries, current-versus-historical separation, and AGENTS.md
+  navigation. Designs reconstruction plans that consolidate knowledge
+  scattered across multiple pre-existing origin tools (AGENTS.md, CLAUDE.md,
+  .cursor/rules/, .claude/, docs/, and similar) into one canonical
+  architecture, including reconciling competing "primary" entry points,
   without modifying repository files.
 ---
 
@@ -105,13 +109,18 @@ This Skill is responsible for:
 4. Designing domain indexes.
 5. Designing progressive-loading paths.
 6. Maintaining current/history separation.
-7. Detecting structural duplication.
+7. Detecting structural duplication, including duplication across origin
+   tools.
 8. Determining when knowledge should be merged.
 9. Determining when knowledge should be split.
 10. Designing cross-reference relationships.
 11. Keeping `AGENTS.md` small and high-signal.
 12. Designing scalable memory structure as project complexity grows.
-13. Producing an architecture proposal for the parent Agent.
+13. Designing reconstruction plans for knowledge scattered across multiple
+    pre-existing origin tools.
+14. Reconciling competing "primary" entry points (e.g. `AGENTS.md` vs
+    `CLAUDE.md` vs `.cursor/rules/`).
+15. Producing an architecture proposal for the parent Agent.
 
 ---
 
@@ -120,6 +129,8 @@ This Skill is responsible for:
 Do not:
 
 * perform broad repository evidence discovery
+* discover or extract existing knowledge sources — that is
+  `knowledge-discovery`
 * determine whether a repository claim is true
 * invent project knowledge
 * modify documentation files
@@ -133,6 +144,7 @@ Do not:
 Use:
 
 ```text
+knowledge-discovery
 repository-audit
 knowledge-classification
 knowledge-compounding
@@ -149,6 +161,7 @@ when those responsibilities are required.
 Use information supplied by:
 
 ```text
+knowledge-discovery
 knowledge-classification
 knowledge-compounding
 repository-audit
@@ -163,9 +176,11 @@ Knowledge Type
 Current State
 Durability
 Evidence Confidence
+Source Provenance / Origin Tool
 Existing Knowledge
 Existing Locations
-Duplicate Relationships
+Duplicate Relationships (including cross-tool)
+Conflict Resolutions
 Historical Relationships
 Navigation Requirements
 Repository Complexity
@@ -177,7 +192,8 @@ Do not design structure from filenames alone.
 
 # Canonical Ownership
 
-Every durable knowledge concept should have one primary owner.
+Every durable knowledge concept should have one primary owner, regardless of
+how many origin tools currently describe it.
 
 Example:
 
@@ -188,6 +204,7 @@ docs/decisions/authentication.md
 Referenced by:
 docs/architecture/security.md
 AGENTS.md
+CLAUDE.md (thin pointer)
 ```
 
 Not:
@@ -196,6 +213,7 @@ Not:
 AGENTS.md
 docs/architecture/security.md
 README.md
+CLAUDE.md
 docs/decisions/authentication.md
 ```
 
@@ -1184,7 +1202,8 @@ Same historical explanation
 Same solution
 ```
 
-stored in multiple places.
+stored in multiple places — including multiple places produced by different
+origin tools.
 
 Do not solve structural duplication by simply adding links while leaving
 conflicting canonical copies.
@@ -1208,9 +1227,10 @@ Example:
 ```text
 docs/architecture/auth.md
 docs/decisions/authentication-choice.md
+CLAUDE.md (§ Authentication)
 ```
 
-If both contain the same rationale, they overlap.
+If all three contain the same rationale, they overlap.
 
 Possible solution:
 
@@ -1220,6 +1240,9 @@ How authentication works.
 
 Decision:
 Why this authentication architecture was selected.
+
+CLAUDE.md:
+Thin pointer to both.
 ```
 
 Then link them.
@@ -1418,6 +1441,66 @@ contain.
 
 ---
 
+# Reconstruction Architecture (Multi-Source Consolidation)
+
+When the input is an Existing Knowledge Inventory spanning multiple origin
+tools (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `docs/`, etc.), design
+the target architecture around **verified knowledge clusters**, not around
+the files that happened to contain them.
+
+For every cluster classified by `knowledge-classification`, produce a
+mapping:
+
+```text
+Cluster Subject
+      ↓
+Canonical Type (Architecture | Decision | Solution | Lesson | Constraint |
+                Workflow | Reference | History)
+      ↓
+Canonical Target Path
+      ↓
+Origin Sources → Disposition
+    <origin path 1> → Merge into canonical
+    <origin path 2> → Delete (fully redundant once merged)
+    <origin path 3> → Preserve as Historical (explains a past divergence)
+    <origin path 4> → Keep as thin pointer to canonical (tool-specific
+                       entry point that must remain, e.g. CLAUDE.md)
+```
+
+## Dual Entry Point Reconciliation
+
+When `knowledge-discovery` flags competing primary entry points (commonly
+`AGENTS.md` and `CLAUDE.md`, or either of these plus `.cursor/rules/`),
+design one of these outcomes — do not leave the ambiguity unresolved:
+
+```text
+Option A — Single Canonical Entry Point
+AGENTS.md becomes the sole source of navigation and critical rules.
+Other tool-specific files become thin pointers:
+
+  CLAUDE.md:
+    "See AGENTS.md for project rules and navigation. This file exists
+    only for Claude-specific tooling notes, if any."
+
+Option B — Synchronized Parallel Entry Points
+Only when the repository has a genuine reason to need tool-specific
+divergence (rare). Requires an explicit Decision recording why parallel
+entry points are necessary and how they will be kept in sync. Absent that
+justification, prefer Option A.
+```
+
+Do not silently pick Option B by default because it requires less editing.
+Option A is the default; Option B requires justification.
+
+## Reconstruction Is Not Deletion-by-Default
+
+A reconstruction plan must not treat "the file existed before Project
+Memory ran" as a reason to preserve it, nor as a reason to delete it. Each
+origin source's disposition follows from its cluster's verified
+classification, exactly as it would for newly discovered knowledge.
+
+---
+
 # Migration Safety
 
 For every moved or consolidated knowledge unit ensure:
@@ -1433,7 +1516,7 @@ Old navigation removed
         ✓
 Historical status preserved
         ✓
-No duplicate copy remains
+No duplicate copy remains, across all origin tools
 ```
 
 Actual migration belongs to `memory-edit`.
@@ -1559,7 +1642,7 @@ Use:
 ### Current Structure
 
 ```text
-<current relevant structure>
+<current relevant structure, including all origin tools found>
 ````
 
 ### Problems
@@ -1568,6 +1651,7 @@ Use:
 * <navigation issue>
 * <ownership issue>
 * <progressive-loading issue>
+* <competing entry points>
 
 ### Proposed Structure
 
@@ -1578,8 +1662,14 @@ Use:
 ### Canonical Ownership
 
 | Knowledge   | Primary Owner | Related References |
-| ----------- | ------------- | ------------------ |
-| <knowledge> | <path>        | <paths>            |
+| ----------- | -------------- | ------------------- |
+| <knowledge> | <path>         | <paths>             |
+
+### Existing Source Disposition
+
+| Origin Source | Disposition | Canonical Target |
+|---|---|---|
+| `<path>` | Merge / Delete / Historical / Thin Pointer | `<target path or N/A>` |
 
 ### Progressive Loading
 
@@ -1663,10 +1753,11 @@ Status: Keep Current Structure
 
 Reason:
 
-- Knowledge ownership is clear.
+- Knowledge ownership is clear, across all origin tools examined.
 - Progressive loading is adequate.
 - No significant duplication was identified.
 - Existing navigation is sufficient.
+- No competing entry points requiring reconciliation.
 
 Recommended Changes:
 
@@ -1689,11 +1780,13 @@ Can the Agent avoid loading unrelated knowledge?
 
 ## Ownership
 
-Does each important concept have one canonical home?
+Does each important concept have one canonical home, across all origin
+tools?
 
 ## Duplication
 
-Is the same rationale stored in multiple places?
+Is the same rationale stored in multiple places, including across
+different origin tools?
 
 ## Lifecycle
 
@@ -1706,6 +1799,11 @@ Does each document represent a meaningful retrieval unit?
 ## Navigation
 
 Do indexes help an Agent choose what to read?
+
+## Entry Points
+
+Is there exactly one canonical Agent-facing entry point, with any others
+reduced to thin pointers or explicitly justified as synchronized parallels?
 
 ## Stability
 
@@ -1728,7 +1826,8 @@ Can common tasks reach relevant knowledge with minimal context?
 * Do not create placeholder files.
 * Do not force every knowledge category into every repository.
 * Do not mirror the source-code directory tree automatically.
-* Do not duplicate knowledge across documents.
+* Do not duplicate knowledge across documents, including across different
+  origin tools.
 * Do not create multiple canonical owners.
 * Do not put detailed knowledge into `AGENTS.md`.
 * Do not turn indexes into duplicate knowledge databases.
@@ -1739,6 +1838,11 @@ Can common tasks reach relevant knowledge with minimal context?
 * Do not design from filenames alone.
 * Do not invent knowledge.
 * Do not determine repository truth without evidence.
+* Do not leave two files simultaneously acting as the canonical entry point
+  or the canonical description of the same concept without an explicit,
+  justified reason.
+* Do not default to preserving a pre-existing file's location or role
+  merely because reconstruction requires more effort than leaving it alone.
 * Do not modify repository files.
 * Do not claim migration completion.
 * Do not claim final verification.
@@ -1757,11 +1861,13 @@ The architecture task is complete when:
 ```text
 Knowledge inputs understood
         ✓
-Current structure inspected
+Current structure inspected, across all origin tools
         ✓
 Canonical ownership considered
         ✓
-Duplicate structure identified
+Duplicate structure identified, including cross-tool duplication
+        ✓
+Competing entry points reconciled
         ✓
 Document boundaries evaluated
         ✓
@@ -1779,6 +1885,8 @@ Retrieval scenarios tested conceptually
         ✓
 Growth path considered
         ✓
+Existing source disposition mapped
+        ✓
 No unnecessary scaffolding proposed
         ✓
 No repository files modified
@@ -1792,12 +1900,13 @@ Architecture proposal returned
 # Final Principle
 
 The Project Memory architecture should make the repository's accumulated
-engineering knowledge behave like a well-designed information system.
+engineering knowledge — however many different tools and Agents produced
+it — behave like a well-designed information system.
 
 The desired model is:
 
 ```text
-Engineering Knowledge
+Engineering Knowledge (any origin)
         ↓
 Canonical Ownership
         ↓
@@ -1815,4 +1924,4 @@ The best architecture is not the one with the most categories.
 It is the one where a future Agent can reliably answer:
 
 > "I need to understand X. What is the smallest amount of authoritative
-> knowledge I need to load?"
+> knowledge I need to load — and is there only one place that could be?"
