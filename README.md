@@ -28,120 +28,86 @@ documentation to leave alone while adding its own files next to it.
 
 ## Table of Contents
 
-- [About The Project](#about-the-project)
+- [Quick Start](#quick-start)
 - [Why Project Memory](#why-project-memory)
-- [The Core Idea](#the-core-idea)
-- [Existing Knowledge Is Not Ground Truth](#existing-knowledge-is-not-ground-truth)
 - [How It Works](#how-it-works)
-- [Architecture](#architecture)
-- [Key Features](#key-features)
-- [Installation](#installation)
 - [Usage](#usage)
-- [Memory Structure](#memory-structure)
 - [Skills](#skills)
-- [Specialized Agents](#specialized-agents)
+- [Memory Structure](#memory-structure)
 - [Design Principles](#design-principles)
-- [Project Status](#project-status)
-- [Roadmap](#roadmap)
+- [Project Status & Roadmap](#project-status--roadmap)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 ---
 
-## About The Project
+## Quick Start
 
-AI coding agents are becoming increasingly capable.
+### Install (Windows PowerShell)
 
-However, they still have a fundamental limitation:
-
-**They repeatedly have to rediscover the same project knowledge — and,
-increasingly, they repeatedly write their own competing copy of it.**
-
-A real software repository contains far more knowledge than its source code:
-
-- Architectural decisions
-- Rejected approaches
-- Compatibility constraints
-- Implementation rationale
-- Historical migrations
-- Debugging lessons
-- Development workflows
-- Operational procedures
-- Project-specific conventions
-- Known limitations
-- Constraints imposed by external systems
-
-Some of this knowledge exists in documentation.
-
-Some exists in Git history.
-
-Some exists only in the implementation.
-
-Some exists only because an engineer previously discovered that a particular
-approach does not work.
-
-And, increasingly, some of it exists three different times — once in
-`AGENTS.md`, once in `CLAUDE.md`, once in `.cursor/rules/` — written by
-different Agents or AI IDEs at different times, quietly disagreeing with
-each other.
-
-Without a durable memory system, future agents repeatedly reconstruct this
-knowledge from scratch, or worse, add a fourth competing copy on top of the
-three that already exist.
-
-Project Memory is designed to solve both problems: the missing-knowledge
-problem and the fragmented-knowledge problem.
-
-It turns scattered, multi-source repository knowledge into one maintained,
-evidence-backed memory system that future agents can progressively load
-when they need it.
-
----
-
-## Why Project Memory?
-
-Traditional documentation tends to accumulate.
-
-Project Memory is designed to **compound and reconcile**.
-
-```text
-Existing Project Knowledge (any origin: human, Agent, AI IDE)
-       │
-       ▼
-Discover
-       │
-       ▼
-Verify Against Repository Evidence
-       │
-       ▼
-Classify, Deduplicate, Resolve Conflicts
-       │
-       ▼
-Compound New Learning
-       │
-       ▼
-Reconstruct Into One Architecture
-       │
-       ▼
-Future Agent
-       │
-       ▼
-Less Rediscovery, No Competing Copies
-       │
-       ▼
-Better Engineering Work
+```powershell
+irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
 ```
 
-The goal is not to document everything.
+The installer downloads the Project Memory Agent and its 8 Skills from this
+repository and copies them into your chosen agent's **global** config
+directory. Pick a target from the menu:
 
-The goal is not to add a new file next to every existing one.
+```text
+1 OpenCode  2 Codex  3 Claude  4 All  Q Quit
+```
 
-The goal is to preserve the knowledge that materially improves future
-engineering decisions — in exactly one authoritative place, regardless of
-how many tools or agents originally wrote a version of it down.
+| Target | Skills | Agent |
+|--------|--------|-------|
+| OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
+| Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
+| Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
 
-### The Problem
+Run via `irm | iex` (stdin redirected), the installer defaults to `all`
+non-interactively. `all` writes skills to `~/.claude/skills` (covers both
+Claude and OpenCode) and `~/.agents/skills` (Codex), plus the agent in each
+tool's native format — without double-loading OpenCode.
+
+From a local checkout, additional options are available:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ./install.ps1 -Target all   # skip the menu
+powershell -ExecutionPolicy Bypass -File ./install.ps1 -Verify       # dry-run, no writes
+powershell -ExecutionPolicy Bypass -File ./install.ps1 -Branch dev   # install from a branch
+```
+
+Codex note: spawning subagents requires `[features] multi_agent = true` in
+`~/.codex/config.toml`. The installer prints this hint but never edits your
+config.
+
+### Use
+
+Once installed, invoke the orchestrator in your agent:
+
+```text
+@project-memory
+```
+
+It discovers any existing knowledge sources, inspects the repository,
+determines the current state of project memory, and reports what should be
+retained, changed, merged, moved, or removed — across every origin tool it
+finds, not only its own prior output.
+
+### Manual Install (any platform)
+
+Clone the repository and copy `agents/` and `skills/` into your agent's
+configuration directory, following the table above.
+
+```bash
+git clone https://github.com/LoveDoLove/Project-Memory-Agent.git
+```
+
+---
+
+## Why Project Memory
+
+AI coding agents repeatedly rediscover the same project knowledge — and,
+increasingly, they repeatedly write their own competing copy of it.
 
 Without durable, reconciled project memory:
 
@@ -188,599 +154,104 @@ Agent C
   └── starts further ahead
 ```
 
----
-
-## The Core Idea
-
-Project Memory is built around one principle:
+The core principle:
 
 > **Engineering knowledge should become more useful over time — and there
 > should only ever be one authoritative copy of it.**
 
-This means memory should not simply grow.
-
-It should become:
-
-- More accurate
-- More structured
-- Less redundant
-- Easier to retrieve
-- Better separated by lifecycle
-- More strongly supported by evidence
-- **Consolidated**, even when it originally came from several different
-  tools that never talked to each other
-
-A larger `docs/` directory is not necessarily better memory.
-
-Five files that each partially describe the same subsystem are not five
-times better than one that fully describes it — they are a maintenance
-liability and a source of future contradictions.
-
-A better memory system contains the **right knowledge in the right place,
-in exactly one place**.
-
----
-
-## Existing Knowledge Is Not Ground Truth
-
-This is the operating principle that distinguishes Project Memory from a
-simple documentation generator.
-
-A repository that has been touched by more than one Agent, AI IDE, or
-engineer almost always already contains an informal, undocumented merge
-conflict in its project knowledge — it just hasn't been run yet.
-
-Project Memory assumes, by default, that any pre-existing knowledge source
-is:
-
-```text
-AGENTS.md
-CLAUDE.md
-.cursor/rules/
-.cursorrules
-.windsurfrules
-.github/copilot-instructions.md
-.claude/
-skills/
-agents/
-README.md
-docs/
-docs/adr/ or docs/decisions/
-generated AI documentation
-prior Project Memory output
-other AI-IDE- or Agent-produced context
-```
-
-a **candidate knowledge source that requires verification** — not an
-authoritative record simply because it exists, looks polished, or was
-written by another capable Agent.
-
-The default outcome of a Project Memory task is therefore **not**:
-
-```text
-Original files, left untouched
-        +
-New Project Memory files, added alongside
-```
-
-It is:
-
-```text
-Existing knowledge, discovered, verified, deduplicated,
-conflict-resolved, and reconstructed into one architecture
-```
-
-If existing memory turns out to already be accurate and well organized, the
-correct action may be to keep it largely as-is — but that is a conclusion
-reached after verification, never an assumption made at the start.
+Every pre-existing knowledge source (`AGENTS.md`, `CLAUDE.md`,
+`.cursor/rules/`, prior AI-IDE output, human notes) is treated as a
+**candidate that requires verification** — never as ground truth simply
+because it exists, looks polished, or was written by another capable Agent.
+The default outcome is reconstruction into one architecture, not new files
+added alongside unexamined old ones.
 
 ---
 
 ## How It Works
 
-Project Memory uses a primary orchestrator with specialized Skills.
+Project Memory uses a primary orchestrator with specialized Skills:
 
 ```text
-                         ┌─────────────────────┐
-                         │   Project Memory    │
-                         │       Agent         │
-                         │    Orchestrator     │
-                         └──────────┬──────────┘
-                                    │
-             ┌───────────────────┬─┴─┬───────────────────┐
-             │                   │   │                   │
-             ▼                   ▼   ▼                   ▼
-    Knowledge Discovery   Repository Audit   Knowledge Model   Memory Architecture
-   (existing sources,          │                   │                  │
-    all origins)               │                   │                  │
-             │                 └───────────────────┼──────────────────┘
-             │                                     │
-             └─────────────────────────────────────┤
-                                                     ▼
-                                          Knowledge Classification
-                                                     │
-                                                     ▼
-                                          Knowledge Compounding
-                                                     │
-                                                     ▼
-                                           Obsolete Knowledge
-                                                     │
-                                                     ▼
-                                                Memory Edit
-                                                     │
-                                                     ▼
-                                          Memory Verification
+                          ┌─────────────────────┐
+                          │   Project Memory    │
+                          │       Agent         │
+                          │    Orchestrator     │
+                          └──────────┬──────────┘
+                                     │
+              ┌───────────────────┬─┴─┬───────────────────┐
+              │                   │   │                   │
+              ▼                   ▼   ▼                   ▼
+     Knowledge Discovery   Repository Audit   Knowledge Model   Memory Architecture
+    (existing sources,          │                   │                  │
+     all origins)               │                   │                  │
+              │                 └───────────────────┼──────────────────┘
+              │                                     │
+              └─────────────────────────────────────┤
+                                                      ▼
+                                           Knowledge Classification
+                                                      │
+                                                      ▼
+                                           Knowledge Compounding
+                                                      │
+                                                      ▼
+                                            Obsolete Knowledge
+                                                      │
+                                                      ▼
+                                                 Memory Edit
+                                                      │
+                                                      ▼
+                                           Memory Verification
 ```
 
-The orchestrator decides which Skills are required for the current task.
-
-It does not need to load every Skill for every request — but whenever the
-repository already contains pre-existing knowledge sources and the task is
-a full audit, an initial build, or a reconstruction request, **Knowledge
-Discovery runs first**, before anything else touches memory.
-
----
-
-## The Memory Loop
-
-A typical Project Memory operation follows:
+A typical operation follows the memory loop:
 
 ```text
-1. Understand & Discover Existing Knowledge
-      ↓
-2. Discover Repository Evidence
-      ↓
-3. Verify (including every claim pulled from existing sources)
-      ↓
-4. Compare
-      ↓
-5. Classify (deduplicate + resolve cross-source conflicts)
-      ↓
-6. Compound
-      ↓
-7. Architect (reconstruction, not just addition)
-      ↓
-8. Clean obsolete knowledge, regardless of origin tool
-      ↓
-9. Edit (including multi-source consolidation and thin-pointer conversion)
-      ↓
-10. Verify again
+ 1. Understand & discover existing knowledge
+ 2. Discover repository evidence
+ 3. Verify (including every claim pulled from existing sources)
+ 4. Classify (deduplicate + resolve cross-source conflicts)
+ 5. Compound
+ 6. Architect (reconstruction, not just addition)
+ 7. Clean obsolete knowledge, regardless of origin tool
+ 8. Edit (including multi-source consolidation)
+ 9. Verify again
 ```
 
-This makes memory maintenance a knowledge-migration and reconciliation
-workflow, not merely a documentation-writing exercise.
-
----
-
-## Architecture
-
-### Progressive Loading
-
-`AGENTS.md` is the primary entry point.
-
-A future agent should not need to load the entire documentation tree — and
-should never need to guess which of several competing entry points
-(`AGENTS.md`? `CLAUDE.md`? `.cursor/rules/`?) is actually authoritative.
-
-Instead:
-
-```text
-AGENTS.md
-    │
-    ▼
-Relevant Domain Index
-    │
-    ▼
-Focused Knowledge Unit
-    │
-    ▼
-Related Detail
-```
-
-For example:
-
-```text
-AGENTS.md
-    ↓
-docs/architecture/README.md
-    ↓
-docs/architecture/security/authentication.md
-    ↓
-docs/decisions/security/authentication.md
-```
-
-Only the knowledge required for the current task needs to be loaded.
-
-If the repository has tool-specific entry points like `CLAUDE.md` or
-`.cursor/rules/`, Project Memory reconciles them into thin pointers back to
-`AGENTS.md` rather than letting them silently diverge into a second
-"primary" source of truth.
-
----
-
-### Knowledge Architecture
-
-A typical repository may look like:
-
-```text
-repository/
-│
-├── AGENTS.md
-├── CLAUDE.md            (thin pointer to AGENTS.md, if present)
-│
-└── docs/
-    │
-    ├── architecture/
-    │   ├── README.md
-    │   └── focused-topic.md
-    │
-    ├── decisions/
-    │   ├── README.md
-    │   └── focused-decision.md
-    │
-    ├── lessons/
-    │   ├── README.md
-    │   └── focused-lesson.md
-    │
-    ├── workflows/
-    │   ├── README.md
-    │   └── focused-workflow.md
-    │
-    ├── constraints/
-    │   ├── README.md
-    │   └── focused-constraint.md
-    │
-    ├── reference/
-    │   ├── README.md
-    │   └── focused-reference.md
-    │
-    └── history/
-        ├── README.md
-        └── historical-unit.md
-```
-
-This is a pattern, not a mandatory directory structure.
-
-Project Memory should create only domains containing useful knowledge, and
-should consolidate — not merely add to — whatever domains already exist
-under a different convention (for example `docs/adr/` instead of
-`docs/decisions/`).
-
----
-
-## Key Features
-
-### Existing Knowledge Discovery
-
-Before creating anything new, Project Memory inventories what the
-repository already claims about itself.
-
-It scans known conventions across the AI-agent and AI-IDE ecosystem:
-
-```text
-AGENTS.md
-CLAUDE.md
-.cursor/rules/  ·  .cursorrules  ·  .windsurfrules
-.github/copilot-instructions.md
-.claude/ (commands, skills, agents, settings)
-skills/  ·  agents/
-README.md  ·  CONTRIBUTING.md
-docs/  ·  docs/adr/  ·  docs/decisions/
-generated AI documentation
-prior Project Memory output
-```
-
-For every claim it finds, it records **where the claim came from** — the
-file, the tool/convention, the apparent authorship (human, AI Agent, AI
-IDE, or unknown) — and groups claims describing the same subject into
-clusters, flagging each cluster as consistent, redundant, conflicting, or
-complementary.
-
-This inventory is the input to verification and classification. It is
-never treated as approved memory on its own.
-
----
-
-### Evidence-Based Memory
-
-Project Memory verifies important repository claims against available
-evidence — including every claim pulled from a pre-existing knowledge
-source.
-
-Relevant evidence can include:
-
-- Source code
-- Tests
-- Configuration
-- Build configuration
-- CI/CD
-- Dependency manifests
-- Git history
-- Documentation
-- Repository indexes
-
-When available, `codebase-memory` can provide graph-based repository
-evidence before direct source inspection is used as a fallback.
-
-The important distinction is:
-
-```text
-Documentation
-      ≠
-Evidence
-
-Existing Knowledge Source
-      ≠
-Verified Fact
-```
-
-A claim must be checked against repository reality when it matters —
-regardless of which tool or Agent originally wrote it down.
-
----
-
-### Knowledge Classification
-
-Project Memory separates knowledge into meaningful categories:
-
-```text
-Current Facts
-Architecture
-Decisions
-Lessons
-Constraints
-Workflows
-Reference
-Historical Context
-Obsolete / Invalid
-```
-
-Not everything discovered during an audit deserves permanent memory —
-including content produced by a previous Agent session.
-
----
-
-### Current-State Awareness
-
-Significant project knowledge can be classified as:
-
-```text
-Current
-In Progress
-Partial
-Experimental
-Deprecated
-Superseded
-Abandoned
-Historical
-Unknown
-```
-
-This prevents old information from silently appearing to be current
-guidance — whether that old information lives in a Project-Memory-authored
-file or in a `CLAUDE.md` nobody has revisited in months.
-
----
-
-### Cross-Source Conflict Resolution
-
-When two or more existing knowledge sources disagree — for example
-`AGENTS.md` says "use pnpm" while `.cursor/rules/setup.md` says
-"npm install" — Project Memory resolves the conflict with repository
-evidence, not by preferring whichever file looks newest or most polished.
-
-```text
-Conflicting Claims
-        ↓
-Repository Evidence
-        ↓
-One claim confirmed, others corrected or removed
-        or
-Claims apply to different, non-conflicting scopes
-        or
-Neither claim matches current reality — a new fact is established
-```
-
-The resolution, and the reasoning behind it, is recorded — not just the
-outcome.
-
----
-
-### Knowledge Compounding
-
-Project Memory captures knowledge that has long-term engineering value,
-whether it comes from newly completed work or from rationale buried inside
-an existing knowledge source that was never formally captured.
-
-Useful knowledge should help future agents:
-
-- Understand a non-obvious project fact
-- Avoid repeating previous research
-- Avoid a known mistake
-- Understand an architectural decision
-- Understand why an alternative was rejected
-- Make a better implementation decision
-- Continue a migration correctly
-
-The objective is:
-
-> **More leverage, not more documents — and not more competing documents.**
-
----
-
-### Obsolete Knowledge Management
-
-Project Memory actively looks for:
-
-- Removed implementations
-- Abandoned approaches
-- Superseded architecture
-- Removed dependencies
-- Obsolete workflows
-- Invalid commands
-- Stale workarounds
-- Completed migrations
-- Outdated project structures
-- Existing knowledge sources that duplicate or contradict verified current
-  knowledge
-- Existing knowledge sources that no longer match the repository at all
-
-Obsolete information can be:
-
-```text
-Deleted
-Preserved as Historical
-Marked Deprecated
-Marked Superseded
-```
-
-This applies identically regardless of which tool or Agent produced the
-obsolete content — a stale section in `CLAUDE.md` gets the same scrutiny as
-a stale document in `docs/`.
-
-Historical knowledge is retained when it explains something important about
-the current system.
-
----
-
-### Canonical Knowledge Ownership
-
-Important knowledge should have one primary home — even if it currently
-exists in three different files produced by three different tools.
-
-For example:
-
-```text
-Primary:
-docs/decisions/security/authentication.md
-
-Referenced by:
-AGENTS.md
-docs/architecture/security-model.md
-CLAUDE.md (thin pointer)
-```
-
-Project Memory avoids maintaining multiple independent copies of the same
-rationale, and actively consolidates copies it finds spread across
-different origin tools.
-
----
-
-### Dual Entry Point Reconciliation
-
-When a repository has more than one file competing to be the "primary"
-Agent-facing entry point — most commonly `AGENTS.md` and `CLAUDE.md`, or
-either of these plus `.cursor/rules/` — Project Memory resolves the
-ambiguity rather than leaving both in place to silently drift apart.
-
-The default resolution is a single canonical entry point (`AGENTS.md`),
-with other tool-specific files reduced to a thin pointer:
-
-```markdown
-<!-- CLAUDE.md -->
-See [AGENTS.md](./AGENTS.md) for project rules, architecture orientation,
-and documentation navigation. This file is intentionally kept minimal.
-```
-
-Genuinely synchronized parallel entry points are only kept when the
-repository has an explicit, evidence-backed reason to need tool-specific
-divergence — that is the exception, not the default.
-
----
-
-### Final Verification
-
-Memory changes are not considered complete simply because Markdown files
-were created, moved, or merged.
-
-The final verification stage checks:
-
-```text
-Repository consistency
-Knowledge consistency
-Lifecycle state
-Duplicate ownership, across every origin tool
-Historical boundaries
-Supersession
-References
-Navigation
-Progressive loading
-Migration completeness
-Entry-point reconciliation
-Evidence limitations
-```
-
-The final verification result is:
-
-```text
-PASS
-PASS WITH WARNINGS
-FAIL
-BLOCKED
-```
-
----
-
-## Installation
-
-Project Memory is designed for coding-agent environments that support
-agent/subagent and Skill-style workflows.
-
-### Quick Install (Windows PowerShell)
-
-```powershell
-irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
-```
-
-The installer downloads the Project Memory Agent and its 8 Skills from this
-repository and copies them into your chosen agent's **global** config
-directory. Pick a target from the menu:
-
-```text
-1 OpenCode  2 Codex  3 Claude  4 All  Q Quit
-```
-
-| Target | Skills | Agent |
-|--------|--------|-------|
-| OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
-| Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
-| Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
-
-Run via `irm | iex` (stdin redirected), the installer defaults to `all`
-non-interactively. `all` writes skills to `~/.claude/skills` (covers both
-Claude and OpenCode) and `~/.agents/skills` (Codex), plus the agent in each
-tool's native format — without double-loading OpenCode.
-
-From a local checkout, additional options are available:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File ./install.ps1 -Target all   # skip the menu
-powershell -ExecutionPolicy Bypass -File ./install.ps1 -Verify       # dry-run, no writes
-powershell -ExecutionPolicy Bypass -File ./install.ps1 -Branch dev   # install from a branch
-```
-
-Codex note: spawning subagents requires `[features] multi_agent = true` in
-`~/.codex/config.toml`. The installer prints this hint but never edits your
-config.
-
-### Manual Install (any platform)
-
-Clone the repository and copy `agents/` and `skills/` into your agent's
-configuration directory, following the table above.
-
-```bash
-git clone https://github.com/LoveDoLove/Project-Memory-Agent.git
-```
-
-Once installed, invoke the orchestrator:
-
-```text
-@project-memory
-```
-
-The Project Memory Agent determines which specialized Skills should be loaded
-for the task — including `knowledge-discovery`, if the target repository
-already has pre-existing knowledge sources.
+Whenever the repository already contains pre-existing knowledge sources and
+the task is a full audit, an initial build, or a reconstruction request,
+**knowledge-discovery runs first** — discovery tells the agent *what claims
+exist to verify*; audit tells it *whether they are true*.
+
+### Key Features
+
+- **Existing-knowledge discovery** — inventories every pre-existing source
+  (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.claude/`, ADRs, generated
+  AI docs, …) with provenance: origin path, tool, authorship, and overlap /
+  conflict clusters.
+- **Evidence-based memory** — important claims are verified against source
+  code, tests, config, build/CI, and Git history. Documentation ≠ evidence.
+- **Knowledge classification** — current facts, architecture, decisions,
+  solutions, lessons, constraints, workflows, reference, history, obsolete.
+- **Current-state awareness** — Current / In-Progress / Deprecated /
+  Superseded / Historical / Unknown statuses keep old guidance from looking
+  current.
+- **Cross-source conflict resolution** — `AGENTS.md` says pnpm,
+  `.cursor/rules/` says npm? Resolved by repository evidence, not by
+  whichever file looks newest.
+- **Knowledge compounding** — completed work and buried rationale become
+  reusable Solutions and Lessons, not more documents.
+- **Obsolete-knowledge management** — stale content is deleted, marked
+  deprecated/superseded, or preserved as history, regardless of which tool
+  produced it.
+- **Canonical ownership** — one primary home per concept; everything else
+  references it.
+- **Dual entry-point reconciliation** — competing `AGENTS.md` / `CLAUDE.md`
+  / `.cursor/rules/` entry points collapse into one canonical entry point
+  plus thin pointers.
+- **Final verification gate** — repository consistency, duplicate ownership,
+  references, navigation, migration completeness → PASS / PASS WITH
+  WARNINGS / FAIL / BLOCKED.
 
 ---
 
@@ -788,18 +259,14 @@ already has pre-existing knowledge sources.
 
 ### Audit an Entire Project
 
-Start the Project Memory Agent:
-
 ```text
 @project-memory
 ```
 
-It should discover any existing knowledge sources, inspect the repository,
-determine the existing state of its project memory, and report what should
+The agent discovers existing knowledge sources, inspects the repository,
+determines the existing state of its project memory, and reports what should
 be retained, changed, merged, moved, or removed — across every origin tool
 it finds, not only its own prior output.
-
----
 
 ### Audit a Specific Domain
 
@@ -809,28 +276,10 @@ it finds, not only its own prior output.
 Audit the authentication architecture and update the project memory.
 ```
 
-The agent should:
+Only the relevant repository scope is investigated when the task is clearly
+bounded.
 
-```text
-Discover (existing sources describing authentication, if any)
-    ↓
-Verify
-    ↓
-Compare
-    ↓
-Classify
-    ↓
-Update
-    ↓
-Verify
-```
-
-Only the relevant repository scope should be investigated when the task is
-clearly bounded.
-
----
-
-### Build Project Memory in a Repository That Already Has Documentation
+### Build Memory in a Repository That Already Has Documentation
 
 ```text
 @project-memory
@@ -839,22 +288,10 @@ Build the initial project memory for this repository. It already has an
 AGENTS.md, a CLAUDE.md, and some notes under docs/.
 ```
 
-The agent should determine:
-
-- What knowledge already exists, and where — across every origin tool
-- What knowledge is missing
-- What documentation is stale, redundant, or contradictory across sources
-- Which decisions matter
-- Which lessons are worth preserving
-- Which knowledge belongs in history
-- How the resulting, single, reconciled memory should be structured
-
 The result is a reconstructed memory system — not the original files left
 untouched with new files added beside them.
 
----
-
-### Reconstruct Fragmented or Conflicting Memory
+### Reconcile Fragmented or Conflicting Memory
 
 ```text
 @project-memory
@@ -863,14 +300,10 @@ Our AGENTS.md, CLAUDE.md, and .cursor/rules/ all describe the build process
 differently. Reconcile them.
 ```
 
-The agent loads `knowledge-discovery` to inventory all three sources,
-`repository-audit`/`codebase-memory` to determine which claim (if any)
-matches reality, `knowledge-classification` to resolve the conflict with
-evidence, and `memory-architecture` + `memory-edit` to consolidate them into
-one canonical description with the other files reduced to thin pointers or
-removed.
-
----
+The agent inventories all three sources, verifies which claim (if any)
+matches reality, resolves the conflict with evidence, and consolidates them
+into one canonical description with the other files reduced to thin pointers
+or removed.
 
 ### Update Memory After Engineering Work
 
@@ -880,133 +313,8 @@ removed.
 Review the changes from this feature and compound any durable project knowledge.
 ```
 
-This is where Project Memory becomes useful as a long-term system rather than a
-one-time documentation generator.
-
----
-
-## Memory Structure
-
-### `AGENTS.md`
-
-The primary progressive-loading entry point.
-
-It should contain only high-signal information:
-
-- Project identity
-- Critical always-read rules
-- Minimal architecture orientation
-- Critical constraints
-- Verification requirements
-- Documentation navigation
-- References to detailed knowledge
-
-It should **not** become the entire project knowledge base, and it should
-be the **only** file playing this role — other tool-specific entry points
-should point to it rather than maintaining a parallel, potentially
-divergent copy.
-
----
-
-### `docs/architecture/`
-
-Architecture knowledge.
-
-Examples:
-
-```text
-System architecture
-Module boundaries
-Data flow
-State ownership
-Trust boundaries
-Integration architecture
-```
-
----
-
-### `docs/decisions/`
-
-Important engineering and architectural decisions.
-
-A meaningful decision may capture:
-
-```text
-Status
-Context
-Decision
-Rationale
-Alternatives
-Rejected Alternatives
-Consequences
-Trade-offs
-Stability
-Evidence
-```
-
----
-
-### `docs/lessons/`
-
-Reusable engineering lessons.
-
-Preferred structure:
-
-```text
-Problem
-Root Cause
-Incorrect Approach
-Correct Approach
-Why It Matters
-Future Guidance
-```
-
-Raw terminal logs and debugging noise do not belong here.
-
----
-
-### `docs/workflows/`
-
-Repeatable procedures for:
-
-- Development
-- Testing
-- Verification
-- Release
-- Operations
-- Agent workflows
-
----
-
-### `docs/constraints/`
-
-Important non-negotiable boundaries.
-
-Examples:
-
-- Security
-- Compatibility
-- Platform
-- Runtime
-- External services
-- Repository-specific restrictions
-
----
-
-### `docs/reference/`
-
-Useful on-demand knowledge that does not normally belong in the initial
-context.
-
----
-
-### `docs/history/`
-
-Historical information that still provides meaningful engineering context —
-including the history of why a repository's knowledge was once fragmented
-across multiple tools, when that history is worth keeping.
-
-Historical knowledge should not masquerade as current operational guidance.
+This is where Project Memory becomes useful as a long-term system rather
+than a one-time documentation generator.
 
 ---
 
@@ -1026,55 +334,63 @@ responsibility inside one enormous Agent prompt.
 | `memory-edit`               | Apply approved documentation changes, including multi-source consolidation |
 | `memory-verification`       | Perform the final consistency and quality gate                     |
 
-The Project Memory Agent orchestrates these Skills progressively.
+The Project Memory Agent orchestrates these Skills progressively — you do
+not normally need to invoke each Skill manually.
 
-`knowledge-discovery` is the mandatory first step whenever a full audit, an
-initial build, or a reconstruction task encounters a repository that already
-has knowledge sources — which, in practice, is most repositories.
+When available, the agent can also delegate to specialized agents:
 
-You do not normally need to invoke each Skill manually.
-
----
-
-## Specialized Agents
-
-Project Memory can also delegate repository work to specialized agents when
-available.
-
-### `codebase-memory`
-
-Used as a read-only repository evidence layer.
-
-It helps answer questions such as:
-
-- Where does functionality exist?
-- How are modules related?
-- Is an abstraction actually used?
-- What are the relevant call paths?
-- Does the implementation support a documentation claim?
-- Does the implementation support a claim pulled from an existing
-  `AGENTS.md`, `CLAUDE.md`, or `.cursor/rules/` file?
-
-Graph evidence is treated as evidence, not as permission to modify the
-repository.
+- **`codebase-memory`** — read-only graph-based repository evidence layer
+  (where functionality exists, module relationships, call paths, whether
+  implementation supports a documented claim).
+- **`cavecrew-builder`** — bounded mechanical edits (typo fixes, broken
+  links, path updates, single-file thin-pointer conversions). Never for
+  multi-source consolidation.
 
 ---
 
-### `cavecrew-builder`
+## Memory Structure
 
-Used for bounded mechanical edits when available.
+`AGENTS.md` is the primary progressive-loading entry point. It contains only
+high-signal information — project identity, critical rules, minimal
+architecture orientation, verification requirements, and documentation
+navigation — and is the **only** file playing this role. Other tool-specific
+entry points point to it rather than maintaining parallel, divergent copies.
 
-Typical use cases include:
+```text
+AGENTS.md
+    ↓
+docs/<domain>/README.md        (domain index)
+    ↓
+docs/<domain>/<topic>.md       (focused knowledge unit)
+    ↓
+related knowledge, only when required
+```
 
-- Small documentation corrections
-- Broken link fixes
-- Path updates
-- Typo corrections
-- A single thin-pointer conversion (one file, text already drafted)
-- Small focused mechanical changes
+A typical repository may look like:
 
-Large architectural changes and multi-source consolidations should not be
-delegated as mechanical edits.
+```text
+repository/
+│
+├── AGENTS.md
+├── CLAUDE.md            (thin pointer to AGENTS.md, if present)
+│
+└── docs/
+    ├── architecture/    # how the current system works
+    ├── decisions/       # why the project chose each direction
+    ├── lessons/         # reusable engineering lessons
+    ├── workflows/       # repeatable procedures (dev, test, release, ops)
+    ├── constraints/     # non-negotiable boundaries (security, compatibility)
+    ├── reference/       # useful on-demand knowledge
+    └── history/         # old context that still explains the present
+```
+
+This is a pattern, not a mandatory scaffold. Only domains containing useful
+verified knowledge are created; existing conventions (e.g. `docs/adr/`
+instead of `docs/decisions/`) are adapted to, not force-renamed.
+
+Each knowledge unit carries frontmatter metadata (title, type, status,
+stability, scope, evidence, related) and one independently retrievable
+concept in its Markdown body.
 
 ---
 
@@ -1098,14 +414,13 @@ context.
 ### One Knowledge, One Owner — Across Every Tool
 
 Important knowledge should have one canonical source, even when it started
-out duplicated across several different tools' memory files.
-
-Use references instead of maintaining duplicate copies.
+out duplicated across several different tools' memory files. Use references
+instead of maintaining duplicate copies.
 
 ### Progressive Loading
 
-Agents should load only the knowledge relevant to the current task, from
-one unambiguous entry point.
+Agents should load only the knowledge relevant to the current task, from one
+unambiguous entry point.
 
 ### Small Knowledge Units
 
@@ -1113,10 +428,9 @@ A knowledge file should represent one independently retrievable concept.
 
 ### Compound, Don't Accumulate
 
-Every retained knowledge unit should provide future engineering value.
-
-More documentation does not automatically mean better memory, and more
-competing copies of the same fact never do.
+Every retained knowledge unit should provide future engineering value. More
+documentation does not automatically mean better memory, and more competing
+copies of the same fact never do.
 
 ### Verification Is Mandatory
 
@@ -1125,27 +439,19 @@ including documentation Project Memory itself wrote in a previous run.
 
 ### Unknown Is a Valid State
 
-When evidence is insufficient:
-
-```text
-Unknown
-```
-
-is better than an invented answer, and better than silently trusting
-whichever existing source happened to be found first.
+When evidence is insufficient, `Unknown` is better than an invented answer,
+and better than silently trusting whichever existing source happened to be
+found first.
 
 ### Preserve Useful History
 
 Historical knowledge should be removed only when it has no remaining
-explanatory value.
-
-A rejected architectural approach can be important even after the
-implementation has disappeared — and even if the only remaining record of
-it lived in a `CLAUDE.md` nobody had opened in a year.
+explanatory value. A rejected architectural approach can be important even
+after the implementation has disappeared.
 
 ---
 
-## Project Status
+## Project Status & Roadmap
 
 Project Memory currently includes the core agent orchestration and memory
 lifecycle:
@@ -1154,41 +460,19 @@ lifecycle:
 [x] Project Memory orchestrator
 [x] Existing-knowledge discovery (multi-source, multi-tool)
 [x] Repository audit
-[x] Knowledge classification
-[x] Cross-source conflict resolution
+[x] Knowledge classification + cross-source conflict resolution
 [x] Knowledge compounding
 [x] Memory architecture (including multi-source reconstruction)
 [x] Dual entry-point reconciliation
 [x] Obsolete knowledge management
 [x] Memory editing workflow
 [x] Memory verification
-[x] Progressive-loading model
-[x] Current / Historical separation
+[x] Progressive-loading model + current/historical separation
 [x] Canonical knowledge ownership
+[x] Platform-specific installation helpers (install.ps1: OpenCode, Codex, Claude)
 ```
 
-The project is actively evolving toward broader coding-agent compatibility and
-more automated memory quality checks.
-
----
-
-## Roadmap
-
-### Core
-
-- [x] Project Memory orchestrator
-- [x] Existing-knowledge discovery skill
-- [x] Repository audit Skill
-- [x] Knowledge classification
-- [x] Cross-source conflict resolution
-- [x] Knowledge compounding
-- [x] Memory architecture
-- [x] Multi-source reconstruction and dual entry-point reconciliation
-- [x] Obsolete knowledge management
-- [x] Memory editing workflow
-- [x] Memory verification
-
-### Automation
+Planned:
 
 - [ ] Automated memory health checks
 - [ ] Automated stale-reference detection
@@ -1196,22 +480,11 @@ more automated memory quality checks.
 - [ ] Automated orphan detection
 - [ ] Improved repository coverage reporting
 - [ ] Knowledge quality metrics
-
-### Agent Ecosystem
-
 - [ ] Broader agent-platform compatibility
-- [x] Platform-specific installation helpers (`install.ps1` for OpenCode, Codex, Claude)
-- [ ] Improved agent interoperability
 - [ ] More repository-aware integrations
-- [ ] Additional known existing-knowledge conventions as new tools emerge
-
-### Long-Term
-
-- [ ] Incremental memory maintenance
-- [ ] Memory drift detection
+- [ ] Incremental memory maintenance + memory drift detection
 - [ ] Knowledge dependency tracking
 - [ ] Cross-project memory patterns
-- [ ] Improved evidence provenance
 
 See the GitHub Issues for proposed features and ongoing work.
 
@@ -1221,21 +494,11 @@ See the GitHub Issues for proposed features and ongoing work.
 
 Contributions are welcome.
 
-Before adding a new feature, consider whether it belongs as:
-
-- Agent orchestration
-- A specialized Skill
-- A verification mechanism
-- A repository integration
-- A memory convention
-- A new existing-knowledge source pattern that `knowledge-discovery` should
-  recognize
-
-Avoid adding complexity simply to increase the number of agents or Skills.
-
-The goal is to improve the quality, durability, and retrieval efficiency of
-project knowledge — and to reduce, not add to, the number of competing
-copies of that knowledge in a repository.
+Before adding a new feature, consider whether it belongs as agent
+orchestration, a specialized Skill, a verification mechanism, a repository
+integration, or a new existing-knowledge source pattern that
+`knowledge-discovery` should recognize. Avoid adding complexity simply to
+increase the number of agents or Skills.
 
 ### Development Principles
 
@@ -1261,53 +524,29 @@ copies of that knowledge in a repository.
 
 ## License
 
-Distributed under the MIT License.
-
-See [`LICENSE`](LICENSE) for more information.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more
+information.
 
 ---
 
 ## Acknowledgments
 
-Project Memory is influenced by the broader ecosystem of AI coding agents,
-agentic software engineering, and knowledge-compounding workflows.
-
-Special inspiration comes from the idea behind
+Inspired by the idea behind
 [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin):
-engineering work should make subsequent engineering work easier.
+engineering work should make subsequent engineering work easier. Project
+Memory applies that idea specifically to **repository knowledge**.
 
-Project Memory applies that idea specifically to **repository knowledge**:
-
-```text
-Compound Engineering
-        ↓
-Engineering work compounds
-```
-
-```text
-Project Memory
-        ↓
-Repository knowledge compounds — from every tool that ever touched it,
-into one place.
-```
-
-The goal is not to replace coding agents.
-
-The goal is to make the next coding agent start further ahead — from one
-trustworthy memory system, not from several competing ones left behind by
-whichever tools came before it.
+The goal is not to replace coding agents. The goal is to make the next
+coding agent start further ahead — from one trustworthy memory system, not
+from several competing ones left behind by whichever tools came before it.
 
 ---
 
 ## Project
 
-**Project Memory**
+**Project Memory** — durable, evidence-backed memory for coding agents.
 
-Durable, evidence-backed memory for coding agents.
-
-Repository:
-
-[https://github.com/LoveDoLove/Project-Memory-Agent](https://github.com/LoveDoLove/Project-Memory-Agent)
+Repository: [https://github.com/LoveDoLove/Project-Memory-Agent](https://github.com/LoveDoLove/Project-Memory-Agent)
 
 ---
 
