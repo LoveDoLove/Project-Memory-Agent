@@ -726,16 +726,51 @@ BLOCKED
 Project Memory is designed for coding-agent environments that support
 agent/subagent and Skill-style workflows.
 
-### OpenCode
+### Quick Install (Windows PowerShell)
 
-Clone the repository:
+```powershell
+irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
+```
+
+The installer downloads the Project Memory Agent and its 8 Skills from this
+repository and copies them into your chosen agent's **global** config
+directory. Pick a target from the menu:
+
+```text
+1 OpenCode  2 Codex  3 Claude  4 All  Q Quit
+```
+
+| Target | Skills | Agent |
+|--------|--------|-------|
+| OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
+| Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
+| Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
+
+Run via `irm | iex` (stdin redirected), the installer defaults to `all`
+non-interactively. `all` writes skills to `~/.claude/skills` (covers both
+Claude and OpenCode) and `~/.agents/skills` (Codex), plus the agent in each
+tool's native format — without double-loading OpenCode.
+
+From a local checkout, additional options are available:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ./install.ps1 -Target all   # skip the menu
+powershell -ExecutionPolicy Bypass -File ./install.ps1 -Verify       # dry-run, no writes
+powershell -ExecutionPolicy Bypass -File ./install.ps1 -Branch dev   # install from a branch
+```
+
+Codex note: spawning subagents requires `[features] multi_agent = true` in
+`~/.codex/config.toml`. The installer prints this hint but never edits your
+config.
+
+### Manual Install (any platform)
+
+Clone the repository and copy `agents/` and `skills/` into your agent's
+configuration directory, following the table above.
 
 ```bash
 git clone https://github.com/LoveDoLove/Project-Memory-Agent.git
 ```
-
-Then make the Project Memory Agent and its Skills available to your OpenCode
-environment according to your project's agent/skill configuration.
 
 Once installed, invoke the orchestrator:
 
@@ -1165,7 +1200,7 @@ more automated memory quality checks.
 ### Agent Ecosystem
 
 - [ ] Broader agent-platform compatibility
-- [ ] Platform-specific installation helpers
+- [x] Platform-specific installation helpers (`install.ps1` for OpenCode, Codex, Claude)
 - [ ] Improved agent interoperability
 - [ ] More repository-aware integrations
 - [ ] Additional known existing-knowledge conventions as new tools emerge
