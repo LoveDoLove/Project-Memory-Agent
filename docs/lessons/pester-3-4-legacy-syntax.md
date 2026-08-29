@@ -56,4 +56,4 @@ an upgraded Pester.
   (install.tests.ps1:1–5) documents the Pester 5 migration mapping
   (`Should Be` → `Should -Be`, etc.) for whenever the repo drops 5.1 support.
 - Header also documents the run command: `Invoke-Pester ./install.tests.ps1`.
-- Verified 2026-08-28: 4/4 tests pass on Pester 3.4.0.
+- Verified 2026-08-29: 7/7 tests pass on Pester 3.4.0.

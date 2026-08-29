@@ -28,7 +28,7 @@ related:
 | `agents/project-memory.toml` | Same agent, Codex subagent TOML format (`name` / `description` / `developer_instructions`) |
 | `skills/<name>/SKILL.md` ×8 | Specialized skills, one dir each, `name:` frontmatter matches dir name |
 | `install.ps1` | Network installer (120 lines) |
-| `install.tests.ps1` | Pester 3.4.0 tests (113 lines, 6 It blocks, `Invoke-WebRequest` mocked — no network) |
+| `install.tests.ps1` | Pester 3.4.0 tests (120 lines, 7 It blocks, `Invoke-WebRequest` mocked — no network) |
 | `README.md` | Human-facing doc — canonical owner of purpose/features/skills-table content |
 | `.github/` | FUNDING.yml + 2 issue templates (bug report, feature request) |
 

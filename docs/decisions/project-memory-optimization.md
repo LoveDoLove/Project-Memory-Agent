@@ -34,7 +34,7 @@ into every session. Skills are fetched per delegation and never two at once.
 
 - Skills load per-delegation, never together — verified by the installer's
   per-target skill copy and the orchestrator's Progressive Skill Loading table.
-- The orchestrator is in every session. Its 1723→1036 line compression was the
+  - The orchestrator is in every session. Its 1723→1081 line compression was the
   real saving; skills were left intact.
 - A `skills/_shared/*.md` dependency would make each on-demand skill session
   load two files — net-negative token cost.
@@ -50,7 +50,8 @@ into every session. Skills are fetched per delegation and never two at once.
 - **Memory Health**: the agent had no success metric. Added a quality bar
   (evidence pointer per current claim, zero unresolved conflicts, obsolete
   labelled, no duplicate homes, discovery re-verified, no stale pointers) as
-  `# Memory Health` in the orchestrator.
+    `# Memory Health` in the orchestrator.
+- **Embedded numeric claims drift**: re-verify counts and line numbers embedded in memory docs each audit — not just cross-file path references. A prior limited audit confirmed "doc line-refs accurate" yet missed `1723→1036` (actual orchestrator 1081 lines) and `(6 tests)` (actual 7 It blocks). Check numerics against `Get-Content -Count` / Pester output.
 
 ## Rejected alternatives
 
