@@ -77,3 +77,37 @@ Describe 'install.ps1' {
         (Join-Path $env:USERPROFILE '.codex\agents\project-memory.toml') | Should Exist
     }
 }
+
+Describe 'skill name <-> manifest sync' {
+
+    BeforeAll {
+        try { . $PSScriptRoot\install.ps1 } catch { }
+        $script:Skills = $Skills
+        $skillsRoot = Join-Path $PSScriptRoot 'skills'
+        $script:SkillNames = @()
+        foreach ($d in (Get-ChildItem -Directory $skillsRoot)) {
+            $skillFile = Join-Path $d.FullName 'SKILL.md'
+            if (Test-Path $skillFile) {
+                $nameLine = Get-Content $skillFile | Where-Object { $_ -match '^name:' } | Select-Object -First 1
+                if ($nameLine) {
+                    $nm = ($nameLine -split ':', 2)[1].Trim()
+                    $script:SkillNames += $nm
+                }
+            }
+        }
+        $agentFile = Join-Path $PSScriptRoot 'agents\project-memory.md'
+        $script:AgentText = Get-Content $agentFile -Raw
+    }
+
+    It 'every skills/*/SKILL.md name is a member of $Skills' {
+        foreach ($nm in $script:SkillNames) {
+            $script:Skills -contains $nm | Should Be $true
+        }
+    }
+
+    It 'agents/project-memory.md references every skill name' {
+        foreach ($nm in $script:Skills) {
+            $script:AgentText -match [regex]::Escape($nm) | Should Be $true
+        }
+    }
+}
