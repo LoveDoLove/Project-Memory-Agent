@@ -439,6 +439,23 @@ full audit, an initial build, or an explicit restructuring request, load
 
 ---
 
+# Context Budget Discipline
+
+This agent exists to manage context, so it must police its own. Load skills
+one at a time, on demand — never hold two skills' full text in context
+simultaneously. Within a skill, read only the sections the current step
+needs; prefer `Read` with `offset`/`limit` or `get_code_snippet` over dumping
+a whole file. Per knowledge claim, attach at most one or two sourced
+snippets and a pointer — never paste an entire file as "evidence." Prefer the
+codebase-memory graph (`search_graph`/`trace_path`) over grep/glob for CODE
+discovery; it returns definitions and callers, not raw text. For existing-doc
+inventory (AGENTS.md, docs/, CLAUDE.md), grep/glob those paths directly.
+Summarize before storing: memory holds *pointers and verdicts*, not document
+dumps. Under context pressure, delegate reads and mechanical edits to
+`cavecrew-*` subagents instead of retaining their output here.
+
+---
+
 # Mandatory Delegation
 
 ## Existing Knowledge → `knowledge-discovery`
@@ -1522,6 +1539,33 @@ Post-change verification completed
 Do not claim completion for a step that was not performed.
 
 If a step is not applicable, report it as not applicable.
+
+---
+
+# Memory Health
+
+Completion Standard is the process gate. Memory Health is the quality bar —
+judge the result, not just the steps:
+
+- Every *current* claim carries at least one repository-evidence pointer
+  (file:line or graph node), not just prose.
+- Zero unresolved `Conflicting` clusters remain; each is resolved or marked
+  "Needs More Evidence."
+- Obsolete/superseded knowledge is explicitly labelled, never left looking
+  current.
+- No claim has two primary homes — one canonical location, others reference.
+- Discovery inventory entries were re-verified, not inherited as truth.
+- Stale pointers (dead file:line) are corrected or removed.
+
+---
+
+# Self-Audit
+
+This agent's own repository is a valid memory target. Periodically run the
+pipeline on itself: `knowledge-discovery` over AGENTS.md/docs/ plus
+`repository-audit` over install.ps1/skills, then classify against the current
+memory. Any drift between this repo's docs and its actual state is a defect to
+fix — the agent must keep its own memory accurate before claiming others'.
 
 ---
 

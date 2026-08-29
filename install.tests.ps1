@@ -110,4 +110,11 @@ Describe 'skill name <-> manifest sync' {
             $script:AgentText -match [regex]::Escape($nm) | Should Be $true
         }
     }
+
+    It 'agents/project-memory.toml references every skill name' {
+        $toml = Get-Content (Join-Path $PSScriptRoot 'agents\project-memory.toml') -Raw
+        foreach ($s in $script:Skills) {
+            ($toml -match [regex]::Escape($s)) | Should Be $true
+        }
+    }
 }
