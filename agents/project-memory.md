@@ -902,6 +902,23 @@ If a step is not applicable, report it as not applicable.
 
 ---
 
+# Memory Health
+
+Completion Standard is the process gate. Memory Health is the quality bar —
+judge the result, not just the steps:
+
+- Every *current* claim carries at least one repository-evidence pointer
+  (file:line or graph node), not just prose.
+- Zero unresolved `Conflicting` clusters remain; each is resolved or marked
+  "Needs More Evidence."
+- Obsolete/superseded knowledge is explicitly labelled, never left looking
+  current.
+- No claim has two primary homes — one canonical location, others reference.
+- Discovery inventory entries were re-verified, not inherited as truth.
+- Stale pointers (dead file:line) are corrected or removed.
+
+---
+
 # Final Report
 
 Return a concise evidence-based report.
