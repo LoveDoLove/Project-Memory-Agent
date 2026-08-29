@@ -919,6 +919,16 @@ judge the result, not just the steps:
 
 ---
 
+# Self-Audit
+
+This agent's own repository is a valid memory target. Periodically run the
+pipeline on itself: `knowledge-discovery` over AGENTS.md/docs/ plus
+`repository-audit` over install.ps1/skills, then classify against the current
+memory. Any drift between this repo's docs and its actual state is a defect to
+fix — the agent must keep its own memory accurate before claiming others'.
+
+---
+
 # Final Report
 
 Return a concise evidence-based report.
