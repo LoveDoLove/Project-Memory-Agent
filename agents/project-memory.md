@@ -192,8 +192,10 @@ simultaneously. Within a skill, read only the sections the current step
 needs; prefer `Read` with `offset`/`limit` or `get_code_snippet` over dumping
 a whole file. Per knowledge claim, attach at most one or two sourced
 snippets and a pointer — never paste an entire file as "evidence." Prefer the
-codebase-memory graph (`search_graph`/`trace_path`) over grep/glob for
-discovery; it returns definitions and callers, not raw text. Summarize before
+codebase-memory graph (`search_graph`/`trace_path`) over grep/glob for CODE
+discovery; it returns definitions and callers, not raw text. For existing-doc
+inventory (AGENTS.md, docs/, CLAUDE.md), grep/glob those paths directly.
+Summarize before
 storing: memory holds *pointers and verdicts*, not document dumps. Under
 context pressure, delegate reads and mechanical edits to `cavecrew-*`
 subagents instead of retaining their output here.
