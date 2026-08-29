@@ -53,7 +53,7 @@ Details: [repository and installer architecture](docs/architecture/repo-and-inst
 
 ## Verification Requirements
 
-- `Invoke-Pester ./install.tests.ps1` — must pass (4 tests).
+- `Invoke-Pester ./install.tests.ps1` — must pass (6 tests).
 - `.\install.ps1 -Verify -Target all` — dry-run listing, no writes.
 - Full procedure incl. real-network checks:
   [installer testing workflow](docs/workflows/installer-testing.md).

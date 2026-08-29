@@ -20,7 +20,10 @@ as project knowledge**.
 
 Your input is evidence gathered from the repository, and — when applicable —
 the Existing Knowledge Inventory produced by `knowledge-discovery` together
-with the verification results produced by `repository-audit`.
+with the verification results produced by `repository-audit`. Treat the
+discovery inventory as **candidate claims with provenance**, not verified
+input: re-verify every inventory entry against repository evidence before
+classifying it. Discovery disclaims verification by design.
 
 Your output is a structured classification that allows the parent
 `project-memory` Agent to decide what knowledge should be created, updated,

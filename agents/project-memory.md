@@ -184,6 +184,22 @@ full audit, an initial build, or an explicit restructuring request, load
 
 ---
 
+# Context Budget Discipline
+
+This agent exists to manage context, so it must police its own. Load skills
+one at a time, on demand — never hold two skills' full text in context
+simultaneously. Within a skill, read only the sections the current step
+needs; prefer `Read` with `offset`/`limit` or `get_code_snippet` over dumping
+a whole file. Per knowledge claim, attach at most one or two sourced
+snippets and a pointer — never paste an entire file as "evidence." Prefer the
+codebase-memory graph (`search_graph`/`trace_path`) over grep/glob for
+discovery; it returns definitions and callers, not raw text. Summarize before
+storing: memory holds *pointers and verdicts*, not document dumps. Under
+context pressure, delegate reads and mechanical edits to `cavecrew-*`
+subagents instead of retaining their output here.
+
+---
+
 # Mandatory Delegation
 
 ## Existing Knowledge → `knowledge-discovery`
