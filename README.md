@@ -252,6 +252,12 @@ exist to verify*; audit tells it *whether they are true*.
 - **Final verification gate** — repository consistency, duplicate ownership,
   references, navigation, migration completeness → PASS / PASS WITH
   WARNINGS / FAIL / BLOCKED.
+- **Self-managing context** — the orchestrator enforces its own token discipline:
+  skills load one at a time on demand, evidence is capped to sourced pointers,
+  and mechanical edits delegate to bounded subagents under context pressure.
+- **Self-auditing** — a Memory Health quality bar plus a Self-Audit directive make
+  the agent run its own pipeline on its own repository to catch memory drift
+  before it claims others' memory is accurate.
 
 ---
 
@@ -472,17 +478,20 @@ lifecycle:
 [x] Platform-specific installation helpers (install.ps1: OpenCode, Codex, Claude)
 ```
 
+Delivered (recently):
+
+- [x] Memory health checks — a Memory Health quality bar in the orchestrator plus a guardrail Pester test that keeps skills, manifest, and agent files in sync.
+- [x] Knowledge quality metrics — the Memory Health rubric (evidence pointer per claim, zero unresolved conflicts, obsolete labelled, no duplicate homes).
+- [x] Incremental maintenance + drift detection — a Self-Audit directive runs the pipeline on this repo itself.
+
 Planned:
 
-- [ ] Automated memory health checks
 - [ ] Automated stale-reference detection
 - [ ] Automated duplicate detection across origin tools
 - [ ] Automated orphan detection
 - [ ] Improved repository coverage reporting
-- [ ] Knowledge quality metrics
 - [ ] Broader agent-platform compatibility
 - [ ] More repository-aware integrations
-- [ ] Incremental memory maintenance + memory drift detection
 - [ ] Knowledge dependency tracking
 - [ ] Cross-project memory patterns
 
@@ -510,6 +519,18 @@ increase the number of agents or Skills.
 6. Verify changes before considering them complete.
 7. Prefer simple mechanisms over unnecessary orchestration.
 8. Never treat a pre-existing file as correct merely because it exists.
+
+### Testing
+
+The installer ships Pester 3.4.0 tests (Windows PowerShell 5.1). Run them from a checkout:
+
+```powershell
+Invoke-Pester ./install.tests.ps1
+```
+
+7 tests cover installer targets, the `all` no-double-load rule, and a guardrail
+that keeps the 8 skills, their manifest (`$Skills` in `install.ps1`), and both
+agent files (`project-memory.md` / `project-memory.toml`) in sync.
 
 ### Pull Requests
 
