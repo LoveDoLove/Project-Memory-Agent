@@ -8,6 +8,7 @@ rationale, rejected alternatives.
 - Changing `install.ps1` or adding an install target → [installer-delivery.md](./installer-delivery.md), [install-footprint.md](./install-footprint.md)
 - Adding/changing the Codex agent → [codex-agent-toml.md](./codex-agent-toml.md)
 - Adding a new skill → AGENTS.md sync invariant (8-name list in `install.ps1:10`, `skills/`, frontmatter)
+- Optimizing the PMA agent/skills for token cost → [project-memory-optimization.md](./project-memory-optimization.md)
 
 ## Index
 
@@ -16,3 +17,4 @@ rationale, rejected alternatives.
 | [Installer delivery](./installer-delivery.md) | `irm \| iex` one-liner + raw.githubusercontent self-fetch |
 | [Install footprint](./install-footprint.md) | Global user-profile scope, per-target native dirs, `all` no-double-load rule |
 | [Codex agent as TOML](./codex-agent-toml.md) | Standalone `~/.codex/agents/*.toml`, never config.toml mutation |
+| [Project Memory optimization](./project-memory-optimization.md) | Compress orchestrator first; skills load on-demand; sync guardrail; memory-health bar |
