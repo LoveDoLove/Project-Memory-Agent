@@ -28,7 +28,7 @@ prompt as a TOML triple-quoted string). Never mutate the user's
   config registration needed. (External docs:
   developers.openai.com/codex/subagents — session-verified reference, not
   checked into the repo.)
-- Repo-side source of truth: `agents/project-memory.toml` (1710 lines);
+- Repo-side source of truth: `agents/project-memory.toml` (437 lines);
   content mirrors `agents/project-memory.md` in Codex's format.
 - Mutating user config would be invasive and conflict-prone; dropping one
   file is reversible and idempotent.

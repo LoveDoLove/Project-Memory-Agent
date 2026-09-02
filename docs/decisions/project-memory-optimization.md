@@ -5,7 +5,7 @@ status: current
 stability: stable
 scope: self-optimization of the PMA orchestrator and skills
 created: 2026-08-29
-updated: 2026-08-29
+updated: 2026-09-02
 evidence:
   - agents/project-memory.md
   - install.tests.ps1
@@ -39,6 +39,26 @@ into every session. Skills are fetched per delegation and never two at once.
 - A `skills/_shared/*.md` dependency would make each on-demand skill session
   load two files — net-negative token cost.
 
+## Update — 2026-09-02: second trim reverses "leave skills verbose"
+
+A prompt-debt audit (Boris Cherny school: stale instructions constrain more
+than they help) found the full-verbosity stance cost more than tokens:
+16 cross-file duplication clusters, ~63% of all `Do not` lines living in
+per-file tail restatements, and 4 near-copies of the lifecycle list — a
+drift and contradiction risk, not just bulk. Executed an extreme trim:
+
+- Orchestrator 1081→405; 8 skills 553–1927 → 375–864 each (system total
+  12,711→6,081, −52%); `project-memory.toml` regenerated to mirror (437).
+- Cross-skill dedup solved via **canonical ownership + one-line pointers**
+  (17 clusters, one owner each) — not the rejected `skills/_shared/`
+  mechanism, so no extra per-session file load and no new coupling.
+- Load-bearing content verified post-trim: 14/14 safety-floor lines,
+  3/3 canonical scenarios, 17/17 ownership clusters, Pester 7/7.
+
+The "compress the orchestrator first" priority stands; the "skills cost ~0"
+claim is corrected above: skill verbosity costs drift, which costs
+correctness.
+
 ## Lessons
 
 - **Graph scope**: `codebase-memory` is for CODE discovery (functions/callers).
@@ -57,7 +77,7 @@ into every session. Skills are fetched per delegation and never two at once.
 
 - Hardcoding a conflict-resolution priority order. Provenance must stay a
   tie-break only; `knowledge-classification` already forbids resolving by
-  preference (L658–661, L1549).
+  preference (conflict-resolution rules).
 - A generated TOML builder. The repo has no build system; `project-memory.toml`
   is maintained by hand and covered by the same guardrail test.
 - Cross-skill verbatim dedup. Net-zero token benefit, adds coupling — skipped.

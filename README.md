@@ -49,11 +49,12 @@ Typical tasks: *audit this repo*, *build memory for a repo that already has docs
 ## What it does
 
 - **Discovers existing knowledge** — inventories every pre-existing source with provenance.
-- **Verifies with evidence** — claims checked against code, tests, config, build/CI, Git. Docs are not evidence.
+- **Verifies with evidence** — claims checked against code, tests, config, build/CI, Git. Documentation is evidence, never assumed current.
 - **Classifies & resolves conflicts** — one canonical type per claim; conflicts settled by repository evidence, not by file age.
 - **Compounds learning** — durable Solutions and Lessons instead of more documents.
 - **Removes obsolete knowledge** — deleted or marked deprecated/superseded, regardless of origin.
 - **Single source of truth** — one primary home per concept; everything else references it.
+- **Lean by design** — prompts are aggressively deduplicated; no rule exists in two places, and models are trusted with what they already do natively.
 - **Self-audits** — a quality bar (Memory Health) and a Self-Audit directive let the agent run its own pipeline on its own repo to catch drift.
 
 ## Skills
@@ -71,7 +72,7 @@ Specialized Skills instead of one huge prompt:
 | `memory-edit` | Apply approved documentation changes |
 | `memory-verification` | Final consistency and quality gate |
 
-The orchestrator loads these progressively — you rarely invoke one directly. It can also delegate to `codebase-memory` (read-only code graph) and `cavecrew-builder` (bounded edits).
+The orchestrator loads these progressively — you rarely invoke one directly. It can also delegate to `codebase-memory` (read-only code graph) and `cavecrew-builder` (bounded edits). Every rule has exactly one canonical owner across the agent and skills — skills reference each other instead of duplicating, so guidance can't drift apart.
 
 ## How memory is organized
 
@@ -83,7 +84,7 @@ AGENTS.md
     → docs/<domain>/<topic>.md   (one concept per file)
 ```
 
-Domains: `architecture/`, `decisions/`, `lessons/`, `workflows/`, `constraints/`, `reference/`, `history/`. This is a pattern, not a mandatory scaffold — only create what holds verified knowledge.
+Domains: `architecture/`, `decisions/`, `solutions/`, `lessons/`, `workflows/`, `constraints/`, `reference/`, `history/`. This is a pattern, not a mandatory scaffold — only create what holds verified knowledge.
 
 ## Testing
 

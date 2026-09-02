@@ -1,35 +1,19 @@
 ---
 name: obsolete-knowledge
 description: >
-  Audits Project Memory for stale, obsolete, deprecated, superseded,
-  abandoned, or misleading knowledge. Determines whether knowledge should be
-  deleted, preserved as historical context, marked deprecated, or explicitly
-  linked to its replacement. Prevents obsolete information from being loaded
-  as current engineering guidance while preserving historically valuable
-  rationale and migration context.
+  Audits Project Memory for stale, obsolete, deprecated, or superseded
+  knowledge. Determines delete, historical preservation, deprecation, or
+  supersession treatment from evidence. Prevents obsolete information from
+  loading as current guidance while preserving valuable rationale.
 ---
 
 # Obsolete Knowledge
 
-You are responsible for identifying and handling **obsolete Project Memory**.
-
-Your purpose is not to delete old documentation simply because it is old.
-
-Your purpose is to prevent future Agents from receiving obsolete information
-as if it were current, while preserving historical knowledge that still has
-engineering value.
-
-You determine the appropriate lifecycle treatment.
-
-You do not directly modify repository files.
-
----
-
 # Core Principle
 
-Old knowledge is not automatically useless.
+Obsolete knowledge must never look current.
 
-Classify it according to:
+Old knowledge is not automatically useless. Classify each candidate by:
 
 ```text
 Validity
@@ -37,9 +21,9 @@ Current Relevance
 Historical Value
 Misleading Risk
 Replacement
-````
+```
 
-The desired result is:
+Desired end state:
 
 ```text
 Current Knowledge
@@ -63,85 +47,33 @@ Removed
 
 Never allow obsolete knowledge to silently compete with current knowledge.
 
----
-
-# Primary Goals
-
-Optimize for:
-
-```text
-Correctness
-Clarity
-Historical Preservation
-Low Confusion
-Low Retrieval Cost
-Explicit Replacement
-Clean Current Guidance
-```
-
-Do not optimize for:
-
-```text
-Maximum Deletion
-Minimum File Count
-Perfect Historical Preservation
-Documentation Volume
-```
+Evidence comes before disposal.
 
 ---
 
-# Responsibilities
+# Role
 
-This Skill is responsible for:
+You identify and handle **obsolete Project Memory**.
 
-1. Detecting stale knowledge.
-2. Identifying obsolete instructions.
-3. Identifying superseded architecture.
-4. Identifying replaced implementations.
-5. Identifying removed dependencies.
-6. Identifying abandoned approaches.
-7. Identifying completed migrations.
-8. Identifying invalid workflows.
-9. Determining whether historical context has lasting value.
-10. Choosing Delete / Historical / Deprecated / Superseded treatment.
-11. Identifying references to obsolete knowledge.
-12. Preventing obsolete knowledge from appearing current.
-13. Designing cleanup recommendations for the parent Agent.
+Your purpose is not to delete old documentation because it is old.
 
----
+Your purpose is to prevent future Agents from receiving obsolete information
+as if it were current, while preserving historical knowledge that still has
+engineering value.
 
-# Non-Responsibilities
+You determine the appropriate lifecycle treatment.
 
-Do not:
-
-* determine repository truth without evidence
-* perform broad repository discovery
-* invent historical events
-* invent replacement implementations
-* rewrite knowledge content
-* directly edit documentation
-* directly delete files
-* perform final repository verification
-* treat file age as sufficient evidence of obsolescence
-
-Use:
-
-```text
-repository-audit
-codebase-memory
-knowledge-classification
-memory-architecture
-memory-edit
-memory-verification
-```
-
-for those responsibilities.
+You do not directly modify repository files. You produce cleanup proposals;
+the parent Agent applies them via `memory-edit`, gated by
+`memory-verification`.
 
 ---
 
 # Evidence Requirement
 
-Never declare knowledge obsolete merely because:
+Obsolescence requires evidence.
+
+NEVER declare knowledge obsolete merely because:
 
 ```text
 The file is old.
@@ -153,9 +85,10 @@ The document is short.
 The document is not referenced.
 ```
 
-Obsolescence requires evidence.
+Lack of references is never sufficient evidence.
+Timestamps and filenames are never sufficient evidence.
 
-Prefer:
+Prefer evidence from:
 
 ```text
 Current Source
@@ -197,74 +130,8 @@ Old architecture
 Historical experiment
 ```
 
-These are signals, not automatic proof.
-
----
-
-# Current-State Classification
-
-Use these states when evidence supports them:
-
-```text
-Current
-In Progress
-Partial
-Experimental
-Deprecated
-Superseded
-Abandoned
-Historical
-Unknown
-```
-
-The lifecycle state and the action are different concepts.
-
-For example:
-
-```text
-State:
-Superseded
-
-Action:
-Preserve as Historical
-```
-
-or:
-
-```text
-State:
-Deprecated
-
-Action:
-Mark Deprecated
-```
-
-or:
-
-```text
-State:
-Abandoned
-
-Action:
-Delete
-```
-
-Do not confuse state with cleanup action.
-
----
-
-# Cleanup Actions
-
-Use exactly the appropriate treatment.
-
-```text
-Delete
-Preserve as Historical
-Mark Deprecated
-Mark Superseded
-Keep Current
-Investigate
-```
+These are signals, not automatic proof. Each candidate still requires
+evidence per the Evidence Requirement.
 
 ---
 
@@ -325,7 +192,36 @@ Never guess.
 
 ---
 
-# Delete
+# Cleanup Actions
+
+Use exactly the appropriate treatment. This six-action vocabulary is the
+canonical superset; other Project Memory files with shorter action lists
+defer to it.
+
+```text
+Delete
+Preserve as Historical
+Mark Deprecated
+Mark Superseded
+Keep Current
+Investigate
+```
+
+The lifecycle state and the cleanup action are different concepts:
+
+```text
+State: Superseded   → Action: Preserve as Historical
+State: Deprecated   → Action: Mark Deprecated
+State: Abandoned    → Action: Delete
+```
+
+State definitions (Current, In Progress, Partial, Experimental, Deprecated,
+Superseded, Abandoned, Historical, Unknown) are owned by
+`knowledge-classification`. Do not confuse state with action.
+
+---
+
+## Delete
 
 Delete knowledge when:
 
@@ -337,7 +233,7 @@ AND
 Keeping it may mislead future Agents
 ```
 
-Examples:
+Typical:
 
 ```text
 Old command that no longer exists
@@ -352,12 +248,10 @@ Do not preserve useless historical noise merely because it happened.
 
 ---
 
-# Historical Preservation
+## Preserve as Historical
 
-Preserve knowledge as historical when it explains something future Agents may
-otherwise misunderstand.
-
-Examples:
+Preserve knowledge as historical when it explains something future Agents
+may otherwise misunderstand:
 
 ```text
 Why the current architecture replaced the old one
@@ -374,6 +268,74 @@ Historical knowledge should answer:
 > Why does the current system look this way?
 
 It should not become a diary.
+
+---
+
+## Mark Deprecated
+
+Use Deprecated when the knowledge still has limited practical relevance:
+
+```text
+Legacy compatibility workflow
+Old API still supported temporarily
+Migration guidance for a remaining legacy subsystem
+Technology scheduled for removal
+Legacy configuration still required in one environment
+```
+
+Deprecated knowledge must state its boundary and the current path.
+Canonical output format:
+
+```markdown
+> Status: Deprecated
+>
+> This workflow remains supported for legacy environments only.
+> New development must use `<current workflow>`.
+```
+
+Never leave Deprecated information without explaining the current path.
+
+---
+
+## Mark Superseded
+
+Use Superseded when a specific replacement exists.
+Canonical output formats:
+
+```markdown
+Status: Superseded
+
+Superseded by:
+`docs/architecture/runtime/process-model.md`
+```
+
+or:
+
+```markdown
+Status: Superseded
+
+Replacement:
+`docs/decisions/authentication.md`
+```
+
+The replacement must be identifiable. Never write only `This is outdated`
+when a replacement is known. Never leave superseded knowledge looking
+current.
+
+Model replacement explicitly so future Agents do not treat both approaches
+as valid alternatives:
+
+```text
+Manual Authentication
+        ↓
+Superseded by
+        ↓
+Token-Based Authentication
+```
+
+The historical or superseded document points toward its replacement; the
+current document may optionally link back. Do not require bidirectional
+links when they do not improve retrieval.
 
 ---
 
@@ -395,296 +357,36 @@ If no, historical preservation is probably unnecessary.
 
 ---
 
-# Mark Deprecated
-
-Use Deprecated when the knowledge still has limited practical relevance.
-
-Examples:
-
-```text
-Legacy compatibility workflow
-Old API still supported temporarily
-Migration guidance for a remaining legacy subsystem
-Technology scheduled for removal
-Legacy configuration still required in one environment
-```
-
-Deprecated knowledge should state its boundary clearly.
-
-Example:
-
-```markdown
-> Status: Deprecated
->
-> This workflow remains supported for legacy environments only.
-> New development must use `<current workflow>`.
-```
-
-Do not leave Deprecated information without explaining the current path.
-
----
-
-# Mark Superseded
-
-Use Superseded when a specific replacement exists.
-
-Preferred:
-
-```markdown
-Status: Superseded
-
-Superseded by:
-`docs/architecture/runtime/process-model.md`
-```
-
-or:
-
-```markdown
-Status: Superseded
-
-Replacement:
-`docs/decisions/authentication.md`
-```
-
-The replacement must be identifiable.
-
-Do not write:
-
-```text
-This is outdated.
-```
-
-without identifying what replaced it when a replacement is known.
-
----
-
-# Supersession Graph
-
-Model replacement explicitly:
-
-```text
-Old
- ↓
-Superseded by
- ↓
-Current
-```
-
-For example:
-
-```text
-Manual Authentication
-        ↓
-Superseded by
-        ↓
-Token-Based Authentication
-```
-
-This prevents future Agents from treating both approaches as valid alternatives.
-
----
-
-# Abandoned Knowledge
-
-Abandoned does not automatically mean Delete.
-
-Determine whether the abandoned approach has explanatory value.
-
-Example:
-
-```text
-Experimental database layer
-        ↓
-Abandoned
-        ↓
-Was it rejected because of an important architectural problem?
-```
-
-If yes:
-
-```text
-Historical Decision
-```
-
-If no:
-
-```text
-Delete
-```
-
----
-
-# Removed Features
-
-When a feature no longer exists:
-
-```text
-Feature Documentation
-        ↓
-Verify Removal
-        ↓
-Does its history matter?
-```
-
-If no:
-
-```text
-Delete
-```
-
-If yes:
-
-```text
-History / Superseded Decision
-```
-
-Do not leave removed features in current architecture documentation.
-
----
-
-# Removed Dependencies
-
-For removed dependencies, check:
-
-```text
-Dependency Manifest
-Source Imports
-Build Configuration
-Lockfiles
-CI
-Documentation
-Git History
-```
-
-If the dependency is genuinely removed:
-
-```text
-Old Installation Instructions
-        ↓
-Delete
-```
-
-unless the removal explains an important architectural decision.
-
----
-
-# Completed Migrations
-
-Completed migrations are a common source of stale memory.
-
-Example:
-
-```text
-npm
- ↓
-pnpm
-```
-
-Once the migration is complete:
-
-Current:
-
-```text
-pnpm workflow
-```
-
-Potential Historical:
-
-```text
-npm → pnpm migration rationale
-```
-
-Obsolete:
-
-```text
-"Run npm install"
-```
-
-Do not keep the old operational workflow merely because it was once valid.
-
----
-
-# Solved Workarounds
-
-Temporary workarounds should be aggressively reviewed.
-
-Example:
-
-```text
-Problem
- ↓
-Temporary workaround
- ↓
-Root cause fixed
- ↓
-Workaround no longer required
-```
-
-The workaround should normally be deleted.
-
-Preserve it only if it explains:
-
-```text
-A difficult root cause
-An important historical incident
-A compatibility limitation
-A recurring failure mode
-```
-
----
-
-# Historical Incident vs Debugging Noise
-
-Do not turn every debugging session into history.
-
-Low-value:
-
-```text
-2026-08-10
-Command X failed.
-Tried Y.
-Then ran Z.
-It worked.
-```
-
-High-value:
-
-```text
-Build failures were caused by an incompatible Gradle/JDK combination.
-The project migrated to the supported toolchain to prevent recurrence.
-```
-
-Preserve the engineering lesson, not the terminal transcript.
-
----
-
-# Stale Workflow Detection
-
-Search for workflows that reference:
-
-```text
-Old package manager
-Old runtime
-Old command
-Old build system
-Old deployment process
-Old environment variable
-Old directory
-Old CI system
-Old authentication flow
-Old setup requirement
-```
-
-Determine whether:
-
-```text
-Still valid
-Legacy only
-Deprecated
-Superseded
-Invalid
-Unknown
-```
+# Special-Case Evidence Notes
+
+Apply the Decision Tree to each case; typical evidence:
+
+- **Abandoned features** — Abandoned ≠ Delete automatically. Rejected
+  because of an important architectural problem → Historical Decision;
+  otherwise Delete.
+- **Removed features** — Verify removal. History matters? No → Delete;
+  Yes → Historical / Superseded. Never leave removed features in current
+  architecture documentation.
+- **Removed dependencies** — Evidence: dependency manifest, source imports,
+  build configuration, lockfiles, CI, documentation, Git history.
+  Genuinely removed → Delete old installation instructions unless the
+  removal explains an important architectural decision.
+- **Completed migrations** — Old operational workflow is obsolete
+  (`Run npm install`); only the migration rationale may remain historical.
+  Do not keep an old operational workflow merely because it was once valid.
+- **Solved workarounds** — Normally Delete once the root cause is fixed.
+  Preserve only if it explains a difficult root cause, an important
+  historical incident, a compatibility limitation, or a recurring failure
+  mode.
+- **Obsolete constraints** — Old platform, API, compatibility, vendor, or
+  security-workaround restrictions. Verify the constraint still exists; do
+  not let historical constraints block current engineering work.
+- **Incident vs noise** — Preserve the engineering lesson, not the terminal
+  transcript. `Command X failed, tried Y, ran Z, it worked` is noise.
+- **Stale workflow detection** — Workflows referencing old package manager,
+  runtime, command, build system, deployment process, environment variable,
+  directory, CI system, authentication flow, or setup requirement. Determine
+  Still valid / Legacy only / Deprecated / Superseded / Invalid / Unknown.
 
 ---
 
@@ -692,30 +394,12 @@ Unknown
 
 Treat obsolete instructions more seriously than ordinary historical text.
 
-Example:
+A clearly marked historical architecture document may be harmless. But
+`Current workflow: Run old command X` actively causes incorrect
+implementation.
 
-```text
-Historical architecture document
-```
-
-may be harmless if clearly marked.
-
-But:
-
-```text
-Current workflow:
-Run old command X
-```
-
-can actively cause incorrect implementation.
-
-Prioritize cleanup of obsolete operational guidance.
-
----
-
-# Current Documentation Contamination
-
-Look for obsolete information appearing in:
+Prioritize cleanup of obsolete operational guidance, especially where it
+contaminates high-retrieval-priority locations:
 
 ```text
 AGENTS.md
@@ -728,15 +412,9 @@ Active Runbooks
 Agent Instructions
 ```
 
-These locations have high retrieval priority.
+## AGENTS.md Special Rule
 
-If obsolete information remains there, prioritize remediation.
-
----
-
-# AGENTS.md Special Rule
-
-`AGENTS.md` should not contain obsolete operational guidance.
+`AGENTS.md` must not contain obsolete operational guidance.
 
 If an obsolete item is found in `AGENTS.md`:
 
@@ -748,75 +426,44 @@ Remove or replace
 Verify references
 ```
 
-Do not move every deleted instruction into history.
-
-Only preserve it if it has meaningful historical value.
+Do not move every deleted instruction into history. Preserve it only if it
+has meaningful historical value.
 
 ---
 
-# Historical Boundary
+# Reintroduction Risk
 
-Historical knowledge should be clearly distinguishable from current
-knowledge.
-
-Preferred:
+A particularly important category: knowledge that may cause a future Agent
+to reintroduce a rejected design.
 
 ```text
-docs/history/
+Removed dependency
+Rejected abstraction
+Abandoned architecture
+Known-bad workaround
+Previous security model
+Previous data model
 ```
 
-or an explicit status marker.
+If the rejection rationale is important → Preserve as Historical / Decision,
+but make the current replacement explicit.
 
-Avoid:
+## Decision Reversal Protection
+
+When a historical decision could plausibly be reintroduced, preserve:
 
 ```text
-docs/architecture/
-    old-auth.md
-    new-auth.md
+Old Approach
+Why It Was Rejected
+Current Approach
+Why Current Approach Exists
 ```
 
-where both appear equally authoritative.
+This prevents repeated architectural rediscovery.
 
 ---
 
-# Historical Document Requirements
-
-A useful historical document should answer:
-
-```text
-What changed?
-Why did it change?
-What was replaced?
-Why was the old approach insufficient?
-What should future Agents avoid repeating?
-What is the current replacement?
-```
-
-Do not preserve unnecessary chronology.
-
----
-
-# Replacement Linkage
-
-When a replacement exists, the historical or superseded document should point
-toward it.
-
-Example:
-
-```markdown
-Status: Superseded
-
-Superseded by:
-[Current Authentication Architecture](../architecture/security/authentication.md)
-```
-
-The current document may optionally link back to the historical context.
-
-Do not require bidirectional links when they do not improve retrieval.
-
----
-
-# Obsolete Reference Cleanup
+# Reference Cleanup
 
 An obsolete document can remain indirectly active through links.
 
@@ -834,263 +481,23 @@ Cross-references
 Agent instructions
 ```
 
-Look for references that imply:
+Look for references implying the old knowledge is current: old path still
+exists, old workflow still supported, old implementation recommended.
 
-```text
-Old knowledge is current
-Old path still exists
-Old workflow is supported
-Old implementation is recommended
-```
+These references must be corrected during the edit phase — by `memory-edit`,
+not by this Skill.
 
-These references must be corrected during the edit phase.
+## Broken vs Obsolete
 
----
-
-# Broken vs Obsolete
-
-Do not confuse:
-
-```text
-Broken Link
-```
-
-with:
-
-```text
-Obsolete Knowledge
-```
-
-A broken link may point to current knowledge at the wrong path.
-
-An obsolete link may intentionally point to historical knowledge.
-
-Classify the underlying knowledge first.
+A broken link may point to current knowledge at the wrong path
+(`memory-verification` scope). An obsolete link may intentionally point to
+historical knowledge (this Skill). Classify the underlying knowledge first.
 
 ---
 
-# Duplicate Obsolete Knowledge
+# Targets: Agent Instructions and Skills
 
-If multiple obsolete documents describe the same old approach:
-
-```text
-Old A
-Old B
-Old C
-```
-
-do not automatically preserve all three.
-
-Prefer:
-
-```text
-One Historical Record
-```
-
-when the historical information can be consolidated without losing meaningful
-context.
-
----
-
-# Historical Consolidation
-
-When consolidating historical knowledge, preserve:
-
-```text
-Decision
-Reason
-Impact
-Replacement
-Important Lessons
-```
-
-Remove:
-
-```text
-Repeated wording
-Terminal logs
-Minor chronology
-Temporary debugging details
-Personal commentary
-```
-
----
-
-# Obsolescence Confidence
-
-Use:
-
-```text
-High
-Medium
-Low
-```
-
-### High
-
-Direct evidence proves replacement/removal.
-
-Example:
-
-```text
-Dependency removed from manifests
-AND
-No source references
-AND
-Git history confirms migration
-```
-
-### Medium
-
-Multiple evidence sources strongly suggest obsolescence but one uncertainty
-remains.
-
-### Low
-
-Evidence is incomplete or ambiguous.
-
-Low-confidence candidates should not be automatically deleted.
-
----
-
-# Evidence Matrix
-
-For significant candidates, use:
-
-```markdown
-| Candidate | Evidence | State | Action | Confidence |
-|---|---|---|---|---|
-| `<path>` | Removed dependency + Git migration | Superseded | Historical | High |
-| `<path>` | Old workflow, current CI differs | Deprecated | Replace | Medium |
-| `<path>` | No longer referenced | Unknown | Investigate | Low |
-```
-
-Do not use lack of references as sufficient evidence of obsolescence.
-
----
-
-# Risk Classification
-
-Prioritize cleanup according to risk.
-
-## Critical
-
-Obsolete information can cause:
-
-```text
-Security issue
-Data loss
-Incorrect deployment
-Broken production workflow
-Invalid dependency installation
-Unsafe configuration
-```
-
-Handle immediately.
-
----
-
-## High
-
-Obsolete information can cause:
-
-```text
-Incorrect implementation
-Architecture regression
-Reintroduction of rejected design
-Broken development workflow
-```
-
-Prioritize.
-
----
-
-## Medium
-
-Obsolete information causes:
-
-```text
-Confusion
-Extra investigation
-Minor workflow inefficiency
-```
-
-Clean when practical.
-
----
-
-## Low
-
-Mostly cosmetic or historical clutter.
-
-Do not allow cleanup of low-value clutter to delay higher-risk work.
-
----
-
-# Reintroduction Risk
-
-A particularly important category is knowledge that may cause a future Agent to
-reintroduce a rejected design.
-
-Examples:
-
-```text
-Removed dependency
-Rejected abstraction
-Abandoned architecture
-Known-bad workaround
-Previous security model
-Previous data model
-```
-
-If the rejection rationale is important:
-
-```text
-Preserve as Historical / Decision
-```
-
-but make the current replacement explicit.
-
----
-
-# Decision Reversal Protection
-
-When a historical decision could plausibly be reintroduced, preserve:
-
-```text
-Old Approach
-Why It Was Rejected
-Current Approach
-Why Current Approach Exists
-```
-
-This prevents repeated architectural rediscovery.
-
----
-
-# Obsolete Constraints
-
-Constraints can become obsolete too.
-
-Examples:
-
-```text
-Old platform restriction
-Old API limitation
-Old compatibility requirement
-Temporary vendor limitation
-Temporary security workaround
-```
-
-Verify whether the constraint still exists.
-
-Do not allow historical constraints to block current engineering work.
-
----
-
-# Obsolete Skills / Agent Instructions
-
-Treat stale Agent instructions as high-priority knowledge contamination.
+Treat stale agent instructions as high-priority knowledge contamination.
 
 Inspect:
 
@@ -1102,90 +509,52 @@ Skills
 Repository instructions
 ```
 
-Look for:
+Look for removed tools, old commands, old paths, old architecture, old
+package manager, old workflow, old delegation rules.
 
-```text
-Removed tools
-Old commands
-Old paths
-Old architecture
-Old package manager
-Old workflow
-Old delegation rules
-```
-
-Do not preserve invalid Agent instructions merely because they were previously
-used.
+Do not preserve invalid agent instructions merely because they were
+previously used.
 
 ---
 
-# Obsolete Documentation Tree
+# Duplicate, Archive, and Unit-Level Rules
 
-Do not assume an entire directory is obsolete because its files are old.
-
-Evaluate each knowledge unit.
-
-Example:
-
-```text
-docs/old/
-├── architecture.md
-├── migration.md
-└── troubleshooting.md
-```
-
-Possible result:
-
-```text
-architecture.md
-    → Delete
-
-migration.md
-    → Preserve as Historical
-
-troubleshooting.md
-    → Delete
-```
-
-Classify at knowledge-unit level.
+- **Duplicate obsolete knowledge** — Multiple documents describing the same
+  old approach: do not preserve all. Prefer **one historical record** when
+  the information can be consolidated without losing meaningful context.
+- **No archive dumps** — Never create an archive merely to avoid deleting
+  files. `docs/history/authentication-migration.md` with durable
+  engineering value: good. `docs/archive/everything-ever-written.md`: bad.
+- **Knowledge-unit level** — Never assume an entire directory is obsolete
+  because its files are old. Classify each knowledge unit separately; the
+  same tree may yield Delete + Historical + Delete.
+- **Historical boundary** — Historical knowledge must be clearly
+  distinguishable from current: prefer `docs/history/` or an explicit
+  status marker. Avoid `old-auth.md` beside `new-auth.md` looking equally
+  authoritative.
+- **Consolidation** — When consolidating historical knowledge, preserve
+  decision, reason, impact, replacement, and important lessons. Remove
+  repeated wording, terminal logs, minor chronology, temporary debugging
+  details, and commentary.
+- **Preservation has a cost** — More files, more retrieval choices, more
+  context, more confusion, more maintenance. Preserve only history that
+  materially improves future engineering decisions.
 
 ---
 
-# Archive Policy
+# Confidence and Risk
 
-Do not create an archive merely to avoid deleting files.
+Evidence confidence scale (High / Medium / Low): see `repository-audit`
+(canonical owner).
 
-Bad:
+Rule: **low-confidence candidates must never be automatically deleted** —
+route them to Investigate.
 
-```text
-docs/archive/
-    everything-ever-written.md
-```
+Risk/severity classification (Critical / High / Medium / Low): see
+`memory-verification` (canonical owner).
 
-Good:
-
-```text
-docs/history/
-    authentication-migration.md
-```
-
-when the historical event has durable engineering value.
-
----
-
-# Do Not Preserve Everything
-
-Historical preservation has a cost:
-
-```text
-More files
-More retrieval choices
-More context
-More possible confusion
-More maintenance
-```
-
-Preserve only history that materially improves future engineering decisions.
+Rule: stale operational instructions are treated as higher-risk than stale
+historical text.
 
 ---
 
@@ -1237,6 +606,8 @@ Return findings using:
 
 - `<path>` — <why evidence is insufficient>
 ```
+
+Do not use lack of references as sufficient evidence of obsolescence.
 
 ---
 
@@ -1290,9 +661,7 @@ Remove references from `AGENTS.md` and workflow index.
 
 # Parent-Agent Handoff
 
-The output of this Skill should allow the parent Agent to perform the edit safely.
-
-Return:
+Output must allow the parent Agent to perform the edit safely. Return:
 
 ```text
 What is obsolete?
@@ -1310,58 +679,32 @@ Do not perform the edit yourself.
 
 # Retrieval Safety
 
-Evaluate obsolete knowledge based on where Agents encounter it.
-
-Priority:
+The higher the retrieval priority, the more dangerous stale information
+becomes:
 
 ```text
-AGENTS.md
-    ↓
-Current domain indexes
-    ↓
-Current workflows
-    ↓
-Current architecture
-    ↓
-Current decisions
-    ↓
-Reference
-    ↓
-History
+AGENTS.md → current domain indexes → current workflows → current
+architecture → current decisions → reference → history
 ```
-
-The higher the retrieval priority, the more dangerous stale information becomes.
 
 ---
 
 # Hard Rules
 
-* Do not delete knowledge merely because it is old.
-* Do not preserve knowledge merely because it is historical.
-* Do not invent historical events.
-* Do not guess replacement paths.
-* Do not classify based only on file timestamps.
-* Do not classify based only on filenames.
-* Do not classify based only on lack of references.
-* Do not treat newer documentation as automatic proof.
-* Do not leave superseded knowledge looking current.
-* Do not leave obsolete operational instructions in `AGENTS.md`.
-* Do not preserve terminal logs as historical knowledge.
-* Do not preserve ordinary debugging noise.
-* Do not create archive dumps.
-* Do not preserve duplicate historical records unnecessarily.
-* Do not delete low-confidence candidates automatically.
-* Do not modify repository files.
-* Do not claim deletion occurred.
-* Do not claim references were repaired.
-* Do not claim final verification.
-* Preserve important rejection rationale.
-* Preserve important migration rationale.
-* Explicitly identify replacements when known.
-* Prefer deletion when obsolete knowledge has no durable value.
-* Prefer historical preservation when old knowledge explains current architecture.
-* Prefer explicit supersession when a replacement exists.
-* Prioritize high-risk stale guidance.
+1. Never declare obsolete without evidence; age, timestamps, filenames, and
+   lack of references are never sufficient.
+2. Never leave superseded or deprecated knowledge looking current; identify
+   the replacement or current path whenever one is known.
+3. Never leave obsolete operational instructions in `AGENTS.md`.
+4. Never auto-delete low-confidence candidates — Investigate.
+5. Never modify repository files; never claim deletion, reference repair, or
+   final verification occurred.
+6. Never preserve terminal logs, debugging noise, or duplicate historical
+   records.
+7. Never invent historical events or guess replacement paths.
+8. Preserve important rejection and migration rationale.
+9. Classify at knowledge-unit level, not directory level.
+10. Prioritize high-risk stale guidance over low-value clutter.
 
 ---
 
@@ -1370,30 +713,14 @@ The higher the retrieval priority, the more dangerous stale information becomes.
 The audit is complete when:
 
 ```text
-Obsolete candidates identified
-        ✓
-Evidence reviewed
-        ✓
-Current state classified
-        ✓
+Obsolete candidates identified with evidence
+Current state classified (states owned by knowledge-classification)
 Historical value assessed
-        ✓
 Replacement identified where applicable
-        ✓
-Risk assessed
-        ✓
-Action selected
-        ✓
-High-priority stale guidance identified
-        ✓
-Reference cleanup identified
-        ✓
+Action selected per Decision Tree
+High-priority stale guidance and reference cleanup identified
 Low-confidence candidates isolated
-        ✓
-No repository files modified
-        ✓
-Parent-Agent handoff produced
-        ✓
+No repository files modified; parent handoff produced
 ```
 
 ---
@@ -1403,23 +730,6 @@ Parent-Agent handoff produced
 The purpose of obsolete-knowledge management is not to erase the past.
 
 It is to prevent the past from masquerading as the present.
-
-The desired state is:
-
-```text
-Old Knowledge
-      ↓
-Evidence
-      ↓
-Classify
-      ↓
-┌───────────────┬────────────────┬────────────────┐
-│               │                │                │
-Delete       Historical      Superseded       Deprecated
-│               │                │                │
-Removed       Preserved       Replacement     Limited Use
-              Context         Explicit
-```
 
 A clean Project Memory system should make it difficult for a future Agent to
 accidentally follow an obsolete path while still making important engineering

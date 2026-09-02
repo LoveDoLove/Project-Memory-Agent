@@ -66,6 +66,7 @@ AGENTS.md  (you are here)
 ├── docs/decisions/README.md
 │   ├── installer-delivery.md                 irm|iex + raw.githubusercontent self-fetch
 │   ├── install-footprint.md                  global scope, per-target dirs, no-double-load
+│   ├── project-memory-optimization.md        orchestrator/skills verbosity strategy
 │   └── codex-agent-toml.md                   Codex agent as standalone TOML
 ├── docs/lessons/README.md
 │   ├── pester-3-4-legacy-syntax.md           Pester 3.4.0 compat rules

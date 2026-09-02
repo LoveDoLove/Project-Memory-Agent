@@ -63,4 +63,4 @@ from a local checkout.
 
 - Redirected-input default-to-all behavior: install.ps1:66–78.
 - Tests execute the same code paths with `Invoke-WebRequest` mocked:
-  install.tests.ps1 (4/4 passing).
+  install.tests.ps1 (7/7 passing).

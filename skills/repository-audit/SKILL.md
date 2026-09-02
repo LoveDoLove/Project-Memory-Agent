@@ -2,35 +2,23 @@
 name: repository-audit
 description: >
   Evidence-first repository auditing skill. Discovers and verifies repository
-  state across source code, tests, configuration, dependencies, build/CI,
-  Git history, documentation, agent instructions, skills, and engineering
-  artifacts. Verifies claims surfaced by knowledge-discovery from existing
-  multi-source project knowledge (AGENTS.md, CLAUDE.md, .cursor/rules/,
-  .claude/, and similar). Produces a scoped evidence inventory and identifies
-  mismatches, coverage limitations, and candidate knowledge without modifying
-  the repository.
+  state across source code, tests, configuration, build/CI, Git history,
+  documentation, and agent instructions. Verifies claims surfaced by
+  knowledge-discovery, detects documentation mismatches, and produces a scoped
+  evidence inventory with explicit coverage limitations. Read-only; makes no
+  classification decisions or edits.
 ---
 
 # Repository Audit
 
-You are responsible for **repository discovery and evidence gathering**.
+You are responsible for **repository discovery and evidence gathering**:
+establish what the repository can actually demonstrate before Project Memory
+makes classification, architectural, historical, or documentation decisions.
 
-Your purpose is to establish what the repository can actually demonstrate before
-Project Memory makes classification, architectural, historical, or documentation
-decisions.
-
-You do not own:
-
-- knowledge classification
-- documentation architecture
-- obsolete-knowledge decisions
-- documentation editing
-- final memory verification
-
-Those responsibilities belong to other Project Memory skills.
-
-Your output is an **evidence-backed repository state report** that other skills
-and the parent `project-memory` Agent can use.
+Your output is an **evidence-backed repository state report** for the other
+Project Memory skills and the parent `project-memory` Agent: what the
+repository can prove, the evidence, the scope, what conflicts, what remains
+uncertain, and what the next skill must decide.
 
 ---
 
@@ -41,74 +29,33 @@ Never audit the repository by reading documentation alone.
 The audit must compare:
 
 ```text
-Implementation
-      ↕
-Tests
-      ↕
-Configuration
-      ↕
-Dependencies
-      ↕
-Build / CI
-      ↕
-Git History
-      ↕
-Documentation
-      ↕
-Engineering Artifacts
-````
+Implementation ↔ Tests ↔ Configuration ↔ Dependencies ↔ Build/CI ↔ Git History ↔ Documentation ↔ Engineering Artifacts
+```
 
-The goal is not to collect everything.
-
-The goal is to collect enough reliable evidence to answer the requested question
-and identify the boundaries of what can and cannot be proven.
+The goal is not to collect everything. The goal is to collect enough reliable
+evidence to answer the requested question and identify the boundaries of what
+can and cannot be proven.
 
 ---
 
-# Responsibilities
+# Role and Non-Responsibilities
 
-This Skill is responsible for:
+**Read-only** — no file creation, modification, deletion, renaming,
+documentation rewrites, or index updates. If changes are required, return the
+evidence to the parent Agent, which loads `memory-edit` when appropriate.
 
-1. Repository discovery.
-2. Relevant scope identification.
-3. Evidence collection.
-4. Source/test/configuration comparison.
-5. Git-history investigation.
-6. Documentation comparison.
-7. Existing-memory discovery.
-8. Verification of claims surfaced by `knowledge-discovery`.
-9. Candidate mismatch detection.
-10. Evidence coverage assessment.
-11. Evidence limitation reporting.
+**No classification or fixes** — identify candidate knowledge and report
+mismatches, but never decide final classification, documentation architecture,
+deletion of stale knowledge, or the `docs/` hierarchy.
 
-It may identify candidate knowledge, but must not decide its final classification.
+**No discovery re-work** — do not re-derive what `knowledge-discovery` owns;
+verify what it finds.
 
 ---
 
-# Non-Responsibilities
+# Audit Scope Discipline
 
-Do not:
-
-* modify repository files
-* rewrite documentation
-* create memory documents
-* classify knowledge as a final decision
-* decide whether stale knowledge should be deleted
-* design the final `docs/` hierarchy
-* claim repository-wide correctness from a partial audit
-* treat documentation as authoritative without verification
-* treat `codebase-memory` output as proof of repository completeness
-* perform the discovery/extraction/clustering of existing knowledge sources
-  itself — that is `knowledge-discovery`'s job; this Skill verifies what
-  `knowledge-discovery` finds
-
----
-
-# Audit Scope
-
-Before inspecting files, determine the smallest useful scope.
-
-Possible scopes:
+Determine the smallest useful scope before inspecting files.
 
 ```text
 Repository-wide
@@ -123,227 +70,133 @@ Specific engineering problem
 Specific implementation claim
 ```
 
-Prefer targeted scope when the task is targeted.
-
-Expand the scope when evidence reveals dependencies outside the initial area.
-
-Do not perform a repository-wide audit for a narrow question unless required.
-
----
-
-# Initial Discovery
-
-Establish the repository shape before reading individual documents.
-
-Inspect applicable:
-
-```text
-Root files
-Source directories
-Test directories
-Build configuration
-Dependency manifests
-Tooling configuration
-CI / CD configuration
-Scripts
-Documentation
-Agent instructions
-Skills
-Git metadata
-Architecture documents
-Decision records
-Solution documents
-Lesson documents
-Historical records
-```
-
-Identify:
-
-```text
-Language(s)
-Framework(s)
-Build system
-Package manager(s)
-Test framework(s)
-Runtime(s)
-Deployment model
-Repository structure
-Documentation structure
-Agent/Skill structure
-```
-
-Do not infer these solely from directory names.
-
-Verify them from configuration or implementation where possible.
+- Prefer targeted scope when the task is targeted.
+- Expand the scope only when evidence reveals dependencies outside the
+  initial area.
+- Do not perform a repository-wide audit for a narrow question unless
+  required.
 
 ---
 
-# Evidence Sources
+# Evidence Classes
 
-Use the following evidence classes.
+Never audit documentation in isolation — documentation claims are verified
+against implementation, tests, configuration, build/CI, and history.
 
 ## 1. Source Code
 
-Inspect:
-
-* definitions
-* implementations
-* interfaces
-* entry points
-* dependency injection
-* module relationships
-* feature flags
-* configuration readers
-* runtime behavior
-* error handling
-* platform-specific branches
+Check: definitions, implementations, interfaces, entry points, dependency
+injection, module relationships, feature flags, configuration readers,
+runtime behavior, error handling, platform-specific branches.
 
 Prefer exact implementation evidence over descriptions.
 
----
-
 ## 2. Tests
 
-Inspect:
+Check: unit/integration/end-to-end tests, fixtures, test configuration, test
+naming, assertions, skipped and disabled tests.
 
-* unit tests
-* integration tests
-* end-to-end tests
-* fixtures
-* test configuration
-* test naming
-* assertions
-* skipped tests
-* disabled tests
-
-Determine whether tests actually validate the behavior being claimed.
-
-A test's existence does not prove that the complete feature works.
-
----
+Determine whether tests actually validate the behavior being claimed. A
+test's existence does not prove the complete feature works.
 
 ## 3. Configuration
 
-Inspect applicable:
-
-* application configuration
-* environment configuration
-* feature flags
-* build configuration
-* dependency manifests
-* tool configuration
-* CI configuration
-* deployment configuration
+Check: application and environment configuration, feature flags, build
+configuration, dependency manifests, tool configuration, CI configuration,
+deployment configuration.
 
 Determine whether an implementation is actually enabled or reachable.
 
----
-
 ## 4. Build / CI
 
-Inspect:
-
-* build commands
-* CI workflows
-* release workflows
-* linting
-* static analysis
-* test execution
-* packaging
-* deployment checks
+Check: build commands, CI workflows, release workflows, linting, static
+analysis, test execution, packaging, deployment checks.
 
 Use actual repository configuration rather than assumed commands.
 
----
-
 ## 5. Git History
 
-Use Git history when current files cannot explain:
+Use when current files cannot explain: why something exists, whether it is
+transitional, whether an implementation replaced another, when architecture
+changed, whether documentation predates implementation, whether a workaround
+was temporary, whether a feature was abandoned, whether a migration is
+incomplete.
 
-* why something exists
-* whether something is transitional
-* whether an implementation replaced another
-* when an architecture changed
-* whether documentation predates implementation
-* whether a workaround was temporary
-* whether a feature was abandoned
-* whether a migration is incomplete
+Check: commit history, file history, blame, renames, moves, relevant tags
+and branches. Sequence: current file → relevant commit → previous version →
+related commits → reason/migration context. Read only related history.
 
-Useful evidence includes:
-
-```text
-Commit history
-File history
-Blame
-Renames
-Moves
-Relevant tags
-Relevant branches
-```
-
-Do not treat commit messages as unquestionable truth.
-
-Use them as historical evidence that should be compared against the repository state.
-
----
+Commit messages are historical evidence to compare against repository state —
+not unquestionable truth, and never sufficient evidence for current behavior.
 
 ## 6. Documentation
 
-Inspect:
+Check: README, AGENTS.md, CLAUDE.md, docs/, architecture documents, decision
+records, solutions, lessons, runbooks, migration notes, plans, engineering
+notes.
 
-```text
-README
-AGENTS.md
-CLAUDE.md
-docs/
-Architecture documents
-Decision records
-Solutions
-Lessons
-Runbooks
-Migration notes
-Plans
-Engineering notes
-```
-
-Documentation is evidence.
-
-It is not automatically current.
-
----
+Documentation is evidence. It is not automatically current.
 
 ## 7. Existing Agent / Skill Instructions
 
-Inspect:
+Check: AGENTS.md, CLAUDE.md, agent definitions, SKILL.md files,
+repository-specific instruction files.
 
-```text
-AGENTS.md
-CLAUDE.md
-Agent definitions
-SKILL.md files
-Repository-specific instruction files
-```
-
-Determine:
-
-* instruction hierarchy
-* scope
-* conflicting rules
-* obsolete instructions
-* referenced files
-* referenced workflows
-
-Do not modify them during this audit.
-
----
+Determine instruction hierarchy, scope, conflicting rules, obsolete
+instructions, referenced files and workflows. Do not modify them during this
+audit.
 
 ## 8. Existing Knowledge Inventory (from `knowledge-discovery`)
 
-When `knowledge-discovery` has already run, treat its Existing Knowledge
-Inventory as a list of claims requiring verification — not as established
-fact.
+Treat any Existing Knowledge Inventory as a list of claims requiring
+verification — not established fact. See "Verifying the Existing Knowledge
+Inventory" below.
 
-For each claim or cluster in the inventory:
+---
+
+# Audit Procedure
+
+Use this procedure unless the parent Agent specifies a narrower workflow.
+
+1. **Establish scope** — record the requested task, repository area, relevant
+   components, and expected evidence.
+2. **Map repository structure** — identify root, source, tests, config,
+   build, CI, docs, agent instructions, skills, Git. Verify languages,
+   frameworks, build system, package managers, and test frameworks from
+   configuration or implementation — never infer them solely from directory
+   names.
+3. **Identify evidence paths** — identify the exact files/directories likely
+   to contain evidence; avoid reading the entire repository unnecessarily.
+4. **Verify implementation** — inspect source and relevant relationships; use
+   `codebase-memory` first when material graph verification is useful.
+5. **Verify tests** — determine whether tests support the implementation
+   claim; record important gaps.
+6. **Verify configuration** — determine whether the relevant behavior is
+   enabled, disabled, conditional, environment-specific, experimental,
+   unused, or unknown. Do not classify it beyond what evidence supports.
+7. **Verify build/CI** — check whether the relevant behavior is exercised by
+   build or CI.
+8. **Check documentation** — compare current claims against implementation
+   evidence.
+9. **Investigate history** — use Git history only where it can materially
+   clarify intent, migration, replacement, removal, historical state, or
+   rationale.
+10. **Check existing memory** — locate duplicate knowledge, conflicting
+    documents, stale instructions, missing references, and historical
+    material presented as current.
+11. **Verify the Existing Knowledge Inventory** — when `knowledge-discovery`
+    supplied one, work through its clusters and record a verification result
+    for each.
+12. **Build evidence inventory** — for each important finding, record
+    Finding, Evidence, Scope, Confidence, Limitations.
+13. **Return to parent Agent** — return the evidence without making decisions
+    owned by other skills.
+
+---
+
+# Verifying the Existing Knowledge Inventory
+
+For each claim or cluster in a `knowledge-discovery` inventory:
 
 ```text
 Claim
@@ -356,39 +209,44 @@ Verified Current | Verified Historical | Contradicted | Partially Verified | Unv
 Prioritize verification of:
 
 - `Conflicting` clusters — repository evidence is what resolves them.
-- Claims backing current operational guidance in `AGENTS.md`, `CLAUDE.md`,
-  `.cursor/rules/`, or any other Agent-facing entry point.
+- Claims backing current operational guidance in Agent-facing entry points
+  (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and similar).
 - Claims that, if wrong, would cause a future Agent to violate a constraint
   or repeat a rejected approach.
 
 Do not re-derive the inventory yourself if `knowledge-discovery` has already
-produced one — verify it. If no inventory was produced and existing
-knowledge sources are present, note this as a scope limitation and, if the
-task warrants it, recommend the parent Agent load `knowledge-discovery`
-before proceeding.
+produced one — verify it. If no inventory was produced and existing knowledge
+sources are present, note this as a scope limitation and, when the task
+warrants it, recommend the parent Agent load `knowledge-discovery` before
+proceeding.
+
+When auditing existing memory, inspect knowledge across **every** origin
+tool, not only `docs/` — AGENTS.md, CLAUDE.md, `.cursor/rules/`,
+`.windsurfrules`, `.github/copilot-instructions.md`, `.claude/`, `skills/`,
+`agents/`, and `docs/` subdirectories (architecture, decisions, solutions,
+lessons, constraints, workflows, history, reference).
+
+Identify: duplicate knowledge, conflicting knowledge, orphaned documents,
+broken references, current/historical confusion, stale instructions, missing
+navigation, documents with weak evidence, oversized documents containing
+unrelated concepts.
+
+Report these findings. Do not restructure them here.
 
 ---
 
-# `codebase-memory` Verification
+# `codebase-memory` Usage (Canonical)
 
-For material repository claims, use `codebase-memory` as the default graph-based
-verification layer when available.
+This section is the canonical Project Memory definition of the
+`codebase-memory` verification workflow, coverage model, and source-fallback
+rules. Other skills reference this section instead of duplicating it.
 
-Use it to investigate:
+For material repository claims, use `codebase-memory` as the default
+graph-based verification layer when available — for definitions, references,
+call paths, dependencies, module and architecture relationships, feature
+usage, abstraction usage, and implementation relationships.
 
-```text
-Definitions
-References
-Call paths
-Dependencies
-Module relationships
-Architecture relationships
-Feature usage
-Abstraction usage
-Implementation relationships
-```
-
-Prefer:
+## Preferred chain
 
 ```text
 Graph Discovery
@@ -402,15 +260,12 @@ Coverage Verification
 Direct Source Fallback
 ```
 
-Do not blindly trust a graph result.
+Do not blindly trust a graph result. Verify important claims against exact
+source evidence.
 
-Verify important claims against exact source evidence.
+## Coverage record
 
----
-
-# Coverage Rules
-
-For every material `codebase-memory` investigation, determine:
+For every material `codebase-memory` investigation, determine and record:
 
 ```text
 Tier
@@ -423,16 +278,10 @@ Source fallback
 Limitations
 ```
 
-Coverage may be:
+Coverage status is one of:
 
 ```text
-Complete
-Partial
-Skipped
-Excluded
-Stale
-Pending
-Unknown
+Complete | Partial | Skipped | Excluded | Stale | Pending | Unknown
 ```
 
 A clean coverage result means:
@@ -443,29 +292,27 @@ It does not mean:
 
 > The entire repository has been proven complete.
 
----
+Coverage is best-effort. Absence of a recorded gap is not proof of
+completeness.
 
-# Source Fallback
+## Source fallback triggers
 
 Use direct `read` / `grep` or equivalent repository inspection when:
 
-* the graph does not cover the relevant path
-* graph coverage is partial
-* the graph is stale
-* a symbol is missing
-* a generated file is involved
-* configuration is outside graph scope
-* Git history is required
-* the claim is negative or exhaustive
-* exact source evidence is required
+- the graph does not cover the relevant path, or graph coverage is partial
+- the graph is stale
+- a symbol is missing
+- a generated file is involved
+- configuration is outside graph scope
+- Git history is required
+- the claim is negative or exhaustive
+- exact source evidence is required
 
-Record the fallback.
-
-Do not hide evidence limitations.
+Record the fallback. Do not hide evidence limitations.
 
 ---
 
-# Claim Verification
+# Claim Verification Records
 
 For each material claim, establish:
 
@@ -497,7 +344,7 @@ Limitations:
 Did not audit external identity provider configuration.
 ```
 
-Do not use vague statements such as:
+Banned vague verdicts — never output:
 
 ```text
 Seems correct.
@@ -510,21 +357,16 @@ Convert uncertainty into explicit limitations.
 
 ---
 
-# Negative Claims
+# Negative Claims (Canonical)
 
-Negative claims require stronger evidence.
+This section is the canonical Project Memory negative-claims discipline.
+Other skills reference this section instead of duplicating it.
 
-Examples:
+Negative claims require stronger evidence — e.g. "the project does not use
+Redis", "there is no authentication middleware", "the old API has been
+completely removed", "no tests exist for this feature".
 
-```text
-The project does not use Redis.
-There is no authentication middleware.
-The old API has been completely removed.
-No tests exist for this feature.
-The repository no longer supports X.
-```
-
-Before making such claims:
+Before making such a claim:
 
 1. Define the relevant scope.
 2. Search the relevant paths.
@@ -535,53 +377,28 @@ Before making such claims:
 7. Check Git history when removal/migration is involved.
 8. Record the coverage boundary.
 
-Prefer:
+When repository-wide absence cannot be proven, prefer:
 
 ```text
 No evidence of X was found within <scope>.
 ```
 
-when repository-wide absence cannot be proven.
-
-Do not convert an incomplete search into:
-
-```text
-X does not exist.
-```
+Do not convert an incomplete search into "X does not exist."
 
 ---
 
-# Exhaustive Claims
+# Exhaustive Claims (Canonical)
 
-Claims containing:
+This section is the canonical Project Memory exhaustive-claims discipline.
+Other skills reference this section instead of duplicating it.
 
-```text
-all
-every
-none
-never
-only
-completely
-fully removed
-entirely migrated
-```
-
-require explicit scope evidence.
+Claims containing **all, every, none, never, only, completely, fully
+removed, entirely migrated** require explicit scope evidence.
 
 Before making an exhaustive claim:
 
 ```text
-Define Scope
-      ↓
-Enumerate Relevant Paths
-      ↓
-Inspect Coverage
-      ↓
-Cross-check Dependencies / References
-      ↓
-Inspect History if Relevant
-      ↓
-Report Limitations
+Define Scope → Enumerate Relevant Paths → Inspect Coverage → Cross-check Dependencies/References → Inspect History if Relevant → Report Limitations
 ```
 
 If adequate coverage is unavailable, qualify the claim.
@@ -590,24 +407,12 @@ If adequate coverage is unavailable, qualify the claim.
 
 # Documentation Mismatch Detection
 
-Compare documentation against implementation.
-
-Look for:
-
-```text
-Documented feature missing in source
-Implemented feature missing from documentation
-Old path references
-Renamed symbols
-Removed dependencies
-Invalid commands
-Old architecture descriptions
-Stale configuration examples
-Outdated workflow steps
-Superseded decisions
-Completed migrations still described as pending
-Historical behavior presented as current
-```
+Compare documentation against implementation. Look for: documented features
+missing in source, implemented features missing from documentation, old path
+references, renamed symbols, removed dependencies, invalid commands, old
+architecture descriptions, stale configuration examples, outdated workflow
+steps, superseded decisions, completed migrations still described as pending,
+historical behavior presented as current.
 
 For every mismatch, record:
 
@@ -620,134 +425,26 @@ Evidence
 Confidence
 ```
 
-Do not fix the mismatch in this Skill.
+When implementation and documentation disagree, investigate which
+current-state explanation fits — current, incomplete, experimental,
+temporary, deprecated, or abandoned implementation; stale or historical
+documentation; migration in progress; or unknown. Report the evidence
+supporting each possibility.
 
----
-
-# Current-State Investigation
-
-When implementation and documentation disagree, investigate:
-
-```text
-Current implementation?
-Incomplete implementation?
-Experimental implementation?
-Temporary implementation?
-Deprecated implementation?
-Abandoned implementation?
-Stale documentation?
-Historical documentation?
-Migration in progress?
-Unknown?
-```
-
-Do not make the final classification if another skill owns classification.
-
-Instead report the evidence that supports each possibility.
-
----
-
-# Git History Investigation
-
-Use Git history selectively.
-
-History is especially important when investigating:
-
-* migrations
-* replacements
-* removals
-* architectural transitions
-* compatibility workarounds
-* abandoned approaches
-* decisions with unclear rationale
-* documentation that conflicts with current code
-
-Useful sequence:
-
-```text
-Current File
-    ↓
-Relevant Commit
-    ↓
-Previous Version
-    ↓
-Related Commits
-    ↓
-Reason / Migration Context
-```
-
-Do not read unrelated repository history.
-
-Do not treat a commit message as sufficient evidence for current behavior.
-
----
-
-# Existing Memory Audit
-
-When auditing Project Memory, inspect existing knowledge across **every**
-origin tool, not only `docs/`:
-
-```text
-AGENTS.md
-CLAUDE.md
-.cursor/rules/
-.windsurfrules
-.github/copilot-instructions.md
-.claude/
-skills/
-agents/
-docs/
-architecture/
-decisions/
-solutions/
-lessons/
-constraints/
-workflows/
-history/
-reference/
-```
-
-Identify:
-
-* duplicate knowledge
-* conflicting knowledge
-* orphaned documents
-* broken references
-* current/historical confusion
-* stale instructions
-* missing navigation
-* documents with weak evidence
-* oversized documents containing unrelated concepts
-
-Report these findings.
-
-Do not restructure them here.
+Do not make the final classification here. Do not fix the mismatch in this
+Skill.
 
 ---
 
 # Candidate Knowledge Detection
 
-During the audit, identify information that may be worth promoting into memory.
+During the audit, identify information that may be worth promoting into
+memory: non-obvious architecture, important decisions, repeated debugging
+discoveries, verified root causes, reusable solutions, compatibility
+constraints, security boundaries, migration lessons, rejected approaches,
+operational procedures, failure patterns.
 
-Candidates include:
-
-```text
-Non-obvious architecture
-Important decisions
-Repeated debugging discoveries
-Verified root causes
-Reusable solutions
-Compatibility constraints
-Security boundaries
-Migration lessons
-Rejected approaches
-Operational procedures
-Failure patterns
-```
-
-Do not automatically promote candidates.
-
-Return them as:
+Never automatically promote candidates. Return them as:
 
 ```text
 Candidate Knowledge
@@ -757,197 +454,23 @@ Why It May Matter
 Confidence
 ```
 
-`knowledge-classification` and `knowledge-compounding` decide what happens next.
+`knowledge-classification` and `knowledge-compounding` decide what happens
+next.
 
 ---
 
-# Audit Procedure
-
-Use this procedure unless the parent Agent specifies a narrower workflow.
-
-## Step 1 — Establish Scope
-
-Record:
-
-```text
-Requested task
-Repository area
-Relevant components
-Expected evidence
-```
-
----
-
-## Step 2 — Map Repository Structure
-
-Identify:
-
-```text
-Root
-Source
-Tests
-Config
-Build
-CI
-Docs
-Agent instructions
-Skills
-Git
-```
-
----
-
-## Step 3 — Identify Evidence Paths
-
-For the requested task, identify exact files/directories likely to contain evidence.
-
-Avoid reading the entire repository unnecessarily.
-
----
-
-## Step 4 — Verify Implementation
-
-Inspect source and relevant relationships.
-
-Use `codebase-memory` first when material graph verification is useful.
-
----
-
-## Step 5 — Verify Tests
-
-Determine whether tests support the implementation claim.
-
-Record important gaps.
-
----
-
-## Step 6 — Verify Configuration
-
-Determine whether the relevant behavior is:
-
-```text
-Enabled
-Disabled
-Conditional
-Environment-specific
-Experimental
-Unused
-Unknown
-```
-
-Do not classify it beyond what evidence supports.
-
----
-
-## Step 7 — Verify Build / CI
-
-Check whether the relevant behavior is exercised by build or CI.
-
----
-
-## Step 8 — Check Documentation
-
-Compare current claims against implementation evidence.
-
----
-
-## Step 9 — Investigate History
-
-Use Git history only where it can materially clarify:
-
-* intent
-* migration
-* replacement
-* removal
-* historical state
-* rationale
-
----
-
-## Step 10 — Check Existing Memory
-
-When relevant, locate:
-
-* duplicate knowledge
-* conflicting documents
-* stale instructions
-* missing references
-* historical material presented as current
-
----
-
-## Step 11 — Verify the Existing Knowledge Inventory
-
-When `knowledge-discovery` supplied an inventory, work through its clusters
-(see "Existing Knowledge Inventory" above) and record a verification result
-for each.
-
----
-
-## Step 12 — Build Evidence Inventory
-
-For each important finding:
-
-```text
-Finding
-Evidence
-Scope
-Confidence
-Limitations
-```
-
----
-
-## Step 13 — Return to Parent Agent
-
-Return the evidence without making decisions owned by other skills.
-
----
-
-# Evidence Quality
-
-Use these practical levels:
-
-```text
-High
-Medium
-Low
-Unknown
-```
-
-### High
-
-Multiple independent evidence sources agree.
-
-Example:
-
-```text
-Source + Tests + Configuration
-```
-
-### Medium
-
-A strong direct source exists but independent corroboration is limited.
-
-Example:
-
-```text
-Implementation + Documentation
-```
-
-### Low
-
-Evidence is indirect, incomplete, or historical.
-
-Example:
-
-```text
-Commit message only
-```
-
-### Unknown
-
-Available evidence is insufficient.
+# Evidence Quality and Confidence (Canonical)
+
+This section is the canonical Project Memory evidence-quality model. Other
+skills reference this section instead of duplicating it.
+
+- **High** — multiple independent evidence sources agree
+  (e.g. Source + Tests + Configuration).
+- **Medium** — a strong direct source exists but independent corroboration is
+  limited (e.g. Implementation + Documentation).
+- **Low** — evidence is indirect, incomplete, or historical
+  (e.g. commit message only).
+- **Unknown** — available evidence is insufficient.
 
 Never silently upgrade evidence quality.
 
@@ -1045,177 +568,45 @@ Use:
 
 ---
 
-# Do Not Edit
-
-This Skill is read-only.
-
-Do not:
-
-* create files
-* modify files
-* delete files
-* rename files
-* rewrite documentation
-* update indexes
-* change `AGENTS.md`
-* change `SKILL.md`
-* modify source code
-
-If changes are required, return the evidence to the parent Agent.
-
-The parent Agent will load `memory-edit` when appropriate.
-
----
-
-# Handoff Rules
-
-Hand off to:
-
-## `knowledge-discovery`
-
-When existing knowledge sources have not yet been inventoried and the task
-requires understanding what the repository already claims about itself
-before verification can proceed meaningfully.
-
-## `knowledge-classification`
-
-When evidence has been gathered and the next question is:
-
-```text
-What kind of knowledge is this?
-Is it current?
-Is it historical?
-Is it a decision?
-Is it a solution?
-Is it a lesson?
-```
-
----
-
-## `knowledge-compounding`
-
-When the audit reveals a completed engineering problem that may contain reusable
-learning.
-
----
-
-## `memory-architecture`
-
-When the question becomes:
-
-```text
-Where should this knowledge live?
-How should the documentation hierarchy change?
-```
-
----
-
-## `obsolete-knowledge`
-
-When evidence indicates potentially stale, replaced, or obsolete knowledge.
-
----
-
-## `memory-edit`
-
-When an approved change must actually be applied.
-
----
-
-## `memory-verification`
-
-When changes have been made and repository/memory consistency must be checked.
-
----
-
 # Hard Rules
 
-* Audit before making memory decisions.
-* Do not audit documentation in isolation.
-* Do not guess.
-* Do not invent history.
-* Do not treat documentation as current automatically.
-* Do not treat code as automatically sufficient proof.
-* Do not treat an existing knowledge source as correct because
-  `knowledge-discovery` found it — verify it like any other claim.
-* Use `codebase-memory` for material graph-based repository claims.
-* Verify exact implementation evidence where necessary.
-* Use source fallback when graph coverage is incomplete.
-* Record evidence limitations.
-* Do not make unsupported negative claims.
-* Do not make unsupported exhaustive claims.
-* Do not treat clean graph coverage as proof of repository completeness.
-* Do not modify repository files.
-* Do not classify knowledge when another skill owns classification.
-* Do not decide whether stale knowledge should be deleted.
-* Do not create documentation during the audit.
-* Do not preserve terminal output as knowledge.
-* Do not promote unverified hypotheses.
-* Do not report an edit as completed.
-* Do not claim repository-wide coverage from a targeted audit.
-* Do not hide uncertainty.
-* Do not expand scope without a reason.
+1. Audit before making memory decisions. Never audit documentation in
+   isolation.
+2. Do not guess. Do not invent history. Do not promote unverified
+   hypotheses.
+3. Do not treat documentation as automatically current, code as
+   automatically sufficient proof, or an existing knowledge source as correct
+   because `knowledge-discovery` found it — verify every claim.
+4. Use `codebase-memory` for material graph-based claims, verify exact
+   implementation evidence where necessary, use source fallback when graph
+   coverage is incomplete, and record evidence limitations.
+5. Do not treat clean graph coverage as proof of repository completeness.
+6. Do not make unsupported negative claims or unsupported exhaustive claims.
+7. Do not modify repository files; do not classify knowledge, decide whether
+   stale knowledge should be deleted, or create documentation during the
+   audit — other skills own those decisions.
+8. Do not claim repository-wide coverage from a targeted audit. Do not expand
+   scope without a reason.
+9. Do not hide uncertainty — convert it into explicit limitations.
+10. Do not report an edit as completed. Do not preserve terminal output as
+    knowledge.
 
 ---
 
 # Completion Criteria
 
-The audit is complete when applicable:
+The audit is complete when, as applicable:
 
 ```text
-Scope established
-        ✓
-Repository structure understood
-        ✓
-Relevant evidence paths identified
-        ✓
-Material implementation claims verified
-        ✓
-Tests checked where relevant
-        ✓
-Configuration checked where relevant
-        ✓
-Build / CI checked where relevant
-        ✓
-Documentation compared
-        ✓
-Git history investigated where relevant
-        ✓
-Existing memory inspected where relevant
-        ✓
+Scope, structure, and evidence paths established
+Material implementation claims verified against source
+Tests, configuration, and build/CI checked where relevant
+Documentation compared and mismatches recorded
+Git history and existing memory investigated where relevant
 Existing Knowledge Inventory verified where supplied
-        ✓
-Candidate knowledge identified
-        ✓
-Coverage limitations recorded
-        ✓
-Evidence inventory produced
-        ✓
+Coverage limitations recorded and evidence inventory produced
 No repository changes made
-        ✓
 ```
 
-Do not claim a criterion was completed if it was not performed.
-
-If a criterion is not applicable, explicitly mark it as not applicable.
-
----
-
-# Output Principle
-
-The output of this Skill is not:
-
-> "The documentation is correct."
-
-The output should be:
-
-```text
-Here is what the repository can prove,
-here is the evidence,
-here is the scope,
-here is what conflicts,
-here is what remains uncertain,
-and here is what the next Project Memory skill needs to decide.
-```
-
-That evidence becomes the foundation for the rest of the Project Memory lifecycle.
+Do not claim a criterion was completed if it was not performed. If a
+criterion is not applicable, explicitly mark it as not applicable.

@@ -1,148 +1,52 @@
 ---
 name: memory-edit
 description: >
-  Safely applies approved Project Memory changes to repository documentation,
-  including multi-source reconstruction edits that consolidate knowledge
-  scattered across pre-existing origin tools (AGENTS.md, CLAUDE.md,
-  .cursor/rules/, .claude/, docs/, and similar) into one canonical location.
-  Executes scoped additions, modifications, moves, consolidations, deletions,
-  thin-pointer conversions, and navigation updates while preserving canonical
-  knowledge ownership, progressive loading, historical boundaries, and
-  reference integrity. Uses cavecrew-builder for bounded mechanical edits and
-  avoids blind bulk documentation rewrites.
+  Applies approved Project Memory changes to repository documentation —
+  scoped additions, modifications, moves, merges, deletions, thin-pointer
+  conversions, and navigation updates, including multi-source
+  reconstruction consolidating pre-existing origin tools (AGENTS.md,
+  CLAUDE.md, .cursor/rules/, .claude/) into one canonical location while
+  preserving canonical ownership, historical boundaries, and reference
+  integrity. Delegates bounded mechanical edits to cavecrew-builder;
+  never performs blind bulk rewrites.
 ---
 
 # Memory Edit
 
-You are responsible for **executing approved Project Memory changes**.
+Execute approved Project Memory changes.
 
-Your purpose is not to decide what the repository should remember.
+You do not decide what the repository should remember. You translate an
+approved memory architecture and knowledge classification into precise
+repository changes.
 
-Your purpose is to translate an already-approved memory architecture and
-knowledge classification into precise repository changes.
-
-You modify files carefully.
-
-You keep the change set:
-
-- scoped
-- deliberate
-- minimal
-- traceable
-- structurally consistent
-- easy to verify
+Keep the change set scoped, deliberate, minimal, traceable, structurally
+consistent, easy to verify.
 
 ---
 
 # Core Principle
 
-Do not edit Project Memory by improvisation.
+Only `memory-edit` writes Project Memory changes. Every edit requires an
+approved plan and is the smallest valid change that executes it.
 
-The expected flow is:
-
-```text
-Existing Knowledge Discovery (if applicable)
-    ↓
-Evidence
-    ↓
-Knowledge Classification
-    ↓
-Knowledge Compounding
-    ↓
-Memory Architecture
-    ↓
-Approved Edit Plan
-    ↓
-Memory Edit
-    ↓
-Memory Verification
-````
-
-`memory-edit` executes the approved plan.
-
-It does not silently redesign the memory system during execution.
-
----
-
-# Primary Goals
-
-Optimize for:
+Do not edit by improvisation. Expected flow:
 
 ```text
-Correctness
-Minimal Changes
-Preservation
-Traceability
-Reference Integrity
-Canonical Ownership
-Navigation Integrity
-Safe Migration
+knowledge-discovery → repository-audit → knowledge-classification
+    → knowledge-compounding → memory-architecture
+    → Approved Edit Plan → memory-edit → memory-verification
 ```
 
-Do not optimize for:
+`memory-edit` executes the approved plan. It does not silently redesign
+the memory system during execution. It is the hands of the system, not its
+brain.
 
-```text
-Maximum Cleanup
-Maximum Formatting
-Large Rewrite
-File Count Reduction
-Aesthetics
-```
-
----
-
-# Responsibilities
-
-This Skill is responsible for:
-
-1. Creating approved knowledge units.
-2. Updating existing knowledge units.
-3. Moving knowledge to approved canonical locations.
-4. Consolidating duplicate knowledge, including duplicates spanning
-   multiple pre-existing origin tools.
-5. Removing approved obsolete knowledge.
-6. Marking approved knowledge as deprecated.
-7. Marking approved knowledge as superseded.
-8. Converting a pre-existing tool-specific entry point into a thin pointer
-   to the canonical entry point, per an approved reconciliation plan.
-9. Updating navigation.
-10. Updating cross-references.
-11. Preserving historical context during migrations.
-12. Applying minimal formatting corrections required by the change.
-13. Producing an edit receipt for later verification.
-
----
-
-# Non-Responsibilities
-
-Do not:
-
-* independently determine repository truth
-* perform broad repository auditing
-* discover or extract existing knowledge sources — that is
-  `knowledge-discovery`
-* decide whether knowledge is valuable
-* invent missing knowledge
-* redesign the memory architecture
-* perform final verification
-* claim the repository is fully consistent
-* claim links are all valid without verification
-* rewrite unrelated documentation
-* modify source code unless explicitly included in the approved task
-
-Use:
-
-```text
-knowledge-discovery
-repository-audit
-knowledge-classification
-knowledge-compounding
-memory-architecture
-obsolete-knowledge
-memory-verification
-```
-
-for those responsibilities.
+Not responsible for: determining repository truth, broad auditing
+(`repository-audit`), discovering sources (`knowledge-discovery`), deciding
+knowledge value (`knowledge-classification`), memory architecture design
+(`memory-architecture`), obsolete-action semantics and formats
+(`obsolete-knowledge`), final verification (`memory-verification`). Do not
+modify source code unless explicitly included in the approved task.
 
 ---
 
@@ -189,7 +93,7 @@ AGENTS.md
 docs/architecture/README.md
 ```
 
-Multi-source example:
+Multi-source plans carry a per-source disposition:
 
 ```text
 Action:
@@ -213,8 +117,8 @@ CLAUDE.md   → convert to thin pointer to AGENTS.md
 .cursor/rules/auth.md → delete (fully redundant once merged)
 ```
 
-If the required information is missing and the edit cannot be performed safely,
-stop and report the missing decision.
+If the required information is missing and the edit cannot be performed
+safely, stop and report the missing decision.
 
 Do not guess.
 
@@ -280,209 +184,74 @@ Verify destination
 Remove obsolete source
 ```
 
-Avoid:
+Forbidden:
 
 ```text
-Delete source
-        ↓
-Hope replacement exists
+Delete source → hope replacement exists
 ```
+
+Keep every migration reversible until its destination is established.
 
 ---
 
 # Minimal Edit Principle
 
-Change only what is required.
+Change only what the approved plan requires — the smallest valid edit, no
+unrequested changes. Every unrelated change increases verification cost.
 
-If the task is:
-
-```text
-Update one workflow path
-```
-
-do not:
-
-```text
-Reformat the entire document
-Rename unrelated headings
-Rewrite adjacent sections
-Reorder unrelated content
-```
-
-Every unrelated change increases verification cost.
+Preserve repository conventions (heading, terminology, link, and formatting
+style; established frontmatter and status-metadata schemas). Do not invent
+metadata fields or perform opportunistic formatting.
 
 ---
 
-# Preserve Existing Style
+# Operations
 
-When modifying existing documents:
-
-```text
-Preserve heading style
-Preserve terminology
-Preserve link style
-Preserve metadata conventions
-Preserve surrounding formatting
-Preserve document organization
-```
-
-unless the approved architecture explicitly requires a structural change.
-
----
-
-# Content Ownership
-
-Before inserting content, identify the canonical owner.
-
-Ask:
-
-> Is this information already owned by another knowledge unit — in `docs/`
-> or in any other origin tool?
-
-If yes:
-
-```text
-Reference it.
-```
-
-Do not create another copy.
-
----
-
-# Duplicate Prevention
-
-Before creating a new document, check whether an existing document —
-regardless of origin tool — already contains the same knowledge.
-
-Prefer:
-
-```text
-Improve existing document
-```
-
-over:
-
-```text
-Create another similar document
-```
-
-unless the architecture explicitly requires separation.
-
----
-
-# Create
+## Create
 
 Create a new knowledge unit only when approved by the architecture plan.
+A new file needs clear purpose, clear ownership, a useful retrieval
+boundary, correct location, correct navigation.
 
-A new file should have:
+Check whether an existing document — regardless of origin tool — already
+owns the knowledge; if so, reference it instead of creating another copy.
+
+Do not create placeholder content (`TODO`, `TBD`, example content presented
+as fact, unverified claims). If required information is missing, stop and
+return the requirement to the parent Agent.
+
+## Modify
 
 ```text
-Clear Purpose
-Clear Ownership
-Useful Retrieval Boundary
-Correct Location
-Correct Navigation
+Read → locate exact target → apply smallest valid change → re-read section
 ```
 
-Do not create placeholder content.
+Do not edit based solely on a filename or search result. Preserve all
+approved durable knowledge unless the plan explicitly removes it.
 
----
-
-# New Document Quality
-
-A newly created document should not contain:
+## Move
 
 ```text
-TODO: fill this later
-TBD
-Coming soon
-Placeholder
-Example content presented as fact
-Unverified claims
-```
-
-If required information is missing:
-
-```text
-Stop
-```
-
-or return the missing information requirement to the parent Agent.
-
----
-
-# Modify
-
-For an existing document:
-
-```text
-Read
-    ↓
-Locate exact target
-    ↓
-Apply smallest valid change
-    ↓
-Re-read affected section
-```
-
-Do not edit based solely on a filename or search result.
-
----
-
-# Move
-
-When moving a knowledge unit:
-
-```text
-Source
-    ↓
-Read
-    ↓
-Destination
-    ↓
-Preserve knowledge
-    ↓
-Update references
-    ↓
-Verify destination
-    ↓
-Remove source
+Source → read → destination → preserve knowledge → update references
+    → verify destination → remove source
 ```
 
 Do not create duplicate long-term copies unless explicitly required.
+Prefer a clean move over delete-and-recreate to preserve file history.
 
----
+## Merge
 
-# Merge
-
-When consolidating documents — including documents from different origin
-tools:
+Consolidating documents — including documents from different origin tools:
 
 ```text
-Document A (origin tool 1)
-Document B (origin tool 2)
-Document C (origin tool 3)
-        ↓
-Identify canonical owner
-        ↓
-Combine unique durable knowledge
-        ↓
-Remove duplicated content
-        ↓
-Preserve important historical context
-        ↓
-Update references
-        ↓
-Remove or thin-point obsolete documents
+Identify canonical owner → combine unique durable knowledge
+    → remove duplicated content → preserve important historical context
+    → update references → remove or thin-point obsolete documents
 ```
 
 Do not concatenate documents blindly.
 
----
-
-# Merge Safety
-
-Before deleting a merged source, ensure:
+Before deleting a merged source, confirm every item:
 
 ```text
 Unique knowledge transferred
@@ -493,30 +262,24 @@ References updated
 No important section lost
 ```
 
----
+## Multi-Source Reconstruction
 
-# Multi-Source Reconstruction Edits
-
-When executing an approved reconstruction plan spanning multiple origin
-tools (e.g. consolidating `AGENTS.md` + `CLAUDE.md` + `.cursor/rules/` +
-`docs/architecture/auth.md` into one canonical document plus a thin
-pointer), follow the same Atomic Migration Principle as any merge, applied
-across tool boundaries:
+Execute an approved reconstruction plan spanning multiple origin tools
+(e.g. consolidating `AGENTS.md` + `CLAUDE.md` + `.cursor/rules/` into one
+canonical document plus a thin pointer) with the same Atomic Migration
+Principle, applied across tool boundaries:
 
 ```text
 1. Establish canonical destination content from verified knowledge
-        ↓
 2. Write canonical destination
-        ↓
 3. Convert non-canonical origin sources to thin pointers, or remove them,
    per the approved disposition — one file at a time
-        ↓
 4. Update AGENTS.md navigation
-        ↓
 5. Re-read every touched origin file
-        ↓
 6. Produce edit receipt covering all origin tools touched
 ```
+
+### Thin-Pointer Default
 
 Do not delete a competing entry point (`CLAUDE.md`, `.cursor/rules/`, etc.)
 outright unless the approved plan says so. The default disposition for a
@@ -533,17 +296,14 @@ Treat a thin-pointer conversion as a `Modify`, and record it in the edit
 receipt under both `Modified` and a dedicated `Reconciled` entry noting
 which dual-entry-point finding it resolves.
 
-Do not perform a multi-source reconstruction edit touching 3+ origin files
-through `cavecrew-builder` — this always requires the deliberate scoped
-workflow below, never mechanical delegation.
+Never route a multi-source reconstruction touching 3+ origin files through
+`cavecrew-builder` — it requires the deliberate scoped workflow, never
+mechanical delegation.
 
----
+## Delete
 
-# Delete
-
-Delete only when the deletion is explicitly supported by the approved plan.
-
-Typical valid reasons:
+Delete only when the deletion is explicitly supported by the approved
+plan. Typical valid reasons:
 
 ```text
 Obsolete with no historical value
@@ -556,72 +316,40 @@ A losing claim in a resolved cross-source conflict with no historical value
 
 Do not delete merely because a file appears unused, and do not delete a
 pre-existing knowledge source merely because it originated from a different
-Agent, Skill, or AI IDE than this one.
-
----
-
-# Deletion Safety
+Agent, Skill, or AI IDE.
 
 Before deleting:
 
 ```text
 Read file
-        ↓
+    ↓
 Identify outgoing references
-        ↓
+    ↓
 Check incoming references (including from other origin tools)
-        ↓
+    ↓
 Confirm replacement where applicable
-        ↓
+    ↓
 Confirm historical value decision
-        ↓
+    ↓
 Delete
 ```
 
-If references cannot be reasonably assessed:
+If references cannot be reasonably assessed, do not blindly delete —
+report the limitation.
 
-```text
-Do not blindly delete.
-```
+## Lifecycle Marks
 
-Report the limitation.
+Mark deprecated or superseded knowledge per the approved plan, using the
+repository's established status convention — never invent a new one.
+Preserve content unless the plan says otherwise; identify the replacement
+for superseded knowledge; never invent a replacement.
 
----
+## Obsolete Handling
 
-# Deprecated
-
-When marking knowledge deprecated, preserve the content unless the approved
-plan specifies otherwise.
-
-Add clear lifecycle information according to repository conventions.
-
-Example:
-
-```markdown
-> Status: Deprecated
->
-> This workflow is retained for legacy environments only.
-> New development should use `<replacement>`.
-```
-
-Do not invent a replacement.
-
----
-
-# Superseded
-
-When marking knowledge superseded:
-
-```markdown
-> Status: Superseded
->
-> Superseded by: `<replacement>`
-```
-
-Use the repository's established metadata or documentation convention if one
-already exists.
-
-Do not introduce a new metadata convention unnecessarily.
+Execute the approved disposition (delete / historical / superseded /
+deprecated / thin-pointer) as classified — action semantics and formats are
+owned by `obsolete-knowledge`. Do not change the classification during
+editing unless new evidence makes the plan impossible or unsafe.
 
 ---
 
@@ -638,32 +366,21 @@ Superseded
 Converted to a thin pointer
 ```
 
-inspect references that may be affected.
-
-Potential references include:
+inspect references that may be affected. Reference locations include:
 
 ```text
 AGENTS.md
 CLAUDE.md
 .cursor/rules/
 README.md
-Domain README
-Index files
-Architecture documents
-Decision records
-Workflow documents
+Domain README and index files
+Architecture, decision, and workflow documents
 Other Markdown documents
-Agent instructions
-Skills
+Agent instructions and skills
 ```
 
-Update only references affected by the approved change.
-
----
-
-# Reference Integrity
-
-For each affected reference determine:
+Update only references affected by the approved change. For each affected
+reference, determine:
 
 ```text
 Valid
@@ -672,170 +389,53 @@ Intentionally Historical
 No Longer Needed
 ```
 
-Do not redirect historical references to current knowledge if doing so destroys
-historical meaning.
+Do not redirect historical references to current knowledge if doing so
+destroys historical meaning — keep the historical destination explicit.
 
 ---
 
-# Historical References
+# Navigation, Indexes, AGENTS.md
 
-If a document intentionally references historical knowledge:
+When adding, moving, or removing a knowledge unit, update the appropriate
+navigation: `AGENTS.md` → domain README → focused knowledge. Keep indexes
+concise — one-line links, never copied document content; update paths on
+move, remove entries on delete.
 
-```text
-docs/history/...
-```
-
-keep the historical destination explicit.
-
-Do not rewrite:
-
-```text
-Historical Reference
-```
-
-into:
-
-```text
-Current Reference
-```
-
-merely because the historical file moved.
-
----
-
-# Navigation Updates
-
-When adding or moving a knowledge unit, update the appropriate navigation.
-
-Typical hierarchy:
-
-```text
-AGENTS.md
-    ↓
-Domain README
-    ↓
-Focused Knowledge
-```
-
-If a domain has an index, update it when the structure changes.
-
----
-
-# Index Editing
-
-Indexes should remain concise.
-
-When adding a document:
-
-```markdown
-- [Authentication](./authentication.md)
-```
-
-Do not copy the document contents into the index.
-
-When removing a document:
-
-```text
-Remove its navigation entry.
-```
-
-When moving a document:
-
-```text
-Update its path.
-```
-
----
-
-# AGENTS.md Editing
-
-Treat `AGENTS.md` as high-impact.
-
-Only modify it when the approved architecture requires:
-
-```text
-New navigation
-Changed critical rule
-Changed critical constraint
-Changed minimal architecture orientation
-Changed verification requirement
-Entry-point reconciliation (becoming the sole canonical entry point)
-```
-
-Do not add detailed knowledge to `AGENTS.md` simply because it is convenient.
-
----
-
-# AGENTS.md Minimalism
-
-When updating `AGENTS.md`:
-
-Prefer:
+Treat `AGENTS.md` as high-impact. Modify it only when the approved
+architecture requires: new navigation, changed critical rule or constraint,
+changed architecture orientation or verification requirement, or
+entry-point reconciliation. Pointer over detail:
 
 ```markdown
 For authentication architecture, see:
 `docs/architecture/security/authentication.md`
 ```
 
-over embedding:
-
-```markdown
-Authentication works through...
-The flow is...
-The historical reason was...
-The implementation contains...
-```
-
-The detailed knowledge belongs in its canonical document.
+Detailed knowledge belongs in its canonical document.
 
 ---
 
 # cavecrew-builder Delegation
 
-Use `cavecrew-builder` for bounded mechanical edits when available.
-
-Appropriate:
+Use `cavecrew-builder` for bounded mechanical edits only:
 
 ```text
 1 file ideal
 2 files acceptable
+3+ never
 ```
 
-Examples:
+Appropriate:
 
 ```text
-Typo correction
-Broken path correction
-Small wording change
+Typo, path, or wording correction
 Single status update
 One-link update
 Small formatting-preserving edit
 Single thin-pointer conversion (1 file, text already drafted)
 ```
 
-Required flow:
-
-```text
-Delegate
-    ↓
-Read
-    ↓
-Smallest valid edit
-    ↓
-Re-read
-    ↓
-Receipt
-```
-
-Treat the receipt as edit evidence only.
-
-It does not prove repository-wide correctness.
-
----
-
-# cavecrew-builder Restrictions
-
-Do not delegate to `cavecrew-builder` when the change requires:
+Never delegate changes requiring:
 
 ```text
 Broad architecture reasoning
@@ -844,16 +444,19 @@ Large multi-file migration
 Multi-source knowledge consolidation
 Knowledge classification
 Historical interpretation
-Complex document consolidation
 ```
 
-If the change affects more than two files:
+If the change affects more than two files, use a deliberate scoped edit
+workflow.
+
+Required flow:
 
 ```text
-Do not force it through cavecrew-builder.
+Delegate → Read → smallest valid edit → Re-read → Receipt
 ```
 
-Use a deliberate scoped edit workflow.
+Treat the receipt as edit evidence only; it does not prove repository-wide
+correctness.
 
 ---
 
@@ -863,13 +466,16 @@ For larger changes:
 
 ```text
 1. Define exact affected files (across all origin tools)
-2. Read each relevant file
-3. Establish dependency/order
-4. Apply scoped changes
-5. Re-read each changed file
-6. Check navigation relationships
-7. Produce edit receipt
+2. Read each relevant file; establish dependency/order
+3. Apply scoped changes; re-read each changed file
+4. Check navigation relationships; produce edit receipt
 ```
+
+Splitting: split by retrieval boundary, not line count — identify knowledge
+units, assign canonical ownership, create focused documents, move knowledge,
+update references, remove redundant original content. Consolidation: keep
+unique knowledge, remove duplicate rationale, preserve important history,
+explicit decisions, useful constraints, and references.
 
 Do not perform blind global replacements.
 
@@ -877,277 +483,10 @@ Do not perform blind global replacements.
 
 # Search Before Replace
 
-Before a replacement:
-
-```text
-Search exact old path
-Search exact old terminology
-Search known references
-```
-
-Understand the match set.
-
-Do not blindly replace a short ambiguous string across the repository.
-
-Bad:
-
-```text
-replace:
-server
-```
-
-Better:
-
-```text
-replace:
-docs/old/server.md
-```
-
-or another sufficiently specific target.
-
----
-
-# Bulk Replacement Restrictions
-
-Avoid repository-wide replacement unless the change is explicitly approved.
-
-Especially avoid broad replacements for:
-
-```text
-Common words
-Generic paths
-Short identifiers
-Architecture terms
-Status labels
-```
-
-These may have legitimate unrelated uses.
-
----
-
-# File Moves and Git
-
-When possible, preserve logical file history through normal repository file
-operations.
-
-Do not create a delete-and-recreate migration when a clean move is sufficient.
-
-The exact mechanism should follow the repository's tooling and workflow.
-
----
-
-# Formatting
-
-Do not perform opportunistic formatting.
-
-If a Markdown file has unrelated formatting issues:
-
-```text
-Leave them alone
-```
-
-unless they prevent the approved edit or violate an explicit repository rule.
-
----
-
-# Frontmatter
-
-Preserve existing frontmatter conventions.
-
-If creating a document that requires frontmatter:
-
-```text
-Use the repository's established schema.
-```
-
-Do not invent metadata fields without architectural approval.
-
----
-
-# Status Metadata
-
-If status metadata is required:
-
-```text
-Current
-Deprecated
-Superseded
-Historical
-```
-
-use the repository's established representation.
-
-Consistency is more important than introducing a theoretically better schema
-during an edit.
-
----
-
-# Knowledge Preservation During Rewrite
-
-When rewriting a document, preserve all approved durable knowledge unless the
-plan explicitly removes it.
-
-Before replacing substantial content:
-
-```text
-Read original
-        ↓
-Identify durable knowledge
-        ↓
-Apply approved structure
-        ↓
-Ensure durable knowledge survives
-```
-
-Do not treat rewriting as permission to discard information.
-
----
-
-# Large Document Split
-
-When splitting a large document:
-
-```text
-Original
-    ↓
-Identify knowledge units
-    ↓
-Assign canonical ownership
-    ↓
-Create focused documents
-    ↓
-Move knowledge
-    ↓
-Create index
-    ↓
-Update references
-    ↓
-Remove redundant original content
-```
-
-Do not split by arbitrary line count.
-
-Split by retrieval boundary.
-
----
-
-# Consolidation
-
-When consolidating:
-
-```text
-Keep unique knowledge
-Remove duplicate rationale
-Preserve important history
-Preserve explicit decisions
-Preserve useful constraints
-Preserve references
-```
-
-Do not simply append documents together.
-
----
-
-# Obsolete Knowledge Handling
-
-If the approved plan says:
-
-```text
-Delete
-```
-
-delete it.
-
-If:
-
-```text
-Historical
-```
-
-move or preserve it in the approved history location.
-
-If:
-
-```text
-Superseded
-```
-
-mark it and identify the replacement.
-
-If:
-
-```text
-Deprecated
-```
-
-make the limited validity explicit.
-
-If:
-
-```text
-Thin-Pointer
-```
-
-replace its content with a pointer to the canonical location, per the
-Multi-Source Reconstruction Edits section above.
-
-Do not change the classification during editing unless new evidence makes the
-approved plan impossible or unsafe.
-
----
-
-# Unexpected Discovery
-
-If editing reveals new information that materially changes the architecture:
-
-```text
-Stop
-    ↓
-Report discovery
-    ↓
-Return to classification / architecture
-```
-
-Do not silently redesign the system while editing.
-
-Examples:
-
-```text
-A supposedly obsolete document is still referenced by active workflows.
-A supposed duplicate contains unique historical rationale.
-A replacement path does not exist.
-The target file is already modified unexpectedly.
-A fourth origin tool contains the same knowledge and was not in the
-approved plan.
-```
-
----
-
-# Concurrent Changes
-
-If a target file has changed unexpectedly since the plan was created:
-
-```text
-Do not overwrite blindly.
-```
-
-Re-read the current file.
-
-Determine whether:
-
-```text
-Change is compatible
-Change is unrelated
-Change conflicts with the approved edit
-```
-
-If there is a meaningful conflict:
-
-```text
-Stop
-Report
-Request updated plan
-```
+Search exact old paths and terminology; understand the match set before
+replacing. Never replace short ambiguous strings (common words, generic
+paths, short identifiers, status labels), and never perform repository-wide
+bulk replacement without explicit approval.
 
 ---
 
@@ -1162,13 +501,8 @@ Allowed Operations
 Allowed Origin Tools
 ```
 
-Do not expand scope because unrelated cleanup is visible.
-
----
-
-# No Opportunistic Cleanup
-
-Do not fix unrelated:
+Do not expand scope because unrelated cleanup is visible. Do not fix
+unrelated:
 
 ```text
 Typos
@@ -1176,21 +510,46 @@ Links
 Formatting
 Naming
 Architecture
-Documentation
 Code
 ```
 
-unless the approved change requires it.
+unless the approved change requires it — a focused change is easier to
+verify.
 
-A focused change is easier to verify.
+---
+
+# Unexpected Discovery
+
+If editing reveals new information that materially changes the
+architecture:
+
+```text
+Stop → report discovery → return to classification / architecture
+```
+
+Do not silently redesign the system while editing. Examples:
+
+```text
+A supposedly obsolete document is still referenced by active workflows
+A supposed duplicate contains unique historical rationale
+A replacement path does not exist
+The target file is already modified unexpectedly
+An origin tool not in the approved plan contains the same knowledge
+```
+
+---
+
+# Concurrent Changes
+
+If a target file has changed unexpectedly since the plan was created,
+re-read the current file; do not overwrite blindly. On meaningful
+conflict: stop, report, request an updated plan.
 
 ---
 
 # Edit Receipt
 
-After editing, produce an edit receipt.
-
-Use:
+After editing, produce an edit receipt:
 
 ````markdown
 ## Memory Edit Receipt
@@ -1245,7 +604,7 @@ Files intentionally changed:
 
 ```text
 <paths>
-````
+```
 
 ### Limitations
 
@@ -1257,25 +616,11 @@ Edit-level verification only.
 
 Repository-wide verification remains the responsibility of
 `memory-verification`.
-
 ````
 
----
-
-# Receipt Rules
-
-The receipt must describe what actually happened.
-
-Do not claim:
-
-```text
-All links valid
-Repository consistent
-Memory fully migrated
-Architecture correct
-````
-
-unless a separate verification phase established those facts.
+The receipt must describe what actually happened. Do not claim "all links
+valid", "repository consistent", "memory fully migrated", or "architecture
+correct" unless a separate verification phase established those facts.
 
 ---
 
@@ -1294,9 +639,7 @@ Check index entries
 Check AGENTS.md references
 ```
 
-This is edit-level verification.
-
-It is not final repository verification.
+This is edit-level verification, not final repository verification.
 
 ---
 
@@ -1305,10 +648,7 @@ It is not final repository verification.
 After editing, provide the parent Agent with:
 
 ```text
-Changed Files
-Created Files
-Moved Files
-Deleted Files
+Changed / Created / Moved / Deleted Files
 Reconciled Files (thin-pointer conversions)
 Updated References
 Remaining Known References
@@ -1320,15 +660,9 @@ This allows `memory-verification` to perform the final audit.
 
 ---
 
-# Failure Handling
+# Failure and Partial Migration
 
-If an edit fails:
-
-```text
-Do not pretend success.
-```
-
-Report:
+If an edit fails, do not pretend success. Report:
 
 ```text
 Target
@@ -1339,63 +673,36 @@ Current State
 Recommended Recovery
 ```
 
-If partial changes occurred, clearly identify them.
+Identify partial changes clearly.
 
----
-
-# Partial Migration
-
-If a migration cannot be completed safely:
-
-```text
-Do not delete the source merely to make the tree look clean.
-```
-
-Prefer:
-
-```text
-Preserve source
-Report incomplete migration
-```
-
-until the destination and references can be safely established.
+If a migration cannot be completed safely, preserve the source and report
+the incomplete migration — never delete the source merely to make the tree
+look clean.
 
 ---
 
 # Hard Rules
 
-* Do not edit before an approved edit plan exists.
-* Do not invent missing knowledge.
-* Do not independently redesign memory architecture.
-* Do not independently classify knowledge.
-* Do not guess replacement paths.
-* Do not blindly delete documents, including pre-existing ones from other
-  tools or Agents.
-* Do not blindly rewrite documents.
-* Do not perform repository-wide replacements without explicit approval.
-* Do not perform opportunistic cleanup.
-* Do not modify unrelated files.
-* Do not duplicate canonical knowledge, including across origin tools.
-* Do not delete the source before a migration destination is established.
-* Do not remove historical rationale without an explicit decision.
-* Do not turn historical knowledge into current guidance.
-* Do not put detailed knowledge into `AGENTS.md`.
-* Do not use `cavecrew-builder` for broad restructuring.
-* Do not use `cavecrew-builder` for 3+ file changes.
-* Do not use `cavecrew-builder` for multi-source consolidation.
-* Do not treat an edit receipt as final verification.
-* Do not claim repository-wide correctness.
-* Do not claim final link integrity without verification.
-* Do not silently expand scope.
-* Do not overwrite unexpected concurrent changes.
-* Do not delete a tool-specific entry point outright when a thin pointer is
-  the approved disposition.
-* Stop when new evidence materially invalidates the edit plan.
-* Re-read changed files.
-* Preserve durable knowledge during rewrites.
-* Prefer the smallest valid edit.
-* Preserve repository conventions.
-* Keep migrations reversible until their destination is established.
+1. Do not edit before an approved edit plan exists; do not guess missing
+   decisions, replacement paths, or knowledge.
+2. Do not independently classify knowledge or redesign the memory
+   architecture; stop when new evidence invalidates the plan.
+3. Never delete the only copy of valuable knowledge, and never remove a
+   migration source, before its replacement or destination is established
+   and verified.
+4. Do not blindly delete or blindly rewrite documents, including
+   pre-existing sources from other tools or Agents; if references cannot
+   be assessed, report instead of deleting.
+5. Prefer the smallest valid edit: no opportunistic cleanup, no unrelated
+   files, no unrequested formatting or metadata changes.
+6. No repository-wide replacement without explicit approval.
+7. Do not duplicate canonical knowledge across origin tools; thin pointer
+   is the default disposition for tool-specific entry points.
+8. Preserve historical rationale and boundaries; never turn historical
+   knowledge into current guidance or redirect historical meaning away.
+9. Do not put detailed knowledge into `AGENTS.md` — pointer over detail.
+10. `cavecrew-builder`: bounded mechanical edits only; never 3+ files,
+    never multi-source consolidation or restructuring.
 
 ---
 
@@ -1404,92 +711,13 @@ until the destination and references can be safely established.
 The edit phase is complete when:
 
 ```text
-Approved edit plan understood
-        ✓
-Scope established, including all origin tools involved
-        ✓
-Canonical ownership preserved
-        ✓
-Approved changes applied
-        ✓
+Approved plan understood; scope incl. all origin tools established
+Approved changes applied; canonical ownership and historical
+    boundaries preserved
 No unrelated changes introduced
-        ✓
-References updated
-        ✓
-Navigation updated
-        ✓
-Historical boundaries preserved
-        ✓
-Thin-pointer conversions verified to point correctly
-        ✓
+References and navigation updated; thin-pointer conversions
+    verified to point correctly
 Changed files re-read
-        ✓
-Edit receipt produced
-        ✓
-Verification limitations reported
-        ✓
+Edit receipt produced; verification limitations reported
 Final repository verification deferred to memory-verification
-        ✓
 ```
-
----
-
-# Final Principle
-
-`memory-edit` is the **hands of the Project Memory system**, not its brain.
-
-The architecture decides:
-
-```text
-Where knowledge belongs.
-```
-
-Classification decides:
-
-```text
-What the knowledge means.
-```
-
-Compounding decides:
-
-```text
-What is worth retaining.
-```
-
-Obsolete-knowledge decides:
-
-```text
-What should no longer be treated as current.
-```
-
-`memory-edit` decides only:
-
-```text
-How to safely apply those approved decisions —
-whether the knowledge originated from this system or from any other tool
-or Agent that touched the repository before it.
-```
-
-The desired execution model is:
-
-```text
-Approved Plan
-      ↓
-Smallest Safe Change
-      ↓
-Preserve Knowledge
-      ↓
-Update References
-      ↓
-Re-read Changes
-      ↓
-Edit Receipt
-      ↓
-memory-verification
-```
-
-A successful memory edit is not the largest cleanup.
-
-It is the smallest safe change that makes the approved Project Memory architecture
-real — for the whole repository's knowledge, not just the part this Agent
-originally wrote.

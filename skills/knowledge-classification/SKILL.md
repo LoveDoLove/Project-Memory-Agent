@@ -2,59 +2,51 @@
 name: knowledge-classification
 description: >
   Evidence-based project knowledge classification skill. Classifies verified
-  repository findings — including claims sourced from existing multi-origin
-  knowledge (AGENTS.md, CLAUDE.md, .cursor/rules/, .claude/, docs/, and
-  similar) — into current facts, architecture, decisions, solutions,
-  lessons, constraints, workflows, reference knowledge, historical
-  knowledge, or obsolete knowledge; determines current-state status and
-  knowledge value; resolves cross-source conflicts using evidence; separates
-  durable engineering knowledge from temporary implementation noise; and
-  provides classification decisions to the Project Memory orchestrator
-  without modifying repository files.
+  repository findings — including claims extracted from existing multi-origin
+  knowledge sources (AGENTS.md, CLAUDE.md, .cursor/rules/, .claude/, docs/)
+  — into current facts, architecture, decisions, solutions, lessons,
+  constraints, workflows, reference, historical, or obsolete knowledge;
+  determines current-state status, durability, and knowledge value; resolves
+  cross-source conflicts with evidence; detects semantic duplicates across
+  origin tools; and returns recommendation-only classification decisions to
+  the Project Memory orchestrator without modifying repository files.
 ---
 
 # Knowledge Classification
 
-You are responsible for determining **what verified information actually means
-as project knowledge**.
+You determine **what verified information actually means as project knowledge**.
 
-Your input is evidence gathered from the repository, and — when applicable —
-the Existing Knowledge Inventory produced by `knowledge-discovery` together
-with the verification results produced by `repository-audit`. Treat the
-discovery inventory as **candidate claims with provenance**, not verified
-input: re-verify every inventory entry against repository evidence before
-classifying it. Discovery disclaims verification by design.
+Input: evidence gathered from the repository, plus — when applicable — the
+Existing Knowledge Inventory from `knowledge-discovery` and verification
+results from `repository-audit`. Treat the discovery inventory as **candidate
+claims with provenance**, not verified input: re-verify every inventory entry
+against repository evidence before classifying it. Discovery disclaims
+verification by design.
 
-Your output is a structured classification that allows the parent
-`project-memory` Agent to decide what knowledge should be created, updated,
+Output: structured classification decisions that let the parent
+`project-memory` Agent decide what knowledge should be created, updated,
 consolidated, superseded, preserved, or removed.
 
-You do not own:
+## Non-Responsibilities
 
-- repository discovery
-- repository-wide evidence gathering
-- existing-knowledge-source discovery and extraction
-- documentation architecture
-- documentation editing
-- obsolete knowledge execution
-- final post-change verification
-
-Those responsibilities belong to other Project Memory skills.
+- No repository discovery, evidence-gathering, architecture, or editing —
+  those belong to other Project Memory skills.
+- No action execution: recommendations only; the parent Agent decides.
+- Read-only: never modify repository files.
 
 ---
 
 # Core Principle
 
-Do not classify information merely because it exists.
-
-Classification must answer two separate questions:
+Do not classify information merely because it exists. Classification must
+answer two separate questions:
 
 ```text
 1. What is this information?
 2. Does this information deserve durable Project Memory?
-````
+```
 
-Use:
+Pipeline:
 
 ```text
 Evidence
@@ -72,134 +64,229 @@ Primary Ownership
 Recommended Action
 ```
 
-Never skip the evidence step.
+Never skip the evidence step. Never convert uncertainty into certainty.
 
-Never convert uncertainty into certainty.
-
----
-
-# Responsibilities
-
-This Skill is responsible for:
-
-1. Classifying verified repository findings.
-2. Determining current-state status.
-3. Distinguishing current knowledge from historical knowledge.
-4. Distinguishing architecture from decisions.
-5. Distinguishing solutions from lessons.
-6. Identifying constraints and workflows.
-7. Identifying low-value or temporary information.
-8. Detecting duplicate knowledge concepts, including duplicates that
-   originate from different tools or Agents.
-9. Resolving cross-source conflicts using verified evidence.
-10. Determining whether information deserves long-term memory.
-11. Recommending the appropriate knowledge action.
-
-It may recommend an action, but repository modification is outside this Skill.
+Responsibilities: classify verified findings; determine current state;
+distinguish current from historical, architecture from decisions, solutions
+from lessons; identify constraints, workflows, and low-value information;
+detect duplicates across origin tools; resolve cross-source conflicts with
+evidence; recommend actions.
 
 ---
 
-# Non-Responsibilities
+# Inputs
 
-Do not:
+- Verified evidence from `repository-audit` / `codebase-memory` / parent
+  Agent.
+- Existing Knowledge Inventory from `knowledge-discovery` (candidate claims
+  with provenance; re-verify each against repository evidence before
+  classifying).
+- Cluster status per finding: Consistent | Redundant | Conflicting | Partial.
 
-* perform broad repository discovery unless necessary to resolve classification
-* discover or extract existing knowledge sources — that is `knowledge-discovery`
-* modify files
-* create documentation
-* restructure `docs/`
-* delete obsolete files
-* move files
-* rewrite `AGENTS.md`
-* execute mechanical edits
-* claim post-change verification
-* invent missing evidence
-* create knowledge solely because a file exists
+Do not assume missing evidence. Do not invent it.
 
 ---
 
-# Classification Model
+# The 10 Knowledge Types
 
-Use the following knowledge types.
-
-```text
-Current Fact
-Architecture
-Decision
-Solution
-Lesson
-Constraint
-Workflow
-Reference
-History
-Obsolete
-```
-
-A finding should normally have **one primary knowledge type**.
-
-Secondary relationships may exist, but do not duplicate the same knowledge into
+A finding should normally have **one primary knowledge type**. Secondary
+relationships may exist, but do not duplicate the same knowledge into
 multiple documents without a clear reason.
-
----
-
-# Knowledge Type Definitions
 
 ## Current Fact
 
-Use when the information describes a current operational fact.
+Current operational fact: supported platform, active package manager,
+runtime requirement, entry point, configuration behavior, enabled feature,
+dependency relationship. No rationale — rationale is Decision. Question:
+"What is true about the project now?"
 
-Examples:
+## Architecture
 
-* current supported platform
-* active package manager
-* current runtime requirement
-* current entry point
-* current configuration behavior
-* currently enabled feature
-* current dependency relationship
+How the current system is structured or behaves as a system: module
+boundaries, component relationships, data/control flow, state ownership,
+process and trust boundaries, integration architecture, dependency
+direction, runtime topology, important invariants. Describes the current
+system, not why a choice was made.
 
-Question:
+## Decision
 
-> What is true about the project now?
+Why an important engineering direction was chosen. The choice must
+materially affect future engineering decisions — not a mere dependency,
+installed framework, created file, or ordinary implementation choice.
+Question: "Why did the project choose this direction?"
 
-Do not use Current Fact for rationale.
+## Solution
+
+How a concrete engineering problem was successfully solved. Based on a real
+problem, not a generic tutorial.
+
+## Lesson
+
+A generalizable engineering principle distilled from a verified experience.
+Not a duplicate of a Solution — a Solution may contain its own reusable
+guidance without a separate Lesson.
+
+## Constraint
+
+A boundary future engineering work must respect: security requirement,
+platform limitation, runtime compatibility, API limitation, external service
+restriction, build limitation, repository convention, licensing constraint,
+performance boundary, deployment restriction.
+
+## Workflow
+
+A repeatable procedure: development/testing/release/deployment process,
+verification or migration procedure, operational runbook, Agent workflow.
+A one-off debugging sequence is not automatically a Workflow.
+
+## Reference
+
+Useful on-demand information not normally required during task startup:
+command reference, protocol reference, external integration notes, API
+reference, environment reference, compatibility matrix. Lookup material.
+
+## History
+
+No longer current but still explains an important part of the present
+project: major migration, replaced implementation, historical workaround,
+rejected direction, major breaking transition, why an old approach must not
+return, why an existing knowledge source used to say something no longer
+true. Must not look like current operational guidance.
+
+## Obsolete
+
+No longer valid and no meaningful historical or explanatory value: removed
+feature with no lasting relevance, obsolete command, deleted dependency,
+invalid workflow, stale documentation with no historical value, a losing
+claim in a resolved conflict with no explanatory value. If keeping it
+creates more confusion than value → Obsolete.
+
+## Classification Matrix
+
+| Question                                           | Classification |
+| -------------------------------------------------- | -------------- |
+| What is true now?                                  | Current Fact   |
+| How does the current system work?                  | Architecture   |
+| Why was this direction chosen?                     | Decision       |
+| How was a concrete problem solved?                 | Solution       |
+| What general principle was learned?                | Lesson         |
+| What boundary must future work respect?            | Constraint     |
+| What repeatable procedure should be followed?      | Workflow       |
+| What useful information is mainly lookup material? | Reference      |
+| What old information explains the current system?  | History        |
+| What invalid information has no remaining value?   | Obsolete       |
+
+Then separately determine:
+
+```text
+Current State
+Durability
+Confidence
+Evidence
+Source Provenance (if applicable)
+```
+
+Ambiguous case (fits several types): classify by the question it *primarily*
+answers. "Why is Redis not used?" — architectural choice → Decision;
+technical limitation to obey → Constraint; past Redis failure fix →
+Solution; broad reusable principle → Lesson. Do not create four documents
+because four categories are technically related.
 
 ---
 
-# Architecture
+# 9-State Lifecycle (Canonical)
 
-Use when the information explains how the current system is structured or behaves
-as a system.
+Classify the state of the subject, independently of knowledge type:
 
-Examples:
+```text
+Current
+In Progress
+Partial
+Experimental
+Deprecated
+Superseded
+Abandoned
+Historical
+Unknown
+```
 
-* module boundaries
-* component relationships
-* data flow
-* control flow
-* state ownership
-* process boundaries
-* trust boundaries
-* integration architecture
-* dependency direction
-* runtime topology
-* important invariants
+- **Current** — implementation exists, configuration enables it, tests or
+  runtime evidence support it, no stronger evidence of replacement.
+- **In Progress** — active implementation or migration work is incomplete.
+  Do not call incomplete work Current merely because source code exists.
+- **Partial** — some described behavior exists but the full claim is
+  unsupported. Implemented ≠ Complete.
+- **Experimental** — exists for experimentation, evaluation, proof of
+  concept, unstable development (explicit labeling, prototype structure,
+  feature flags, isolated PoC). Do not infer from unusual code alone.
+- **Deprecated** — subject still present but should no longer be used for
+  new work: deprecation markers, migration guidance, replacement docs,
+  current code using another mechanism.
+- **Superseded** — a newer implementation/architecture/workflow/decision
+  replaced it. Strong evidence: old approach → migration → new approach.
+  Identify `Superseded by: <replacement>` whenever possible.
+- **Abandoned** — started, no longer pursued (abandoned implementation,
+  removed references, Git history, replacement by another direction). Do
+  not infer merely from a development pause.
+- **Historical** — no longer current but remains useful for understanding
+  the project. Link to the current state.
+- **Unknown** — evidence insufficient. Use internally rather than guessing.
+  Never publish Unknown as a confident repository fact.
 
-Question:
-
-> How does the current system work?
-
-Architecture should describe the current system, not merely explain why a choice
-was made.
+This 9-state list is the canonical copy. Other Project Memory documents
+that need the state vocabulary reference this section instead of
+redefining it.
 
 ---
 
-# Decision
+# Type Distinctions (Canonical)
 
-Use when the information explains why an important engineering direction was
-chosen.
+| Distinction            | A                                              | B                                            | Rule                                                    |
+| ---------------------- | ---------------------------------------------- | -------------------------------------------- | ------------------------------------------------------- |
+| Decision vs Solution   | Why we chose X.                                | How we solved Y.                             | Related, never the same knowledge.                       |
+| Architecture vs Decision | What exists and how it interacts.            | Why it was chosen.                           | Architecture may link to a Decision, not copy it.        |
+| Solution vs Lesson     | Specific problem and verified resolution.      | General principle learned from experience.   | Do not create both unless both give distinct value.      |
+| Constraint vs Fact     | What future work must respect.                 | What is true.                                | Constraint only if actually enforced or documented.      |
+| Workflow vs Solution   | Repeatable process.                            | Resolution of a specific problem.            | Workflow only if intended for repeated use.              |
+| Current vs Historical  | Implementation matches.                        | Old state explains something important.      | Otherwise Obsolete.                                      |
 
-A meaningful Decision normally includes some subset of:
+Example: "Use PostgreSQL instead of SQLite for production" = Decision.
+"Fixed connection exhaustion from incorrect pool lifecycle" = Solution.
+"The service runs on Java 21" = Fact; "production code must remain
+compatible with Java 21" = Constraint.
+
+Historical value: preserve History when the old state explains migration
+constraints, compatibility decisions, rejected alternatives, security
+rationale, or regressions avoided. Old authentication architecture
+explaining current constraints = History. Otherwise Obsolete.
+
+Good historical knowledge:
+
+```text
+The project migrated from implementation A to B because A could not
+satisfy the Android compatibility requirement. A must not be reintroduced
+without reconsidering the original compatibility constraint.
+```
+
+Low-value history:
+
+```text
+On June 4, the developer tested implementation A.
+```
+
+The second should not become Project Memory. Do not preserve history for
+nostalgia — only when it explains something important.
+
+This table is the canonical copy. Other documents reference it instead of
+re-deriving type distinctions.
+
+---
+
+# Unit Structure Templates (Canonical)
+
+## Decision
+
+A meaningful Decision normally includes a subset of:
 
 ```text
 Context
@@ -216,26 +303,7 @@ Stability
 Evidence
 ```
 
-Question:
-
-> Why did the project choose this direction?
-
-Do not create a Decision merely because:
-
-* a dependency exists
-* a framework is installed
-* a file was created
-* a feature was implemented
-* a developer made an ordinary implementation choice
-
-The choice must materially affect future engineering decisions.
-
----
-
-# Solution
-
-Use when the information documents how a concrete engineering problem has been
-successfully solved.
+## Solution
 
 A Solution normally contains:
 
@@ -254,20 +322,9 @@ Reusable Guidance
 Evidence
 ```
 
-Question:
+## Lesson
 
-> How was this concrete problem solved, and what should the next Agent know?
-
-A Solution should be based on a real engineering problem rather than a generic
-tutorial.
-
----
-
-# Lesson
-
-Use when a verified experience produces a generalizable engineering principle.
-
-Prefer:
+A Lesson prefers:
 
 ```text
 Problem
@@ -279,356 +336,12 @@ Future Guidance
 Evidence
 ```
 
-Question:
-
-> What general principle should future Agents learn from this experience?
-
-Do not create a Lesson when it merely duplicates a Solution.
-
-A Solution may contain a reusable lesson without requiring a separate Lesson file.
+These templates are canonical. Other documents reference them instead of
+redefining unit structure.
 
 ---
 
-# Constraint
-
-Use when the information defines a boundary that future engineering work must
-respect.
-
-Examples:
-
-```text
-Security requirement
-Platform limitation
-Runtime compatibility
-API limitation
-External service restriction
-Build limitation
-Repository convention
-Licensing constraint
-Performance boundary
-Deployment restriction
-```
-
-Question:
-
-> What must future engineering work not violate?
-
----
-
-# Workflow
-
-Use when the information describes a repeatable procedure.
-
-Examples:
-
-* development workflow
-* testing workflow
-* release process
-* deployment process
-* verification procedure
-* migration procedure
-* operational runbook
-* Agent workflow
-
-Question:
-
-> What repeatable sequence should someone follow?
-
-A one-off debugging sequence is not automatically a Workflow.
-
----
-
-# Reference
-
-Use for useful on-demand information that does not belong in the other
-categories and is not normally required during task startup.
-
-Examples:
-
-* command reference
-* protocol reference
-* external integration notes
-* API reference
-* environment reference
-* compatibility matrix
-
-Question:
-
-> Is this useful information, but primarily something to look up when needed?
-
----
-
-# History
-
-Use when information is no longer current but still explains an important part of
-the present project.
-
-Examples:
-
-* major architecture migration
-* replaced implementation
-* important dependency migration
-* historical compatibility workaround
-* rejected architectural direction
-* major breaking transition
-* reason an old approach must not return
-* why an existing knowledge source used to say something that is no longer true
-
-Question:
-
-> Is this old information still useful for understanding why the project is
-> the way it is today?
-
-Historical knowledge must not look like current operational guidance.
-
----
-
-# Obsolete
-
-Use when information is no longer valid and provides no meaningful historical
-or explanatory value.
-
-Examples:
-
-* removed feature with no lasting relevance
-* obsolete command
-* deleted dependency
-* invalid workflow
-* temporary workaround that no longer matters
-* stale documentation with no historical value
-* outdated project structure
-* a losing claim in a resolved cross-source conflict with no explanatory value
-
-Question:
-
-> Would keeping this information create more confusion than value?
-
-If yes, classify as Obsolete.
-
----
-
-# Current-State Classification
-
-In addition to knowledge type, classify the state of the subject.
-
-Use:
-
-```text
-Current
-In Progress
-Partial
-Experimental
-Deprecated
-Superseded
-Abandoned
-Historical
-Unknown
-```
-
----
-
-## Current
-
-Evidence indicates the implementation or knowledge is active and applicable.
-
-Use when:
-
-* implementation exists
-* relevant configuration enables it
-* tests or runtime evidence support it where appropriate
-* no stronger evidence indicates replacement
-
----
-
-## In Progress
-
-Evidence indicates active implementation or migration work is incomplete.
-
-Examples:
-
-* migration partially completed
-* feature branch work reflected in repository state
-* implementation exists but required integration is missing
-
-Do not call incomplete work Current merely because source code exists.
-
----
-
-## Partial
-
-Some of the described behavior exists, but the full claim is unsupported.
-
-Use when:
-
-```text
-Implemented ≠ Complete
-```
-
----
-
-## Experimental
-
-The implementation exists primarily for experimentation, evaluation, proof of
-concept, or unstable development.
-
-Indicators may include:
-
-* explicit experimental labeling
-* prototype structure
-* temporary test harness
-* feature flags
-* isolated proof-of-concept implementation
-
-Do not infer "experimental" solely from unusual code.
-
----
-
-## Deprecated
-
-The project still contains the subject, but evidence indicates it should no
-longer be used for new work.
-
-Look for:
-
-* explicit deprecation markers
-* migration guidance
-* replacement documentation
-* deprecation comments
-* current code using another mechanism
-
----
-
-## Superseded
-
-A newer implementation, architecture, workflow, or decision has replaced it.
-
-Strong evidence includes:
-
-```text
-Old approach
-      ↓
-Migration
-      ↓
-New approach
-```
-
-Whenever possible identify:
-
-```text
-Superseded by: <replacement>
-```
-
----
-
-## Abandoned
-
-Work was started but is no longer being pursued.
-
-Evidence may include:
-
-* abandoned implementation
-* removed references
-* Git history
-* explicit abandonment
-* replacement by another direction
-
-Do not infer abandonment merely because development has paused.
-
----
-
-## Historical
-
-The subject is no longer current but remains useful for understanding the project.
-
-Historical information should normally be linked to the current state.
-
----
-
-## Unknown
-
-Evidence is insufficient.
-
-Use this internally rather than guessing.
-
-Never publish Unknown as a confident repository fact.
-
----
-
-# Knowledge Value Test
-
-For every candidate finding, ask:
-
-> Would preserving this information materially improve a future Agent's
-> engineering understanding or decision quality?
-
-A candidate is usually worth preserving if it helps a future Agent:
-
-* avoid rediscovery
-* avoid repeating a known failure
-* understand non-obvious behavior
-* understand architectural rationale
-* reuse a verified solution
-* respect an important constraint
-* understand a migration
-* avoid reviving a rejected approach
-* execute a recurring workflow correctly
-
----
-
-# Reject Low-Value Knowledge
-
-Do not promote information that is only:
-
-```text
-Temporary reasoning
-Terminal output
-Routine command execution
-Ordinary implementation detail
-One-off debugging noise
-Unverified hypothesis
-Generic programming advice
-Task completion summary with no reusable insight
-Information already obvious from nearby code
-```
-
-Example:
-
-```text
-"Ran npm install and it completed successfully."
-```
-
-Usually not durable knowledge.
-
-But:
-
-```text
-"The project must use pnpm because npm-generated lockfile changes break the
-repository's deterministic CI dependency graph."
-```
-
-Potentially durable knowledge if verified.
-
----
-
-# Evidence Requirements
-
-Classification must be evidence-backed.
-
-For each classification, retain:
-
-```text
-Evidence
-Scope
-Confidence
-Limitations
-```
-
-Do not classify from an isolated sentence in documentation when implementation
-evidence is available.
-
----
-
-# Source Provenance vs Evidence Confidence
+# Provenance vs Evidence Confidence
 
 When a finding originates from an existing knowledge source (via
 `knowledge-discovery`), classification must track two independent
@@ -667,55 +380,23 @@ Do not use provenance to:
 
 ---
 
-# Evidence Hierarchy
+# Evidence Confidence Scale
 
-Use:
+Scale (High / Medium / Low / Unknown with definitions): see
+`repository-audit` (canonical owner). Never upgrade evidence merely because
+the conclusion seems reasonable or a source looked authoritative.
 
-```text
-Current Source
-    ↓
-Tests
-    ↓
-Active Configuration
-    ↓
-Build / CI
-    ↓
-Verified Git History
-    ↓
-Current Documentation
-    ↓
-Historical Documentation
-```
+Evidence requirements: every classification retains Evidence, Scope,
+Confidence, and Limitations. Do not classify from an isolated documentation
+sentence when implementation evidence is available.
 
-This is not an automatic precedence rule.
-
-Conflicts require investigation.
-
----
-
-# Conflict Resolution
-
-When evidence conflicts, investigate:
+Evidence hierarchy (not an automatic precedence rule — conflicts require
+investigation):
 
 ```text
-Is implementation current?
-Is it complete?
-Is it enabled?
-Is it tested?
-Is it experimental?
-Is it temporary?
-Was it replaced?
-Does Git show a migration?
-Does configuration activate it?
-Is documentation stale?
-Is documentation historical?
+Current Source → Tests → Active Configuration → Build/CI
+→ Verified Git History → Current Documentation → Historical Documentation
 ```
-
-Do not simply choose the newest file.
-
-Do not simply choose the source code.
-
-Determine what the evidence collectively supports.
 
 ---
 
@@ -730,206 +411,54 @@ Conflicting Cluster
 Repository Evidence (via repository-audit / codebase-memory)
       ↓
 One claim confirmed, others contradicted
-      OR
-Claims apply to different scopes (not a real conflict)
-      OR
-None of the claims match current reality
+      OR claims apply to different scopes (not a real conflict)
+      OR none of the claims match current reality
       ↓
 Classification + Recommended Action
 ```
 
-Possible outcomes:
+Four outcome classes:
 
 ```text
-One source correct, others wrong
+1. One source correct, others wrong
     → Correct source becomes/strengthens the canonical knowledge unit.
     → Incorrect sources: Obsolete (delete) or Historical (if the
       divergence itself has explanatory value, e.g. "CLAUDE.md still
       referenced the old build tool after the migration").
 
-Scope-dependent, not actually conflicting
+2. Scope-dependent, not actually conflicting
     → Classify as Current Fact with explicit scope in each case
       (e.g. "development uses X; production uses Y").
 
-None of the sources match current reality
+3. None of the sources match current reality
     → All sources: Obsolete or Historical, depending on explanatory value.
-    → New Current Fact created from verified evidence, not from any of the
-      conflicting sources.
+    → New Current Fact created from verified evidence, not from any of
+      the conflicting sources.
 
-Cannot be resolved with available evidence
+4. Cannot be resolved with available evidence
     → Needs More Evidence. Do not pick a side by default.
 ```
 
+Never pick a side by preference, newest file, or code-alone. Investigate:
+is the implementation current, complete, enabled, tested, experimental,
+temporary, replaced? Does Git show a migration? Does configuration
+activate it? Is the documentation stale or historical? Determine what the
+evidence collectively supports.
+
 Record the resolution explicitly — a future Agent should be able to see
-*why* one source won and the others didn't, not just that they don't match
-anymore.
+*why* one source won and the others didn't, not just that they no longer
+match.
 
 ---
 
-# Current vs Historical
+# Semantic Duplicate Detection
 
-A document should be classified as historical when:
+Look for semantic duplication, not identical text — including duplication
+spanning different origin tools (e.g. the same rationale appearing
+independently in `AGENTS.md`, `CLAUDE.md`, and `docs/architecture/`).
 
-```text
-Current implementation differs
-AND
-the old state explains something important
-```
-
-Examples:
-
-```text
-Old authentication architecture
-        ↓
-Current authentication architecture
-```
-
-The old architecture may remain valuable if it explains:
-
-* migration constraints
-* compatibility decisions
-* rejected alternatives
-* security rationale
-* important regressions avoided
-
-If the old information provides no such value, classify it as Obsolete.
-
----
-
-# Decision vs Solution
-
-Use this distinction:
-
-```text
-Decision
-=
-Why we chose X.
-
-Solution
-=
-How we solved Y.
-```
-
-Example:
-
-```text
-Decision:
-Use PostgreSQL instead of SQLite for production persistence.
-
-Solution:
-Fixed connection exhaustion caused by an incorrect connection-pool lifecycle.
-```
-
-They may be related, but they are not the same knowledge.
-
----
-
-# Solution vs Lesson
-
-Use:
-
-```text
-Solution
-=
-Specific problem and verified resolution.
-
-Lesson
-=
-General principle learned from experience.
-```
-
-Example:
-
-```text
-Solution:
-Fixed Gradle dependency resolution failure caused by repository ordering.
-
-Lesson:
-Build tooling failures should first be checked against repository resolution
-order before changing dependency versions.
-```
-
-Do not create both unless both provide distinct future value.
-
----
-
-# Architecture vs Decision
-
-Use:
-
-```text
-Architecture
-=
-What exists and how it interacts.
-
-Decision
-=
-Why it was chosen.
-```
-
-An Architecture document may link to a Decision.
-
-It should not copy the entire Decision.
-
----
-
-# Constraint vs Fact
-
-Use:
-
-```text
-Fact
-=
-What is true.
-
-Constraint
-=
-What future work must respect.
-```
-
-Example:
-
-```text
-Fact:
-The service currently runs on Java 21.
-
-Constraint:
-Production code must remain compatible with Java 21.
-```
-
-Only classify the second as a Constraint if the compatibility requirement is
-actually enforced or documented as a project boundary.
-
----
-
-# Workflow vs Solution
-
-Use:
-
-```text
-Workflow
-=
-Repeatable process.
-
-Solution
-=
-Resolution of a specific problem.
-```
-
-A troubleshooting sequence becomes a Workflow only if it is intended for
-repeated use.
-
----
-
-# Duplicate Knowledge Detection
-
-Look for semantic duplication, not just identical text — including
-duplication that spans different origin tools (e.g. the same rationale
-appearing independently in `AGENTS.md`, `CLAUDE.md`, and
-`docs/architecture/`).
-
-Potential duplication exists when two documents answer substantially the same
-future question.
+Potential duplication exists when two documents answer substantially the
+same future question.
 
 Example:
 
@@ -939,26 +468,17 @@ docs/architecture/authentication-choice.md
 CLAUDE.md (§ Authentication)
 ```
 
-If all three primarily explain why authentication was selected, they may be
+If all three primarily explain why authentication was selected, they are
 duplicates even if the wording differs.
 
-Prefer one canonical owner.
+Prefer one canonical owner. Use references between related documents. Do
+not create a duplicate document.
 
-Use references between related documents.
-
----
-
-# Knowledge Ownership
-
-For every durable finding, determine:
-
-```text
-Primary Type
-Primary Location Candidate
-Related Knowledge
-```
-
-Do not assign multiple primary homes.
+Ownership: for every durable finding determine Primary Type, Primary
+Location Candidate, and Related Knowledge. Do not assign multiple primary
+homes — even when the knowledge currently exists in multiple origin tools.
+If a related unit (e.g. a Lesson next to a Solution) contains no distinct
+information, do not create it.
 
 Example:
 
@@ -971,309 +491,105 @@ docs/lessons/build/dependency-resolution.md
 docs/architecture/build-system.md
 ```
 
-If the Lesson contains no distinct information, do not create it.
-
 ---
 
-# Classification Matrix
+# Knowledge Value Test
 
-Use this decision matrix:
+For every candidate, ask:
 
-| Question                                           | Classification |
-| --------------------------------------------------- | -------------- |
-| What is true now?                                  | Current Fact   |
-| How does the current system work?                  | Architecture   |
-| Why was this direction chosen?                     | Decision       |
-| How was a concrete problem solved?                 | Solution       |
-| What general principle was learned?                | Lesson         |
-| What boundary must future work respect?            | Constraint     |
-| What repeatable procedure should be followed?      | Workflow       |
-| What useful information is mainly lookup material? | Reference      |
-| What old information explains the current system?  | History        |
-| What invalid information has no remaining value?   | Obsolete       |
+> Would preserving this information materially improve a future Agent's
+> engineering understanding or decision quality?
 
-Then separately determine:
+Usually worth preserving if it helps a future Agent: avoid rediscovery,
+avoid repeating a known failure, understand non-obvious behavior or
+architectural rationale, reuse a verified solution, respect an important
+constraint, understand a migration, avoid reviving a rejected approach, or
+execute a recurring workflow correctly.
+
+Reject information that is only: temporary reasoning, terminal output,
+routine command execution, ordinary implementation detail, one-off
+debugging noise, unverified hypothesis, generic programming advice, task
+completion summary with no reusable insight, or already obvious from
+nearby code.
+
+"Ran npm install and it completed successfully" — not durable.
+"The project must use pnpm because npm-generated lockfile changes break
+deterministic CI dependency graph" — durable if verified.
+
+Durability scale: **High** (useful across many future tasks — architecture,
+important decision, security constraint, reusable solution), **Medium**
+(specific subsystem or recurring situation), **Low** (narrow or temporary),
+**None** (no long-term value — do not preserve).
+
+## Compound Engineering Compatibility
+
+When input comes from completed engineering work, evaluate whether the
+experience should become durable memory:
 
 ```text
-Current State
-Durability
-Confidence
-Evidence
-Source Provenance (if applicable)
+Completed Work
+      ↓
+What was difficult?
+      ↓
+What was non-obvious?
+      ↓
+What was learned?
+      ↓
+Would another Agent rediscover this?
+      ↓
+Is the knowledge reusable?
 ```
+
+Promote when the answer is yes. Reject when the work contains no
+meaningful reusable learning.
 
 ---
 
 # Classification Procedure
 
-## Step 1 — Read the Evidence
-
-Start from the evidence supplied by:
-
-```text
-knowledge-discovery
-repository-audit
-codebase-memory
-parent Agent
-```
-
-Do not assume missing evidence.
-
----
-
-## Step 2 — Identify the Subject
-
-Define what is actually being classified.
-
-Examples:
-
-```text
-Authentication architecture
-Gradle migration
-Token refresh failure
-Production deployment command
-Java version requirement
-Old caching implementation
-Which entry point is canonical (AGENTS.md vs CLAUDE.md)
-```
-
-Avoid classifying vague concepts.
-
----
-
-## Step 3 — Determine Knowledge Type
-
-Ask:
-
-```text
-What future question does this information answer?
-```
-
-Then select the primary type.
-
----
-
-## Step 4 — Determine Current State
-
-Classify:
-
-```text
-Current
-In Progress
-Partial
-Experimental
-Deprecated
-Superseded
-Abandoned
-Historical
-Unknown
-```
-
----
-
-## Step 5 — Evaluate Durability
-
-Determine:
-
-```text
-High
-Medium
-Low
-None
-```
-
-### High
-
-Likely useful across many future tasks.
-
-Examples:
-
-* architecture
-* important decision
-* security constraint
-* reusable solution
-
-### Medium
-
-Useful for a specific subsystem or recurring situation.
-
-### Low
-
-Potentially useful but narrow or temporary.
-
-### None
-
-No meaningful long-term value.
-
-Do not preserve None.
-
----
-
-## Step 6 — Evaluate Evidence
-
-Use:
-
-```text
-High
-Medium
-Low
-Unknown
-```
-
-Never upgrade evidence merely because the conclusion seems reasonable, and
-never upgrade evidence merely because a source looked authoritative.
-
----
-
-## Step 7 — Detect Duplication and Cross-Source Conflict
-
-Ask:
-
-```text
-Does equivalent knowledge already exist?
-Does it exist in more than one origin tool?
-Do the multiple copies agree?
-```
-
-If duplicated and consistent:
-
-```text
-Existing Primary Knowledge
-        ↓
-Update / Link / Consolidate
-```
-
-If duplicated and conflicting, use Cross-Source Conflict Resolution above.
-
-Do not create a duplicate document.
-
----
-
-## Step 8 — Determine Action
-
-Recommend:
-
-```text
-Create
-Update
-Consolidate
-Supersede
-Preserve as History
-Delete
-Ignore
-Needs More Evidence
-```
-
-This is a recommendation to the parent Agent.
-
-Do not execute it.
+1. **Read the evidence.** Start from evidence supplied by
+   `knowledge-discovery`, `repository-audit`, `codebase-memory`, and the
+   parent Agent. Do not assume missing evidence.
+2. **Identify the subject.** Define what is actually being classified
+   (e.g. authentication architecture, Gradle migration, which entry point
+   is canonical). Avoid classifying vague concepts.
+3. **Determine knowledge type.** Ask: what future question does this
+   information answer? Select the primary type via the Classification
+   Matrix.
+4. **Determine current state.** Assign one of the 9 lifecycle states
+   (Current … Unknown).
+5. **Evaluate durability.** High / Medium / Low / None. Do not preserve
+   None.
+6. **Evaluate evidence confidence.** High / Medium / Low / Unknown per the
+   scale. Never upgrade because a conclusion seems reasonable or a source
+   looked authoritative.
+7. **Detect duplication and cross-source conflict.** Does equivalent
+   knowledge already exist — in more than one origin tool? If duplicated
+   and consistent → Update / Link / Consolidate the existing primary
+   knowledge. If duplicated and conflicting → Cross-Source Conflict
+   Resolution above. Do not create a duplicate document.
+8. **Determine action.** Recommend one action from the vocabulary below.
+   Recommendation to the parent Agent — do not execute it.
 
 ---
 
 # Action Definitions
 
-## Create
+Vocabulary: recommendation only, never executed by this skill.
 
-Use when:
-
-* durable knowledge is missing
-* evidence is sufficient
-* no existing primary knowledge owns it
-
----
-
-## Update
-
-Use when existing knowledge is useful but incomplete or stale.
-
----
-
-## Consolidate
-
-Use when multiple documents — regardless of origin tool — contain overlapping
-knowledge.
-
----
-
-## Supersede
-
-Use when existing knowledge is still useful but no longer current.
-
-The replacement should be identified.
-
----
-
-## Preserve as History
-
-Use when information is obsolete operationally but valuable for understanding
-the current system.
-
----
-
-## Delete
-
-Use when information is invalid and has no meaningful historical value.
-
----
-
-## Ignore
-
-Use when information is valid but not worth long-term memory.
-
----
-
-## Needs More Evidence
-
-Use when classification cannot be safely determined.
-
-Do not guess.
-
----
-
-# Confidence Model
-
-Use:
-
-```text
-High
-Medium
-Low
-Unknown
-```
-
-## High
-
-Multiple independent evidence sources agree.
-
-Example:
-
-```text
-Source + Tests + Configuration
-```
-
-## Medium
-
-Strong direct evidence exists but independent corroboration is limited.
-
-Example:
-
-```text
-Implementation + Documentation
-```
-
-## Low
-
-Evidence is indirect, incomplete, or historical.
-
-Example:
-
-```text
-Commit message only
-```
-
-## Unknown
-
-Evidence is insufficient to support classification.
+- **Create** — durable knowledge is missing, evidence is sufficient, no
+  existing primary knowledge owns it.
+- **Update** — existing knowledge is useful but incomplete or stale.
+- **Consolidate** — multiple documents, regardless of origin tool, contain
+  overlapping knowledge.
+- **Supersede** — existing knowledge is still useful but no longer
+  current; identify the replacement.
+- **Preserve as History** — operationally obsolete but valuable for
+  understanding the current system.
+- **Delete** — invalid, no meaningful historical value.
+- **Ignore** — valid but not worth long-term memory.
+- **Needs More Evidence** — classification cannot be safely determined.
+  Do not guess.
 
 ---
 
@@ -1347,135 +663,34 @@ Return:
 
 Keep the reasoning concise and evidence-based.
 
----
+## Batch Classification
 
-# Batch Classification
-
-When classifying multiple findings, do not repeat large explanations.
-
-Use a table:
+For multiple findings, do not repeat large explanations. Use a table:
 
 | Subject               | Type         | State      | Durability | Confidence | Action   |
 | ---------------------- | ------------ | ---------- | ---------- | ---------- | -------- |
 | Authentication flow    | Architecture | Current    | High       | High       | Update   |
 | Token refresh failure  | Solution     | Historical | High       | High       | Create   |
 | Old OAuth flow         | History      | Superseded | Medium     | High       | Preserve |
-| Old command             | Obsolete     | Abandoned  | None       | High       | Delete   |
+| Old command            | Obsolete     | Abandoned  | None       | High       | Delete   |
 | Package manager (cluster: AGENTS.md/CLAUDE.md/.cursor conflict) | Current Fact | Current | High | High | Create + Supersede losing claims |
 
-Then provide detailed notes only for ambiguous cases.
+Provide detailed notes only for ambiguous cases.
 
----
+## Obsolete Classification Rules
 
-# Ambiguous Classification
-
-Some information legitimately belongs near multiple categories.
-
-Use the question it primarily answers.
-
-Example:
-
-```text
-"Why is Redis not used?"
-```
-
-If the answer explains an architectural choice:
-
-```text
-Decision
-```
-
-If the answer is a technical limitation future work must obey:
-
-```text
-Constraint
-```
-
-If it records how a previous Redis-related failure was fixed:
-
-```text
-Solution
-```
-
-If it explains a broad reusable principle:
-
-```text
-Lesson
-```
-
-Do not create four documents because four categories are technically related.
-
----
-
-# Compound Engineering Compatibility
-
-When the input comes from completed engineering work, evaluate whether the
-experience should become durable memory.
-
-Use:
-
-```text
-Completed Work
-      ↓
-What was difficult?
-      ↓
-What was non-obvious?
-      ↓
-What was learned?
-      ↓
-Would another Agent rediscover this?
-      ↓
-Is the knowledge reusable?
-```
-
-Promote when the answer is yes.
-
-Reject when the work contains no meaningful reusable learning.
-
----
-
-# Historical Classification Rules
-
-Do not preserve history for nostalgia.
-
-Preserve historical knowledge only when it explains something important.
-
-Good historical knowledge:
-
-```text
-The project migrated from implementation A to B because A could not satisfy
-the Android compatibility requirement. A must not be reintroduced without
-reconsidering the original compatibility constraint.
-```
-
-Low-value history:
-
-```text
-On June 4, the developer tested implementation A.
-```
-
-The second should normally not become Project Memory.
-
----
-
-# Obsolete Classification Rules
-
-Classify as Obsolete when all are true:
+Classify as Obsolete only when all four conditions hold:
 
 ```text
 No longer valid
-AND
-No current operational value
-AND
-No meaningful historical value
-AND
-Keeping it could mislead future Agents
+AND no current operational value
+AND no meaningful historical value
+AND keeping it could mislead future Agents
 ```
 
-If historical value exists, use History instead.
-
-If replacement exists and the old knowledge still helps explain the transition,
-use Superseded / History rather than simply deleting it.
+If historical value exists → History. If a replacement exists and the old
+knowledge still explains the transition → Superseded / History, not
+delete.
 
 ---
 
@@ -1492,8 +707,8 @@ Single ambiguous log line
 Unconfirmed architecture interpretation
 ```
 
-into durable project knowledge — regardless of which tool or Agent produced
-the original claim.
+into durable project knowledge — regardless of which tool or Agent
+produced the original claim.
 
 Use:
 
@@ -1507,127 +722,53 @@ when necessary.
 
 # Handoff
 
-Return classification decisions to the parent `project-memory` Agent.
-
-The parent may then load:
-
-```text
-knowledge-compounding
-memory-architecture
-obsolete-knowledge
-memory-edit
-memory-verification
-```
-
-depending on the recommended action.
+Return classification decisions to the parent `project-memory` Agent. The
+parent may then load `knowledge-compounding`, `memory-architecture`,
+`obsolete-knowledge`, `memory-edit`, or `memory-verification` depending on
+the recommended action.
 
 ---
 
 # Hard Rules
 
-* Do not classify without evidence.
-* Do not guess.
-* Do not invent history.
-* Do not treat documentation as automatically current.
-* Do not treat source code as automatically sufficient proof.
-* Do not treat an existing knowledge source as authoritative because of its
-  origin tool or apparent polish.
-* Do not confuse Architecture with Decision.
-* Do not confuse Solution with Lesson.
-* Do not confuse Fact with Constraint.
-* Do not confuse Workflow with Solution.
-* Do not create multiple primary homes for one piece of knowledge, even when
-  it currently exists in multiple origin tools.
-* Do not promote ordinary debugging noise.
-* Do not promote terminal output.
-* Do not promote unverified hypotheses.
-* Do not create a Decision merely because a dependency exists.
-* Do not create a Solution merely because a task was completed.
-* Do not create a Lesson merely because a Solution exists.
-* Do not preserve history without explanatory value.
-* Do not delete historical knowledge merely because it is old.
-* Do not classify incomplete evidence as Current.
-* Do not treat a paused implementation as Abandoned without evidence.
-* Do not treat a newer file as automatically authoritative.
-* Do not resolve a cross-source conflict by preference instead of evidence.
-* Do not modify repository files.
-* Do not execute the recommended action.
-* Do not claim post-change verification.
-* Do not hide uncertainty.
+- No guessing, no classifying without evidence, no inventing history.
+- One primary home per knowledge unit, even when it currently exists in
+  multiple origin tools.
+- Obsolete requires all four conditions (invalid, no operational value, no
+  historical value, misleading if kept).
+- Do not delete or degrade historical knowledge merely because it is old.
+- Unresolved cross-source conflict → Needs More Evidence, never a side
+  picked by preference, newest file, or code-alone.
+- No unverified claim is classified as durable knowledge; assumptions and
+  hypotheses stay Needs More Evidence.
+- Read-only: do not modify repository files.
+- Do not execute recommended actions or claim post-change verification.
+- Do not treat documentation, source code, or a polished origin file as
+  automatically authoritative.
+- Do not classify incomplete evidence as Current, or a paused
+  implementation as Abandoned, without evidence.
 
 ---
 
 # Completion Criteria
 
-The classification task is complete when applicable:
+Applicable criteria — all satisfied, or classification is incomplete:
 
 ```text
 Subject identified
-        ✓
-Evidence reviewed
-        ✓
-Primary knowledge type assigned
-        ✓
-Current state assigned
-        ✓
-Durability evaluated
-        ✓
-Evidence confidence evaluated
-        ✓
-Source provenance recorded where applicable
-        ✓
-Duplicate knowledge checked (including cross-source)
-        ✓
-Cross-source conflicts resolved with evidence
-        ✓
-Historical value evaluated
-        ✓
-Recommended action determined
-        ✓
-Primary ownership identified
-        ✓
-Limitations recorded
-        ✓
+Evidence reviewed (including re-verification of inventory claims)
+Primary knowledge type + current state assigned
+Durability + evidence confidence + provenance evaluated
+Duplicates checked and cross-source conflicts resolved with evidence
+Recommended action + primary ownership + limitations recorded
 No repository changes made
-        ✓
 ```
 
-If classification cannot be safely completed, return:
+If classification cannot be safely completed, return
+`Needs More Evidence` rather than guessing.
 
-```text
-Needs More Evidence
-```
-
-rather than guessing.
-
----
-
-# Final Principle
-
-The purpose of classification is not to make the repository contain more
-documents.
-
-It is to ensure that:
-
-```text
-Important Knowledge
-        ↓
-Correct Type
-        ↓
-Correct State
-        ↓
-Correct Owner
-        ↓
-Correct Evidence
-        ↓
-Correct Future Action
-```
-
-regardless of how many different tools, Agents, or people originally wrote
-it down.
-
-The best classification is the one that gives future Agents the clearest answer
-to:
-
-> "What is this, is it still true, why does it matter, and where should I look
-> for the authoritative knowledge?"
+Final principle: classification exists so that important knowledge reaches
+the correct type, state, owner, evidence, and future action — regardless of
+how many tools, Agents, or people originally wrote it down. The best
+classification answers: "What is this, is it still true, why does it
+matter, and where should I look for the authoritative knowledge?"

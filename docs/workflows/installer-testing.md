@@ -28,7 +28,7 @@ Invoke-Pester ./install.tests.ps1
 - `Invoke-WebRequest` is mocked (creates empty files) — no network, no real
   writes outside a temp `USERPROFILE` (each test swaps `$env:USERPROFILE` to
   a fresh `%TEMP%\pmtest_<guid>` and removes it after).
-- Expect: `Passed: 4 Failed: 0`.
+- Expect: `Passed: 7 Failed: 0`.
 - Must run on Pester 3.4.0 syntax — see
   [Pester lesson](../lessons/pester-3-4-legacy-syntax.md).
 
