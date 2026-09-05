@@ -98,6 +98,18 @@ Describe 'install.ps1' {
             New-Item -ItemType Directory -Force -Path $pluginDest | Out-Null
             'package' | Out-File (Join-Path $pluginDest 'package.json') -Encoding utf8
             'lib' | Out-File (Join-Path $pluginDest 'lib.js') -Encoding utf8
+            'dsh' | Out-File (Join-Path $pluginDest 'dsh.js') -Encoding utf8
+            @'
+- id: skill-filesystem
+  config:
+    customSkillDirs:
+      - skills
+    includeDefaultRoots: true
+
+- insert:
+    - id: project-memory-dsh
+      name: '@lovedolove/dsh-project-memory/dsh'
+'@ | Out-File (Join-Path $pluginDest 'cordis.patch.yml') -Encoding utf8
         }
 
         $script:Target = 'dsh'
