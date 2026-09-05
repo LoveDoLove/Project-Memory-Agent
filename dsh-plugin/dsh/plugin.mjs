@@ -29,6 +29,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { cbmApply } from './codebase-memory-bridge.mjs'
 
 const PLUGIN_ID = 'dsh-project-memory'
 
@@ -36,7 +37,7 @@ const PLUGIN_ID = 'dsh-project-memory'
 const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(PLUGIN_ROOT, '..', '..')
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /** Extract plain text from a user message ContentBlocks array. */
 function extractText(content) {
@@ -113,7 +114,7 @@ function parseFrontmatter(block) {
   return out
 }
 
-// ── Core plugin logic ────────────────────────────────────────────────────────
+// â”€â”€ Core plugin logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /** Discover and register all skills relative to workspaceRoot. */
 function registerWorkspaceSkills(ctx, workspaceRoot) {
@@ -150,7 +151,7 @@ function buildPostTaskHint(workspaceRoot, taskId) {
   return `Task ${taskId} completed. Want to compound memory now? Run \`knowledge-compounding\` to extract durable lessons from this session.`
 }
 
-// ── Cordis apply ─────────────────────────────────────────────────────────────
+// â”€â”€ Cordis apply â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Main entry point -- called by Cordis when this plugin row is loaded.
@@ -168,6 +169,16 @@ export function apply(ctx, config = {}) {
   const registeredSkills = registerWorkspaceSkills(ctx, initialWs)
   if (registeredSkills.length > 0) {
     console.log(`[project-memory] registered ${registeredSkills.length} skill(s): ${registeredSkills.join(', ')}`)
+  }
+
+  // Register cbm_* tools when ctx.tools is available (requires codebase-memory-mcp).
+  if (ctx?.tools && typeof ctx.tools.register === 'function') {
+    try {
+      cbmApply(ctx)
+      console.log('[project-memory] registered cbm_* codebase-memory tools')
+    } catch {
+      // codebase-memory-mcp not available — skip silently
+    }
   }
 
   const initHinted = new Set()
