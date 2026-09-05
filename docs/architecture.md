@@ -26,9 +26,10 @@ The core memory pipeline: 8 specialized skills plus an orchestrator agent.
 Installed into each tool via `install.ps1`:
 
 ```
-~/.claude/skills/          <- Claude / Codex
+~/.claude/skills/          <- Claude / Codex (shared)
 ~/.config/opencode/skills/ <- OpenCode
-~/.dsh/profiles/<name>/node_modules/ <- DeepSeek Harness
+~/.agents/skills/          <- Global (Codex + Claude Code)
+~/.dsh/agents/             <- DSH agent seeding (CLI: `dsh plugin add`)
 ```
 
 ### 2. DSH Plugin (npm package)
@@ -44,7 +45,20 @@ any DSH profile via Cordis. install.ps1 also seeds `project-memory.md` into
 
 ## DSH Plugin Architecture
 
-### Bundle Mechanism
+### Package Structure
+
+```
+dsh-plugin/
+  package.json              -> declares @deepseek-ai/dsh-skill-filesystem dep
+  cordis.patch.yml          -> two-row Cordis patch (skill-filesystem + project-memory-dsh)
+  dsh/plugin.mjs            -> real logic: skill mount, lifecycle hooks, cbm_* tools
+  lib/index.js              -> deliberate no-op stub (empty inject array). All behavior
+                              is in dsh/plugin.mjs loaded via cordis.patch.yml insert row.
+```
+
+`lib/index.js` exists only to satisfy the npm package entry-point requirement.
+Its `inject = []` means the bundle framework loads nothing from it — all actual
+mounting happens through the Cordis patch in `dsh/plugin.mjs`.
 
 DSH profiles declare which npm packages to load as bundles in
 `package.json`:

@@ -62,7 +62,8 @@ templates/                  ← document templates for new knowledge
 
 ## When to Use `@project-memory`
 
-Invoke the orchestrator to:
+Invoke the orchestrator (defined in [`agents/project-memory.md`](./agents/project-memory.md))
+to:
 
 - Audit an existing repository's knowledge sources
 - Bootstrap memory for a repo that has no AGENTS.md yet

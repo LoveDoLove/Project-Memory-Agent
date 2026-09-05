@@ -39,9 +39,9 @@ The installer downloads the agent and its 8 skills into your chosen tool's globa
 | OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
 | Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
 | Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
-| DSH | `~/.dsh/profiles/<name>/node_modules/...` | `dsh --profile <name>` |
+| DSH | CLI: `dsh plugin add ...` | `dsh --profile <name>` |
 
-> `all` writes skills to both `~/.claude/skills` and `~/.agents/skills` (no OpenCode double-load) and sets up the DSH profile.
+> `all` writes skills to both `~/.claude/skills` and `~/.agents/skills` (no OpenCode double-load), seeds agent files for all platforms, and prints DSH plugin commands.
 
 **Local options:** `-Target all`, `-Verify` (dry-run), `-Branch dev`, `-Target dsh`.
 **Codex note:** requires `[features] multi_agent = true` in `~/.codex/config.toml` (installer prints this; never edits your config).
@@ -127,15 +127,11 @@ The orchestrator loads these progressively — you rarely invoke one directly. I
 
 ```
 AGENTS.md
-   +-- docs/architecture/README.md     -> domain index
-   |   +-- docs/architecture/<topic>.md  -> one concept per file
-   +-- docs/decisions/
-   +-- docs/solutions/
-   +-- docs/lessons/
-   +-- docs/workflows/
-   +-- docs/constraints/
-   +-- docs/reference/
-   +-- docs/history/
+   +-- docs/architecture.md      -> system design, DSH plugin internals
+   +-- docs/solutions/           -> diagnosed fix patterns
+   +-- docs/lessons/             -> reusable engineering principles
+   +-- skills/<name>/SKILL.md    -> detailed skill instructions
+   +-- templates/                -> document templates
 ```
 
 Domains are a pattern, not a mandatory scaffold — only create what holds verified knowledge.

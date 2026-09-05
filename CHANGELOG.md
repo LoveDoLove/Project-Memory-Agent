@@ -21,4 +21,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CHANGELOG.md`: new file.
 
 ### Removed
-- No npm dependency on `@aiwayds/dsh-subagent-registry`. Users add it separately if needed: `dsh plugin --profile web add @aiwayds/dsh-subagent-registry`.
+- `@aiwayds/dsh-subagent-registry` references entirely from install.ps1 and documentation.
