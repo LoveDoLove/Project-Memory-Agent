@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # needed for npm provenance (optional but recommended)
+      id-token: write
+    defaults:
+      run:
+        working-directory: dsh-plugin
     steps:
       - uses: actions/checkout@v4
 
@@ -20,9 +23,16 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm install --prefix dsh-plugin --package-lock-only
-      - run: npm install --prefix dsh-plugin
+      # npm install creates package-lock.json required by `npm publish`
+      - uses: actions/cache@v4
+        with:
+          path: dsh-plugin/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('dsh-plugin/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-      - run: npm publish --prefix dsh-plugin --access public
+      - run: npm install
+
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
