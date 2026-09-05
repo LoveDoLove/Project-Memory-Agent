@@ -105,16 +105,20 @@ Describe 'install.ps1' {
         Main
 
         $webProfile | Should Exist
-        # Cordis patch must contain skill-filesystem AND project-memory-dsh.
+        # Profile cordis.patch.yml must NOT contain plugin entries (they come
+        # from the plugin's own cordis.patch.yml via the bundle mechanism).
+        # Writing both would cause "duplicate loader entry id" errors at boot.
         $patch = Get-Content (Join-Path $webProfile 'cordis.patch.yml') -Raw
-        $patch -match 'skill-filesystem' | Should Be $true
-        $patch -match 'customSkillDirs' | Should Be $true
-        $patch -match 'project-memory-dsh' | Should Be $true
+        $patch -match 'project-memory-dsh' | Should Be $false
         # package.json must list the plugin in bundles and dependencies.
         $pkg = Get-Content (Join-Path $webProfile 'package.json') -Raw | ConvertFrom-Json
         $pkg.dsh.profile.bundles -contains $PluginName | Should Be $true
         $depsKeys = $pkg.dependencies.PSObject.Properties.Name
         ($depsKeys -contains $PluginName) | Should Be $true
+        # Plugin's own patch in node_modules must have the real entries.
+        $pluginPatch = Get-Content (Join-Path $webProfile 'node_modules\@lovedolove\dsh-project-memory\cordis.patch.yml') -Raw
+        $pluginPatch -match 'skill-filesystem' | Should Be $true
+        $pluginPatch -match 'project-memory-dsh' | Should Be $true
     }
 
     It 'dsh target: falls back to creating project-memory when no profile exists' {
