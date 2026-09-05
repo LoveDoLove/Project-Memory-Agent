@@ -93,9 +93,6 @@ Describe 'install.ps1' {
         (Join-Path $profileDir 'package.json') | Should Exist
         (Join-Path $profileDir 'cordis.patch.yml') | Should Exist
         (Join-Path $profileDir 'pnpm-workspace.yaml') | Should Exist
-        (Join-Path $profileDir '.npmrc') | Should Exist
-        $npmrc = Get-Content (Join-Path $profileDir '.npmrc') -Raw
-        $npmrc -match '@lovedolove:registry' | Should Be $true
     }
 }
 

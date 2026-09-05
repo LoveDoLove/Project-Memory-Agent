@@ -1,4 +1,4 @@
-name: Publish dsh-plugin to GitHub Packages
+name: Publish dsh-plugin to npm
 
 on:
   push:
@@ -9,9 +9,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write # required for publishing to GitHub Packages
     defaults:
       run:
         working-directory: dsh-plugin
@@ -21,13 +18,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # package.json has publishConfig.registry set to npm.pkg.github.com;
-          # setup-node's registry-url only affects its own auth setup, not npm's.
-          # We rely on GITHUB_TOKEN (auto-injected) for authentication.
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
 
       - run: npm install
 
-      - run: npm publish
+      - run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

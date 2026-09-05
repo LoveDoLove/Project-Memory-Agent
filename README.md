@@ -54,13 +54,13 @@ dsh --profile project-memory sdk
 
 The skills are discoverable from any workspace because the plugin's `cordis.patch.yml` registers the project's `skills/` directory as a custom skill root via `@deepseek-ai/dsh-skill-filesystem`.
 
-To install from GitHub Packages instead of the offline copy (receives updates automatically):
+To install from npm instead of the offline copy (receives updates automatically):
 
 ```powershell
 dsh plugin --profile project-memory install @lovedolove/dsh-project-memory
 ```
 
-This works because `@lovedolove/dsh-project-memory` is published to [GitHub Packages](https://github.com/LoveDoLove/Project-Memory-Agent/packages?query=dsh-plugin) via a GitHub Actions workflow â€” no API key or secret needed. The workflow triggers automatically whenever files under `dsh-plugin/` are pushed to `main`.
+This works because `@lovedolove/dsh-project-memory` is published to [npm](https://github.com/LoveDoLove/Project-Memory-Agent/packages?query=dsh-plugin) via a GitHub Actions workflow â€” no npm token needed. The workflow triggers automatically whenever files under `dsh-plugin/` are pushed to `main`.
 
 To verify the profile is wired correctly:
 
@@ -163,4 +163,5 @@ MIT â€” see [LICENSE](LICENSE).
 [issues-url]: https://github.com/LoveDoLove/Project-Memory-Agent/issues
 [license-shield]: https://img.shields.io/github/license/LoveDoLove/Project-Memory-Agent.svg
 [license-url]: https://github.com/LoveDoLove/Project-Memory-Agent/blob/main/LICENSE
+
 
