@@ -48,18 +48,33 @@ function extractText(content) {
     .trim()
 }
 
-/** Resolve the workspace root from a Cordis payload or session event. */
+/** Resolve the workspace root from a Cordis payload or session event.
+ * Tries candidates first, then walks up from each candidate looking for
+ * AGENTS.md (so a payload cwd inside a subdirectory still resolves correctly).
+ * Falls back to the plugin's own repo root. */
 function resolveWorkspace(payload) {
   const candidates = [
     payload?.cwd,
     payload?.agent?.cwd,
     payload?.session?.header?.cwd,
     payload?.session?.cwd,
-  ]
+    process.cwd(),
+  ].filter(c => typeof c === 'string' && c.trim())
   for (const c of candidates) {
-    if (typeof c === 'string' && c.trim()) return c.trim()
+    const trimmed = c.trim()
+    // If the candidate itself has AGENTS.md, use it directly.
+    if (existsSync(join(trimmed, 'AGENTS.md'))) return trimmed
+    // Walk up from candidate looking for AGENTS.md (up to 6 levels).
+    let dir = trimmed
+    for (let i = 0; i < 6; i++) {
+      if (existsSync(join(dir, 'AGENTS.md'))) return dir
+      const parent = dirname(dir)
+      if (parent === dir) break
+      dir = parent
+    }
   }
-  return process.cwd()
+  // Fallback to this plugin's repo root (where AGENTS.md is expected).
+  return REPO_ROOT
 }
 
 /** Read a skill SKILL.md and return its {name, description, content}. */
