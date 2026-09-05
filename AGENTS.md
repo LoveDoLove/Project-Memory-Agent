@@ -49,11 +49,13 @@ See [docs/architecture.md](./docs/architecture.md) for system design details.
 ```
 AGENTS.md (you are here)
     ↓
-docs/architecture.md     ← system design, DSH plugin internals
+docs/architecture.md        ← system design, DSH plugin internals
+docs/solutions/             ← diagnosed fix patterns (read when debugging)
+docs/lessons/               ← reusable engineering principles
     ↓
-skills/<name>/SKILL.md   ← detailed skill instructions (loaded on demand)
+skills/<name>/SKILL.md      ← detailed skill instructions (loaded on demand)
     ↓
-templates/               ← document templates for new knowledge
+templates/                  ← document templates for new knowledge
 ```
 
 ---
