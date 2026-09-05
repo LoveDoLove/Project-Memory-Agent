@@ -192,11 +192,23 @@ autoInstallPeers: false
     $pkg.dsh.profile.bundles = $allBundles
 
     # Add to dependencies (for pnpm to resolve).
-    if (-not $pkg.dependencies) { $pkg | Add-Member -NotePropertyName 'dependencies' -NotePropertyValue @{} }
-    $pkg.dependencies[$PluginName] = "^0.3.0"
+    # ConvertFrom-Json returns PSCustomObject; we can't index it with [],
+    # so we rebuild the object as a plain hashtable before writing.
+    if (-not $pkg.dependencies) {
+        $pkg | Add-Member -NotePropertyName 'dependencies' -NotePropertyValue ([ordered]@{}) -Force
+    }
+    $deps = $pkg.dependencies
+    if ($deps -is [System.Management.Automation.PSCustomObject]) {
+        $deps | Add-Member -NotePropertyName $PluginName -NotePropertyValue '^0.3.0' -Force
+    } else {
+        $deps[$PluginName] = '^0.3.0'
+    }
 
     if (-not $Verify) {
-        $pkg | ConvertTo-Json -Depth 10 | Out-File -FilePath $manifestPath -Encoding utf8
+        # Use UTF8NoBOM so DSH's JSON parser doesn't choke on a BOM.
+        $json = $pkg | ConvertTo-Json -Depth 10
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($manifestPath, $json, $utf8NoBom)
         Write-Host "  updated package.json in $ProfilePath"
         $script:Installed += $manifestPath
     } else {
