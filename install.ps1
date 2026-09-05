@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Target = '',
     [switch]$Force,
     [switch]$Verify,
@@ -107,7 +107,7 @@ function Main {
                 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
                 $pluginSrc = Join-Path $scriptDir 'dsh-plugin'
                 if (-not (Test-Path $pluginSrc)) {
-                    # Running from a subdirectory or extracted archive — walk up.
+                    # Running from a subdirectory or extracted archive â€” walk up.
                     $pluginSrc = Join-Path (Split-Path $scriptDir) 'Project-Memory-Agent\dsh-plugin'
                 }
                 if (-not (Test-Path (Join-Path $pluginSrc 'package.json'))) {
@@ -134,11 +134,11 @@ function Main {
                     private = $true
                     dependencies = @{
                         "@deepseek-ai/dsh-base" = "*"
-                        "@lovedolove/dsh-plugin" = "file:./node_modules/@lovedolove/dsh-plugin"
+                        "@lovedolove/dsh-project-memory" = "file:./node_modules/@lovedolove/dsh-project-memory"
                     }
                     dsh = @{
                         profile = @{
-                            bundles = @('@deepseek-ai/dsh-base', "@lovedolove/dsh-plugin")
+                            bundles = @('@deepseek-ai/dsh-base', "@lovedolove/dsh-project-memory")
                             patchReload = "live"
                         }
                     }
@@ -152,7 +152,7 @@ function Main {
                 $patchPath = Join-Path $profilePath 'cordis.patch.yml'
                 if (-not (Test-Path $patchPath)) {
                     @"
-# Project Memory DSH profile — your patch layer.
+# Project Memory DSH profile â€” your patch layer.
 # Applied after every bundle layer. Customize here to override settings.
 []
 "@ | Out-File -FilePath $patchPath -Encoding utf8
@@ -200,11 +200,11 @@ autoInstallPeers: false
                                 private = $true
                                 dependencies = @{
                                     "@deepseek-ai/dsh-base" = "*"
-                                    "@lovedolove/dsh-plugin" = "file:./node_modules/@lovedolove/dsh-plugin"
+                                    "@lovedolove/dsh-project-memory" = "file:./node_modules/@lovedolove/dsh-project-memory"
                                 }
                                 dsh = @{
                                     profile = @{
-                                        bundles = @('@deepseek-ai/dsh-base', "@lovedolove/dsh-plugin")
+                                        bundles = @('@deepseek-ai/dsh-base', "@lovedolove/dsh-project-memory")
                                         patchReload = "live"
                                     }
                                 }
@@ -217,7 +217,7 @@ autoInstallPeers: false
                             $patchPath = Join-Path $dshProfilePath 'cordis.patch.yml'
                             if (-not (Test-Path $patchPath)) {
                                 @"
-# Project Memory DSH profile — your patch layer.
+# Project Memory DSH profile â€” your patch layer.
 # Applied after every bundle layer. Customize here to override settings.
 []
 "@ | Out-File -FilePath $patchPath -Encoding utf8
@@ -254,10 +254,11 @@ autoInstallPeers: false
     Write-Host ''
     Write-Host 'DSH users: start the profile with `dsh --profile project-memory` (web GUI) or'
     Write-Host "  `dsh --profile project-memory headless "your task"`. Skills live in"
-    Write-Host "  `~/.dsh/profiles/project-memory/node_modules/@lovedolove/dsh-plugin`."
+    Write-Host "  `~/.dsh/profiles/project-memory/node_modules/@lovedolove/dsh-project-memory`."
     Write-Host '  To use the online profile (recommends `dsh plugin` for updates):'
-    Write-Host '    dsh plugin --profile project-memory install @lovedolove/dsh-plugin'
+    Write-Host '    dsh plugin --profile project-memory install @lovedolove/dsh-project-memory'
     if ($script:Failures.Count -gt 0) { exit 1 }
 }
 
 if ($MyInvocation.InvocationName -ne '.') { Main }
+
