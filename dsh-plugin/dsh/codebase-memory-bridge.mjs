@@ -9,6 +9,7 @@ import { defineTool } from '@deepseek-ai/dsh-tools';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
+import { existsSync } from 'node:fs';
 
 /** C:/Users/user/agent-core → C-Users-user-agent-core；点号保留（.qclaw → -.qclaw） */
 export function projectNameFromPath(p) {
@@ -139,8 +140,34 @@ export function createClient(exePath) {
   return { rpc, call, dispose };
 }
 
-const EXE = process.env.CBM_EXE
-  || path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'codebase-memory-mcp', 'codebase-memory-mcp.exe');
+/** Find codebase-memory-mcp.exe. Tries env var, then common install locations,
+ * then PATH (so any user installation works regardless of where it's placed). */
+function findExe() {
+  // 1. Explicit override
+  if (process.env.CBM_EXE && existsSync(process.env.CBM_EXE)) return process.env.CBM_EXE
+  const homedir = os.homedir()
+  const candidates = [
+    // Official installer path
+    path.join(homedir, 'AppData', 'Local', 'Programs', 'codebase-memory-mcp', 'codebase-memory-mcp.exe'),
+    // ~/.local/bin (common manual install)
+    path.join(homedir, '.local', 'bin', 'codebase-memory-mcp.exe'),
+    // Current working directory
+    path.join(process.cwd(), 'codebase-memory-mcp.exe'),
+  ]
+  for (const c of candidates) {
+    if (existsSync(c)) return c
+  }
+  // 2. Search PATH
+  const pathEnv = (process.env.PATH || '').split(path.delimiter)
+  for (const dir of pathEnv) {
+    if (!dir) continue
+    const exe = path.join(dir, 'codebase-memory-mcp.exe')
+    if (existsSync(exe)) return exe
+  }
+  return null
+}
+
+const EXE = findExe()
 
 /** Register cbm_* tools on ctx when ctx.tools is available. */
 export function cbmApply(ctx) {
