@@ -22,6 +22,7 @@ Describe 'install.ps1' {
     }
 
     Mock Invoke-WebRequest { param($Uri, $OutFile); if ($OutFile) { New-Item -ItemType File -Force -Path $OutFile | Out-Null } }
+    Mock Start-Process { param($FilePath, $ArgumentList, $NoNewWindow, $Wait, $PassThru, $ErrorAction); return ([pscustomobject]@{ ExitCode = 0 }) }
 
     It 'single opencode: skills + agent' {
         $sk = Join-Path $env:USERPROFILE '.config\opencode\skills'

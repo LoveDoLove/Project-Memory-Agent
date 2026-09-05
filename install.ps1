@@ -145,11 +145,21 @@ function Main {
                     }
                 }
                 Write-Host ""
-                Write-Host "  Run plugin command:"
-                Write-Host "    dsh plugin --profile $profileName add $PluginName"
-                Write-Host ""
-                Write-Host "  Then dispatch the orchestrator as a subagent:"
-                Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
+                # Install plugin and start orchestrator hint for DSH
+                if (-not $Verify) {
+                    try {
+                        $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
+                        if ($proc.ExitCode -eq 0) {
+                            Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                        } else {
+                            Write-Warning "  plugin install failed (exit $($_.ExitCode))"
+                        }
+                    } catch {
+                        Write-Warning "  dsh plugin command not available: $_"
+                    }
+                } else {
+                    Write-Host "  would install plugin: dsh plugin --profile $profileName add $PluginName"
+                }
             }
             'all' {
                 Install-Skills "$env:USERPROFILE\.claude\skills"
@@ -184,11 +194,20 @@ function Main {
                     }
                 }
                 Write-Host ""
-                Write-Host "  DSH profile: $profileName"
-                Write-Host "  Run plugin command:"
-                Write-Host "    dsh plugin --profile $profileName add $PluginName"
-                Write-Host "  Then:"
-                Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
+                if (-not $Verify) {
+                    try {
+                        $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
+                        if ($proc.ExitCode -eq 0) {
+                            Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                        } else {
+                            Write-Warning "  plugin install failed (exit $($_.ExitCode))"
+                        }
+                    } catch {
+                        Write-Warning "  dsh plugin command not available: $_"
+                    }
+                } else {
+                    Write-Host "  would install plugin: dsh plugin --profile $profileName add $PluginName"
+                }
             }
             default { Write-Warning "Unknown target: $t"; $script:Failures += "target:$t" }
         }
@@ -202,7 +221,6 @@ function Main {
         $script:Failures | ForEach-Object { Write-Host "  $_" }
     }
     Write-Host ""
-    Write-Host 'Codex users: to spawn this agent you may need `[features] multi_agent = true` in `~/.codex/config.toml` (not auto-applied).'
     if ($script:Failures.Count -gt 0) { exit 1 }
 }
 
