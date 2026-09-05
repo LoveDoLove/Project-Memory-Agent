@@ -1,0 +1,28 @@
+name: Publish dsh-plugin to npm
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dsh-plugin/**'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # needed for npm provenance (optional but recommended)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm install --prefix dsh-plugin --package-lock-only
+      - run: npm install --prefix dsh-plugin
+
+      - run: npm publish --prefix dsh-plugin --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
