@@ -8,17 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.20] — 2026-09-06
 
 ### Added
-- **DSH subagent dispatch**: Bundle `@aiwayds/dsh-subagent-registry` into the DSH plugin so users can dispatch the orchestrator agent via `use_agent(agent: "project-memory")` after install.
-- **Agent file seeding**: `install.ps1` now copies `agents/project-memory.md` into `~/.dsh/agents/` for both `-Target dsh` and `-Target all` install paths.
-- **3 new tests**: DSH agent seeding with existing profile, DSH agent seeding with no profile, and `all` target also seeds DSH agents dir.
+- **DSH subagent dispatch**: `install.ps1` seeds `agents/project-memory.md` into `~/.dsh/agents/` for both `-Target dsh` and `-Target all`. After the user runs `dsh plugin add @lovedolove/dsh-project-memory`, they can dispatch via `use_agent(agent: "project-memory")`.
+- **New `global` target**: installs skills to `~/.agents/skills/` and agent to `~/.agents/agents/project-memory.md` (cross-tool compatible with Claude Code, Codex, etc.).
 
 ### Fixed
-- **`install.ps1` `all` target**: Fixed pre-existing bug where the DSH profile directory was never created when no profile existed (would fail on first install with missing parent directory error).
+- **DSH target**: no longer touches `~/.dsh/profiles/` files (package.json, cordis.patch.yml, pnpm-workspace.yaml). Respects the CLI-only workflow: `dsh plugin add` is the user's command.
 
 ### Changed
-- `dsh-plugin/cordis.patch.yml`: Appended `dsh-subagent-registry` insert row (id: `dsh-subagent-registry`).
-- `README.md`: Added subagent dispatch instructions under DSH section.
-- `docs/architecture.md`: Noted subagent registry bundling in Two Components section.
+- `install.ps1`: DSH target now only prints the `dsh plugin add` command and seeds the agent file. ~180 lines → ~130 lines. Removed `Add-Plugin-ToProfile`, `Resolve-DshProfile`.
+- `README.md`: updated DSH section to reflect CLI-only approach.
+- `docs/architecture.md`: noted agent seeding + CLI-only DSH install.
+- `CHANGELOG.md`: new file.
 
-### Dependencies
-- Added: `@aiwayds/dsh-subagent-registry ^0.8.1`
+### Removed
+- No npm dependency on `@aiwayds/dsh-subagent-registry`. Users add it separately if needed: `dsh plugin --profile web add @aiwayds/dsh-subagent-registry`.

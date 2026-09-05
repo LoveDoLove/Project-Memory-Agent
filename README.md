@@ -52,42 +52,24 @@ The installer downloads the agent and its 8 skills into your chosen tool's globa
 
 The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry.
 
-The installer integrates into your **existing** profile (auto-detects `web` first, falls back to creating `project-memory`). It writes `cordis.patch.yml`, updates `package.json`, and patches `pnpm-workspace.yaml` — no separate profile is created unless you don't have one.
-
 ```powershell
-# Interactive — picks your existing profile (or creates project-memory)
+# Interactive — shows the commands for your profile
 .\install.ps1 -Target dsh
 
 # Explicitly target your web profile
 .\install.ps1 -Target dsh -DshProfile web
 ```
 
-To start a session with bundled skills:
-
-```powershell
-# Web GUI
-dsh --profile web
-
-# Headless
-dsh --profile web headless "audit my repo"
-
-# SDK
-dsh --profile web sdk
-```
-
-Install the plugin from npm (receives updates automatically):
+The installer will print the plugin add command. Run it manually:
 
 ```powershell
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
 
-Published to [npm](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via GitHub Actions — install with zero setup.
-
 After install, dispatch the orchestrator as a subagent:
-```
+```powershell
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
-The bundled subagent registry makes this available automatically.
 
 ---
 
