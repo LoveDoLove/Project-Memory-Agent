@@ -31,7 +31,7 @@ export function createClient(exePath) {
     if (child && !child.killed) return Promise.resolve();
     if (startPromise) return startPromise;
     startPromise = (async () => {
-      const c = spawn(exePath, [], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+      const c = spawn(exePath, ['--ui=true'], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
       child = c;
       c.stdout.on('data', (d) => {
         buf += d.toString('utf8');
