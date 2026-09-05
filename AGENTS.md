@@ -49,7 +49,7 @@ See [docs/architecture.md](./docs/architecture.md) for system design details.
 ```
 AGENTS.md (you are here)
     ↓
-docs/architecture.md        ← system design, DSH plugin internals
+docs/architecture.md        ← system design, DSH plugin internals, progressive loading levels
 docs/solutions/             ← diagnosed fix patterns (read when debugging)
 docs/lessons/               ← reusable engineering principles
     ↓
@@ -57,6 +57,9 @@ skills/<name>/SKILL.md      ← detailed skill instructions (loaded on demand)
     ↓
 templates/                  ← document templates for new knowledge
 ```
+
+For progressive loading levels (what each docs/ tier contains), see
+[docs/architecture.md](./docs/architecture.md#Progressive-Loading-Levels).
 
 ---
 

@@ -6,8 +6,7 @@
 #   2. project-memory-dsh — load the DSH glue plugin (dsh/plugin.mjs) which:
 #      a) re-registers skills dynamically relative to the active workspace,
 #      b) injects a first-time-init hint when AGENTS.md is absent,
-#      c) injects a post-task memory prompt on turn/end when AGENTS.md exists,
-#      d) registers cbm_* tools (codebase-memory-mcp bridge) when ctx.tools is present.
+#      c) registers cbm_* tools (codebase-memory-mcp bridge) when ctx.tools is present.
 
 - id: skill-filesystem
   config:
