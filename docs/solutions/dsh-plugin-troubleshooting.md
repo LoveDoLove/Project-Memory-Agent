@@ -1,5 +1,5 @@
 ---
-title: "DSH Plugin Boot Failures — Triple-Layer Error Diagnosis"
+title: "DSH Plugin Boot Failures â€” Triple-Layer Error Diagnosis"
 problem_type: bug
 category: integration_issue
 module: "dsh-plugin / cordis loader"
@@ -37,22 +37,22 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 ```javascript
 // BEFORE (broken):
 /**
- * registers every skills/*/SKILL.md found there  ← */ closes comment
+ * registers every skills/*/SKILL.md found there  â† */ closes comment
  */
-// The word "found" is now outside the comment → SyntaxError
+// The word "found" is now outside the comment â†’ SyntaxError
 ```
 
 **Fix:** Escape the `/` and `*` inside comments: `skills\/\*\/SKILL.md`
 
 ### 2. Duplicate Loader Entry (TypeError)
 
-`install.ps1` wrote `project-memory-dsh` into the **profile's** `cordis.patch.yml`, while the plugin's own `cordis.patch.yml` (loaded via `dsh.profile.bundles`) also defined the same entry. Cordis applies all patch layers in a single `EntryGroup`, so the same ID registered twice → `duplicate loader entry id`.
+`install.ps1` wrote `project-memory-dsh` into the **profile's** `cordis.patch.yml`, while the plugin's own `cordis.patch.yml` (loaded via `dsh.profile.bundles`) also defined the same entry. Cordis applies all patch layers in a single `EntryGroup`, so the same ID registered twice â†’ `duplicate loader entry id`.
 
 **Fix:** `install.ps1` only writes a clean empty layer (`[]`) to the profile patch. The plugin manages its own patches via the bundle mechanism.
 
 ### 3. Missing Inject Declaration (RuntimeError)
 
-`lib/index.js` exported `inject = []` (empty), but `plugin.mjs:apply()` immediately accessed `ctx.skills`. Cordis uses the module's `inject` export to decide which services to wait for before calling `apply()`. Empty array → no waiting → `ctx.skills` not yet available → error.
+`lib/index.js` exported `inject = []` (empty), but `plugin.mjs:apply()` immediately accessed `ctx.skills`. Cordis uses the module's `inject` export to decide which services to wait for before calling `apply()`. Empty array â†’ no waiting â†’ `ctx.skills` not yet available â†’ error.
 
 **Fix:** Add `export const inject = ['skills']` to `plugin.mjs`. Reference: `@deepseek-ai/dsh-skill-badge` uses the same pattern.
 
@@ -60,7 +60,7 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 
 ## Solution
 
-### Step 1 — Fix syntax: escape `*/` in JSDoc comments
+### Step 1 â€” Fix syntax: escape `*/` in JSDoc comments
 
 ```javascript
 // In dsh/plugin.mjs, change:
@@ -69,7 +69,7 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 *      registers every skills\/\*\/SKILL.md found there,
 ```
 
-### Step 2 — Fix installer: don't write plugin entries to profile patch
+### Step 2 â€” Fix installer: don't write plugin entries to profile patch
 
 ```powershell
 # In install.ps1, Remove-Plugin-ToProfile should only write empty layer:
@@ -77,7 +77,7 @@ $emptyPatch = "# Your patch layer...\n[]`n"
 [System.IO.File]::WriteAllText($patchPath, $emptyPatch, [System.Text.UTF8Encoding]::new($false))
 ```
 
-### Step 3 — Fix inject: declare required services
+### Step 3 â€” Fix inject: declare required services
 
 ```javascript
 // In dsh/plugin.mjs, add after export const name:
@@ -91,10 +91,10 @@ Also update `lib/index.js` if it's used as a secondary entry point.
 
 ## Verification
 
-- `node --check dsh-plugin/dsh/plugin.mjs` → exit 0
-- `Invoke-Pester install.tests.ps1` → 10/10 passed
-- `dsh --profile web --dump-config` → loads `project-memory-dsh` correctly
-- `npm view @lovedolove/dsh-project-memory version` → 0.4.2
+- `node --check dsh-plugin/dsh/plugin.mjs` â†’ exit 0
+- `Invoke-Pester install.tests.ps1` â†’ 10/10 passed
+- `dsh --profile web --dump-config` â†’ loads `project-memory-dsh` correctly
+- `npm view @lovedolove/dsh-project-memory version` â†’ 0.4.2
 
 ---
 
@@ -125,10 +125,66 @@ This document compresses ~2 hours of debugging into a single reference.
 **Diagnostic sequence for DSH plugin boot failures:**
 
 ```text
-1. SyntaxError → check plugin.mjs for unescaped */ in comments
-2. duplicate loader entry id → check both profile AND plugin cordis.patch.yml
-3. cannot get property "X" without inject → check lib/index.js for inject=['X']
-4. ERR_MODULE_NOT_FOUND → check package is installed
+1. SyntaxError â†’ check plugin.mjs for unescaped */ in comments
+2. duplicate loader entry id â†’ check both profile AND plugin cordis.patch.yml
+3. cannot get property "X" without inject â†’ check lib/index.js for inject=['X']
+4. ERR_MODULE_NOT_FOUND â†’ check package is installed
 ```
 
 **Design rule:** A DSH bundle plugin must declare `inject` in its primary entry point. The module's `inject` array tells Cordis which services to resolve before calling `apply()`.
+
+---
+
+## Bug 4: False "no AGENTS.md" Init Hint (Fixed in v0.4.4)
+
+### Problem
+
+After installing the plugin, DSH shows:
+
+> Project Memory: this workspace has no AGENTS.md yet -- run the
+> `memory-architecture` skill to bootstrap the Project Knowledge System.
+
+But AGENTS.md clearly exists in the workspace.
+
+### Root Cause
+
+`resolveWorkspace()` used the first non-empty `payload.cwd` as-is, without
+verifying that AGENTS.md actually exists there. When the DSH web GUI runs
+from its own directory (e.g. `C:\Users\...\AppData\Local\pnpm\...`), the
+plugin resolves to the wrong workspace and incorrectly triggers the
+first-time init hint.
+
+### Fix
+
+Added an AGENTS.md existence check per candidate, with a walk-up search
+(6 levels deep) from each candidate path. Falls back to `REPO_ROOT` when
+no candidate has AGENTS.md.
+
+```javascript
+// Before (v0.4.3):
+for (const c of candidates) {
+  if (typeof c === 'string' && c.trim()) return c.trim()
+}
+return process.cwd()
+
+// After (v0.4.4):
+for (const c of candidates) {
+  const trimmed = c.trim()
+  if (existsSync(join(trimmed, 'AGENTS.md'))) return trimmed
+  // Walk up looking for AGENTS.md
+  let dir = trimmed
+  for (let i = 0; i < 6; i++) {
+    if (existsSync(join(dir, 'AGENTS.md'))) return dir
+    const parent = dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+}
+return REPO_ROOT
+```
+
+### Evidence
+
+- npm: `@lovedolove/dsh-project-memory@0.4.4`
+- Commit: `cb2bf22`
+- Tests: 9/9 passed
