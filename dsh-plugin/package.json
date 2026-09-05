@@ -1,7 +1,7 @@
 {
   "name": "@lovedolove/dsh-project-memory",
   "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, and prompts for memory compounding after tasks.",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "type": "module",
   "main": "lib/index.js",
   "exports": {

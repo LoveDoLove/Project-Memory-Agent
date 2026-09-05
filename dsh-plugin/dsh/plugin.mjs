@@ -16,14 +16,8 @@
  *      the agent to run the memory-architecture skill to bootstrap the
  *      Project Knowledge System (AGENTS.md + all skills + agents).
  *
- *   3. Post-task memory prompt -- on turn/end, the plugin injects a compact
- *      question into the next user message: "Want to compound memory now?"
- *      so the agent knows to run knowledge-compounding when the task is done.
- *
  * Events listened to (best-effort, never throws into the harness loop):
  *   - agent/pre-step    -> inject first-time-init hint (once per agent)
- *   - session/event     -> inject post-task prompt on turn/end
- *   - agent/inbox/inserted (future) -> could auto-discover workspace on paste
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -146,11 +140,6 @@ function buildInitHint(workspaceRoot) {
   return `Project Memory: this workspace has no AGENTS.md yet -- run the \`memory-architecture\` skill to bootstrap the Project Knowledge System. The 8 Project Memory skills are now available.`
 }
 
-/** Post-task memory-compound prompt. */
-function buildPostTaskHint(workspaceRoot, taskId) {
-  return `Task ${taskId} completed. Want to compound memory now? Run \`knowledge-compounding\` to extract durable lessons from this session.`
-}
-
 // â”€â”€ Cordis apply â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
@@ -182,52 +171,10 @@ export function apply(ctx, config = {}) {
   }
 
   const initHinted = new Set()
-  // Track completed turn seq numbers (stable string key) to prevent
-  // duplicate post-task hints across session/event emissions.
-  const completedTurns = new Set()
 
-  // 2. Listen for session events -> inject post-task prompt on turn/end.
+  // Listen for agent/pre-step to inject first-time-init hint when needed.
   if (typeof on === 'function') {
     try {
-      on('session/event', (session, event) => {
-        try {
-          if (!event || typeof event !== 'object') return
-          const type = event?.type
-          const data = event?.data
-
-          // Agent turned: inject memory prompt.
-          if (type === 'turn/end') {
-            const reason = data?.reason ?? event?.reason
-            const kind = reason && typeof reason === 'object' ? reason.kind : undefined
-            // Skip interrupted/aborted turns.
-            if (kind === 'interrupted' || kind === 'aborted') return
-
-            const workspace = resolveWorkspace(session?.header ?? session ?? {})
-            // Use a stable string key for deduplication (event objects
-            // are recreated each emission so WeakSet cannot dedup).
-            const turnKey = `${workspace}::${event?.seq ?? session?.id ?? '?'}`
-
-            // Only prompt once per turn (avoid duplicate injections).
-            if (completedTurns.has(turnKey)) return
-            completedTurns.add(turnKey)
-
-            // Only prompt if the workspace has AGENTS.md (i.e. memory system exists).
-            // For new workspaces, we only show the init hint (handled by pre-step).
-            if (!existsSync(join(workspace, 'AGENTS.md'))) return
-
-            // Inject a compact user message at the end of the turn.
-            // We append to the session's next user prompt via agent/pre-step.
-            const hint = buildPostTaskHint(workspace, event?.seq ?? '?')
-            if (!session?.header?.cwd) return
-            // Store hint on session for pre-step to pick up.
-            if (!session.__pmPostTaskHint) session.__pmPostTaskHint = hint
-          }
-        } catch {
-          // best-effort
-        }
-      })
-
-      // 3. On agent/pre-step, inject first-time-init hint if needed.
       on('agent/pre-step', (payload, next) => {
         try {
           const workspace = resolveWorkspace(payload)
@@ -249,30 +196,6 @@ export function apply(ctx, config = {}) {
               console.log(`[project-memory] injected first-time-init hint for ${workspace}`)
             }
           }
-
-          // Post-task prompt -- prepend to next user turn if queued.
-          // We scan all open sessions for queued hints.
-          if (typeof ctx.get === 'function') {
-            try {
-              const sessions = ctx.get('sessions')
-              if (sessions && typeof sessions.list === 'function') {
-                for (const session of sessions.list()) {
-                  const hint = session?.__pmPostTaskHint
-                  if (hint && typeof agent?.inject === 'function') {
-                    agent.inject({
-                      id: crypto.randomUUID(),
-                      role: 'user',
-                      content: [{ type: 'text', text: hint }],
-                      source: { kind: 'plugin', plugin: PLUGIN_ID, form: 'instructions' },
-                    })
-                    delete session.__pmPostTaskHint
-                  }
-                }
-              }
-            } catch {
-              // sessions service unavailable -- skip
-            }
-          }
         } catch {
           // best-effort
         }
@@ -287,7 +210,6 @@ export function apply(ctx, config = {}) {
   // 4. Return disposer -- Cordis calls this on unload.
   return () => {
     initHinted.clear()
-    completedTurns.clear()
   }
 }
 
