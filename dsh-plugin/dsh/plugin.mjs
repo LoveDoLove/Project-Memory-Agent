@@ -8,8 +8,10 @@
  * What this plugin does:
  *   1. Skill mount -- reads the workspace root from the session payload and
  *      registers every skills\/\*\/SKILL.md found there, relative to the active
- *      workspace. This makes the 8 Project Memory skills available wherever
- *      the profile is used, not just from one hard-coded parent path.
+ *      workspace. Also falls back to global skill directories (~/.agents/skills/,
+ *      ~/.claude/skills/, ~/.config/opencode/skills/) if the workspace doesn't
+ *      have its own skills/. This makes the 8 Project Memory skills available
+ *      wherever the profile is used.
  *
  *   2. First-time init -- when AGENTS.md is absent from the workspace root,
  *      this is a brand-new project. The plugin injects a short hint asking
