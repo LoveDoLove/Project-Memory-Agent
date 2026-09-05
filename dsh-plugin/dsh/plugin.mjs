@@ -154,7 +154,9 @@ export function apply(ctx, config = {}) {
   }
 
   const initHinted = new Set()
-  const promptedTurns = new WeakSet()
+  // Track completed turn seq numbers (stable string key) to prevent
+  // duplicate post-task hints across session/event emissions.
+  const completedTurns = new Set()
 
   // 2. Listen for session events -> inject post-task prompt on turn/end.
   if (typeof on === 'function') {
@@ -173,11 +175,13 @@ export function apply(ctx, config = {}) {
             if (kind === 'interrupted' || kind === 'aborted') return
 
             const workspace = resolveWorkspace(session?.header ?? session ?? {})
-            const taskId = `#${event?.seq ?? session?.id ?? '?'}`
+            // Use a stable string key for deduplication (event objects
+            // are recreated each emission so WeakSet cannot dedup).
+            const turnKey = `${workspace}::${event?.seq ?? session?.id ?? '?'}`
 
             // Only prompt once per turn (avoid duplicate injections).
-            if (promptedTurns.has(event)) return
-            promptedTurns.add(event)
+            if (completedTurns.has(turnKey)) return
+            completedTurns.add(turnKey)
 
             // Only prompt if the workspace has AGENTS.md (i.e. memory system exists).
             // For new workspaces, we only show the init hint (handled by pre-step).
@@ -185,7 +189,7 @@ export function apply(ctx, config = {}) {
 
             // Inject a compact user message at the end of the turn.
             // We append to the session's next user prompt via agent/pre-step.
-            const hint = buildPostTaskHint(workspace, taskId)
+            const hint = buildPostTaskHint(workspace, event?.seq ?? '?')
             if (!session?.header?.cwd) return
             // Store hint on session for pre-step to pick up.
             if (!session.__pmPostTaskHint) session.__pmPostTaskHint = hint
@@ -252,7 +256,7 @@ export function apply(ctx, config = {}) {
   // 4. Return disposer -- Cordis calls this on unload.
   return () => {
     initHinted.clear()
-    promptedTurns.clear()
+    completedTurns.clear()
   }
 }
 
