@@ -341,6 +341,65 @@ redefining unit structure.
 
 ---
 
+# Corpus-First Vocabulary (Canonical)
+
+Memory units that carry open-vocabulary fields — `component`, `root_cause`,
+`problem_type`, tags — must speak the vocabulary the memory corpus already
+speaks, not a fresh set of near-synonyms.
+
+Rules:
+
+1. **Sample before choosing.** Before proposing a value, read the existing
+   memory corpus for that area — the domain directory the unit will live
+   in, and any units mentioning the same concept. The corpus is the
+   reference; the template list is only a fallback.
+2. **Most-used spelling wins.** When the corpus disagrees about the value
+   for the same concept, use the most-used spelling; do not coin a new
+   one.
+3. **Match by meaning.** `component` is matched by the area the unit
+   concerns; `root_cause` is matched by the cause itself; `problem_type`
+   by the problem's shape, not its symptom.
+4. **Never coin a near-synonym** of a value the corpus already uses for
+   the same thing. A new value is allowed only when no existing value
+   covers the concept.
+
+Why: retrieval and deduplication depend on the store speaking one
+vocabulary. Five spellings for one component (`build`, `build-system`,
+`build_system`, `gradle`) fragment the store into unreachable silos that
+future Agents never find.
+
+This rule is the canonical copy. `knowledge-compounding` applies it when
+proposing new Solutions; `obsolete-knowledge` uses it when Consolidate
+merges units.
+
+---
+
+# Project Glossary (CONCEPTS.md)
+
+A repository may carry a shared project vocabulary — a glossary file
+(CE-style `CONCEPTS.md` at the repo root, or an equivalent
+`docs/glossary.md` following the repo's conventions). It records domain
+terms with project-specific meaning so memory units, planning, and
+execution all mean the same thing by the same word.
+
+Rules:
+
+1. **Consult before classifying.** When a finding hinges on a term with
+   project-specific meaning, read the glossary entry first and classify
+   against that meaning.
+2. **Glossary is not a knowledge domain.** Glossary entries answer "what
+   does this word mean here?", never "what is true / how it works / why".
+   Meaning that is really Architecture, a Decision, or a Solution belongs
+   in its domain; the glossary may point to it, not absorb it.
+3. **Never a catch-all.** Do not classify findings into the glossary to
+   avoid choosing a type. A finding that is only a definition is a
+   Reference unit, not a glossary entry.
+4. When classification contradicts a glossary entry, flag the
+   contradiction to the parent Agent — a wrong glossary term poisons
+   every unit that uses it.
+
+---
+
 # Provenance vs Evidence Confidence
 
 When a finding originates from an existing knowledge source (via

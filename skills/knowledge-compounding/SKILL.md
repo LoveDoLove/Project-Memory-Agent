@@ -119,6 +119,25 @@ it. Do not invent root causes.
 
 ---
 
+# The Durable Bar (Canonical Gate)
+
+Before promoting anything, apply the counterfactual test — it outranks all
+other criteria:
+
+> If this learning disappeared, would a future Agent reading the final
+> implementation, tests, and existing docs still repeat the mistake or
+> redo substantial investigation?
+
+Completion, effort, and diff size never establish eligibility. A learning
+earns its place only when it holds durable reasoning that is **not readily
+recoverable** from the artifacts the work left behind, and losing it would
+plausibly cause recurrence, material risk, or substantial rediscovery.
+
+When the counterfactual fails, propose nothing and say why. When it
+passes, the Promote/Reject criteria below refine — never overrule — it.
+
+---
+
 # Promote When / Reject When
 
 Canonical value criteria. Apply this test to every candidate.
@@ -227,6 +246,37 @@ Memory (information that prevents future rediscovery or mistakes).
 
 Type definitions and distinctions (Solution / Lesson / Decision / Constraint
 / Workflow / Architecture / History): see `knowledge-classification`.
+
+## Solution Track Contract
+
+A proposed Solution carries one of two tracks, decided by the problem it
+solves:
+
+```text
+Bug track       — the problem is a diagnosed defect (build_error,
+                  test_failure, runtime_error, performance_issue,
+                  integration_issue, security_issue, ui_bug, logic_error)
+Knowledge track — the problem is a gap in practice (best_practice,
+                  convention, tooling_decision, workflow_issue,
+                  developer_experience, architecture_pattern,
+                  documentation_gap)
+```
+
+Required fields by track, beyond the shared Problem / Solution /
+Verification / Evidence:
+
+```text
+Bug track       — symptoms (observable failures), root_cause (verified
+                  mechanism), resolution_type (code_fix | migration |
+                  config_change | test_fix | dependency_update | ...)
+Knowledge track — applies_when (conditions where the guidance applies);
+                  symptoms / root_cause optional, never required
+```
+
+Do not force bug-track fields onto knowledge-track learnings or vice
+versa. Open-vocabulary values (`component`, `root_cause`, `problem_type`)
+follow the corpus-first rule in `knowledge-classification` — sample the
+corpus before choosing, never coin a near-synonym.
 
 ---
 
@@ -424,6 +474,185 @@ important constraints merely to make knowledge shorter.
 
 ---
 
+# One Learning Per Run
+
+Grounding, overlap detection, and cross-referencing each assume a single
+solved problem. When several findings qualify, rank them, then compound
+the single strongest one this run — the parent Agent runs the compounding
+phase again for the next candidate. Never batch several unrelated
+learnings into one proposal document, and never merge their rationale so
+they can share a write. A proposal may list lower-ranked candidates as
+"deferred" with one line each.
+
+---
+
+# Vocabulary Capture (CONCEPTS.md)
+
+While compounding, flag domain terms the work used with project-specific
+meaning — names the codebase, docs, and future work must mean the same
+thing by. Propose each as a short glossary entry (term + one-line
+definition), tagged for the parent Agent to apply via `memory-edit`
+alongside the learning.
+
+Rules:
+
+- Capture terms, not claims. A glossary entry answers "what does this
+  word mean here?", never "what is true / why".
+- Only terms future work will trip on. A term every reader already
+  shares is noise.
+- Never a catch-all. Definitional findings are Reference units or stay in
+  the learning's own body; the glossary is not a knowledge dump.
+- Glossary rules are owned by `knowledge-classification` — do not
+  redefine them here.
+
+---
+
+# Grounding Validation
+
+Before finalizing a knowledge proposal, mechanically verify every factual
+claim against the actual codebase. Grounding prevents compounding outdated
+or incorrect information.
+
+## Mechanical Validation
+
+For each claim in the proposal:
+
+```text
+1. Identify the claim type (file path, function name, API, behavior, etc.)
+2. Verify the claim against the current codebase
+3. Record evidence (file, line, commit)
+4. Mark confidence (High / Medium / Low / Unknown)
+5. Flag any discrepancies
+```
+
+## Semantic Validation
+
+After mechanical validation, check for semantic accuracy:
+
+```text
+- Does the explanation match the actual behavior?
+- Are the root causes verified, not assumed?
+- Are the solutions evidence-backed, not anecdotal?
+```
+
+## Claim Verification Rules
+
+```text
+File paths     → verify with glob/grep
+Function names → verify with codebase-memory
+API endpoints  → verify with route discovery
+Behaviors      → verify with tests or manual verification
+Config values  → verify with config files
+Dependencies   → verify with package manifests
+```
+
+## Discrepancy Handling
+
+When grounding reveals a discrepancy:
+
+```text
+1. Stop the compounding process
+2. Report the discrepancy with evidence
+3. Return to the parent Agent for resolution
+4. Do not compound the unverified claim
+```
+
+---
+
+# Auto-Memory Scan
+
+Before compounding, scan existing Project Memory (MEMORY.md) for related
+knowledge. This prevents duplicates and enables strengthening.
+
+## Scan Process
+
+```text
+1. Read MEMORY.md and related indexes
+2. Search for keywords from the current work
+3. Identify potentially related knowledge
+4. Check if the related knowledge is current and accurate
+5. Determine if strengthening is needed
+```
+
+## Provenance Tagging
+
+When auto-memory scan finds related knowledge, tag the provenance:
+
+```text
+Source: MEMORY.md → domain/index.md → unit.md
+Status: active | superseded | deprecated | historical
+Relevance: high | medium | low
+```
+
+## Strengthening
+
+If the current work provides new evidence for existing knowledge:
+
+```text
+1. Verify the existing knowledge is still accurate
+2. Add the new evidence
+3. Update the last_verified date
+4. Strengthen the knowledge (do not create duplicate)
+```
+
+---
+
+# Session History Integration
+
+Capture learnings across sessions to prevent rediscovery and enable
+continuous improvement.
+
+## Two-Stage Probe
+
+Before compounding, probe session history for related work:
+
+```text
+Stage 1: Keyword Search
+- Search session logs for keywords related to current work
+- Identify potentially related sessions
+
+Stage 2: Contextual Review
+- Read related session summaries
+- Extract relevant learnings
+- Check if learnings are still current
+```
+
+## Branch/Keyword Filtering
+
+Filter session history by:
+
+```text
+Branch:     git branch names
+Keywords:   terms from current work
+Timeframe:  recent sessions (last N days)
+Subsystem:  affected module or area
+```
+
+## Cross-Session Learning
+
+When session history reveals patterns:
+
+```text
+1. Identify recurring issues or approaches
+2. Extract the pattern as a Lesson or Workflow
+3. Verify against current codebase
+4. Compound if durable
+```
+
+---
+
+# Reference Files
+
+This skill references additional guidance in `references/`:
+
+- `references/grounding-validation.md` — detailed validation rules
+- `references/durable-bar.md` — durable bar test criteria
+- `references/quality-constraints.md` — quality gates and constraints
+- `references/auto-memory.md` — auto-memory scan rules
+- `references/session-history.md` — session history integration
+
+---
+
 # Compound Engineering Workflow
 
 ## Step 1 — Collect work context
@@ -578,6 +807,17 @@ expand only the findings that require explanation:
 | <insight> | Lesson | High | Medium | Strengthen |
 | <insight> | Constraint | Medium | High | Update |
 ```
+
+---
+
+# Discoverability
+
+A learning that cannot be found does not compound. After a Solution is
+applied, verify the project's instructions would lead a future Agent to
+the store before working in the area it covers — `AGENTS.md` → domain
+index → unit. When they would not, the parent Agent adds the smallest
+pointer, never a copy of the learning. `memory-edit` applies it;
+`memory-verification` confirms it.
 
 ---
 

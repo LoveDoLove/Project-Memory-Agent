@@ -74,6 +74,7 @@ README.md
 CONTRIBUTING.md
 CHANGELOG.md
 CODEOWNERS
+CONCEPTS.md (project glossary / shared vocabulary file)
 docs/
 docs/adr/
 docs/decisions/
@@ -118,6 +119,7 @@ definitions
 ## Prior Memory / Generated Output
 
 ```text
+MEMORY.md (agent auto-memory store, when present)
 Any docs/ subtree already following a Project-Memory-like structure
 (architecture/, decisions/, solutions/, lessons/, constraints/, workflows/,
 reference/, history/) — may be prior Project Memory output or another tool's

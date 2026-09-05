@@ -287,6 +287,43 @@ Examples of material claims:
 Prioritize claims that influence future engineering decisions. Do not verify
 every sentence equally.
 
+## Claim Verification Process
+
+For each material claim, mechanically verify against the codebase:
+
+```text
+1. Identify claim type (file path, function name, API, behavior, config)
+2. Select verification method:
+   - File paths → glob/grep
+   - Function names → codebase-memory
+   - API endpoints → route discovery
+   - Behaviors → tests or manual verification
+   - Config values → config files
+   - Dependencies → package manifests
+3. Verify claim against current codebase
+4. Record evidence (file, line, commit)
+5. Assign confidence (High / Medium / Low / Unknown)
+6. Flag discrepancies
+```
+
+## Claim Verification Rules
+
+```text
+- Every factual claim must have evidence
+- Every evidence must have a source
+- Every source must be verifiable
+- Discrepancies must be reported, not assumed
+```
+
+## Confidence Scale
+
+```text
+High     — verified against multiple sources (code + tests + config)
+Medium   — verified against one source (code or tests)
+Low      — partially verified or inferred
+Unknown  — cannot verify mechanically
+```
+
 ## codebase-memory
 
 Use `codebase-memory` for material repository claims, per `repository-audit`'s
@@ -348,6 +385,19 @@ Agent instructions
 
 Use git history for claims involving migration, replacement, removal,
 deprecation, architectural transition, and rejected approaches.
+
+---
+
+# Glossary and Discoverability Verification
+
+- **Glossary (`CONCEPTS.md` or equivalent):** every entry still matches
+  how the codebase and memory units use the term; no entry duplicates a
+  knowledge unit; no unit redefines a glossary term differently. A wrong
+  glossary term poisons every unit that uses it.
+- **Store discoverability:** an agent following the documented progressive
+  path (`AGENTS.md` → domain index → unit) can reach every current unit;
+  no current unit is orphaned from navigation, and no index lists a unit
+  that no longer exists (see `memory-edit` Index-Row Contract).
 
 ---
 

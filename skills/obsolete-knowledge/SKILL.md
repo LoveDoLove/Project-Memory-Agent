@@ -221,6 +221,42 @@ Superseded, Abandoned, Historical, Unknown) are owned by
 
 ---
 
+# Store Audit Outcomes (Canonical)
+
+A store-wide refresh gives every knowledge unit **exactly one** outcome:
+
+```text
+Keep          — accurate and distinct; no change
+Update        — accurate but incomplete or stale in detail
+Consolidate   — overlaps another unit or units; merge into one canonical
+Replace       — a newer unit supersedes it; link the replacement
+Delete        — invalid, no historical value, misleading if kept
+```
+
+The six-action vocabulary above is the execution vocabulary. Map outcomes
+to actions:
+
+```text
+Keep        → Keep Current
+Update      → (fixed through `memory-edit` as accuracy drift)
+Consolidate → (merged through `memory-edit`; duplicates resolved)
+Replace     → Mark Superseded + link replacement
+Delete      → Delete
+```
+
+Two boundaries hold whatever the evidence says. The ordinary refresh
+judges **accuracy** — is each unit still true and still distinct. It never
+deletes an accurate unit merely because the codebase states the same
+knowledge elsewhere; that second judgment (worth) runs only when the user
+explicitly asks to prune the store, and never deletes a unit until the
+codebase is confirmed to state the same reasoning.
+
+Never archive a unit in place: there is no permanent `_archived/`
+directory — Git history is the archive. Preserve as Historical applies
+only when the old state explains the current system.
+
+---
+
 ## Delete
 
 Delete knowledge when:
@@ -390,6 +426,28 @@ Apply the Decision Tree to each case; typical evidence:
 
 ---
 
+# Contradiction Outranks Staleness
+
+A contradiction misleads actively, so it outranks individual staleness.
+When one unit contradicts another — or contradicts verified current code —
+resolve the conflict before ordinary drift cleanup: establish which side
+current code follows, then treat the losing side as stale. Do not clean up
+an unrelated stale unit and call a live contradiction handled.
+
+## Guidance-Layer Precedence
+
+When a learning contradicts a guidance file it names (a skill's SKILL.md,
+a runbook, an instruction file), compare only guidance the learning names
+— never search the guidance layer for one. Resolve by which side current
+code follows. Report the wrong side; this Skill never edits a guidance
+file — `memory-edit` does, only under an approved plan. Independently
+supported guidance does not become false merely because implementation
+stopped satisfying it: classify the unit from the guidance evidence and
+report the implementation conflict as a potential regression, not as
+proof the guidance is stale.
+
+---
+
 # Stale Instructions Are High Risk
 
 Treat obsolete instructions more seriously than ordinary historical text.
@@ -465,7 +523,11 @@ This prevents repeated architectural rediscovery.
 
 # Reference Cleanup
 
-An obsolete document can remain indirectly active through links.
+An obsolete document can remain indirectly active through links. Every
+action also carries its navigation row: a unit that is updated,
+consolidated, replaced, or deleted changes the domain index row in the
+same change set (see `memory-edit` — Navigation, Indexes). A store whose
+index lists dead units is a store that looks fuller than it is.
 
 After identifying obsolete knowledge, inspect:
 

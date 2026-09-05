@@ -196,6 +196,8 @@ unverified until checked against repository evidence.
 
 The 10-type model (Current Fact, Architecture, Decision, Solution, Lesson, Constraint, Workflow, Reference, History, Obsolete) and the 9-state lifecycle are owned by `knowledge-classification`. Classify using that skill; do not duplicate its definitions here.
 
+A repository may also carry a shared vocabulary glossary (`CONCEPTS.md` or equivalent). Glossary entries answer "what does this word mean here", never "what is true". It accretes as a side effect of compounding (`knowledge-compounding`), is consulted during classification and planning, and is never a catch-all for claims.
+
 ---
 
 # Knowledge Unit Format
@@ -228,6 +230,13 @@ rather than guessing.
 
 Frontmatter is metadata; the Markdown body is the knowledge. Do not place
 the entire knowledge unit into frontmatter.
+
+Solution units carry a track — bug (symptoms/root_cause/resolution_type)
+or knowledge (applies_when) — per the Solution Track Contract in
+`knowledge-compounding`. Open-vocabulary fields follow the corpus-first
+rule in `knowledge-classification`: sample the existing memory corpus
+before choosing values, never coin a near-synonym of a value the corpus
+already uses.
 
 ---
 
@@ -262,11 +271,12 @@ Progressive, not all-at-once. Load only the skills the current step needs
 - **Phase 2 — Audit Evidence**: `repository-audit` (scope-bounded).
 - **Phase 3 — Verify**: `codebase-memory` for material claims + source fallback; record Verified/Contradicted/Partial/Unverifiable per claim.
 - **Phase 4 — Classify**: `knowledge-classification` (cluster → one primary type/state).
-- **Phase 5 — Compound**: `knowledge-compounding` for reusable learning.
+- **Phase 5 — Compound**: `knowledge-compounding` for reusable learning — one learning per run, each passing the Durable Bar counterfactual (if the learning disappeared, would a future Agent reading the final code still repeat the mistake?). Completion and effort never qualify work.
 - **Phase 6 — Architect**: `memory-architecture` (canonical location per cluster).
 - **Phase 7 — Clean**: `obsolete-knowledge` for stale/conflicting.
 - **Phase 8 — Edit**: `memory-edit` (`cavecrew-builder` for bounded mechanical edits only).
 - **Phase 9 — Verify**: `memory-verification` final gate.
+- **Phase 10 — Discoverability**: verify the store is reachable from the project's instructions (`AGENTS.md` → domain index → unit); when it is not, add the smallest pointer — never a copy of the learning.
 
 See each skill for its full procedure. Do not restate skill internals here.
 
@@ -288,6 +298,7 @@ See each skill for its full procedure. Do not restate skill internals here.
 12. `cavecrew-builder`: never 3+ files, never exploration or multi-source consolidation; never treat an edit receipt as repository-wide proof.
 13. Do not claim completion without post-change verification; never claim a step performed that was not; report non-applicable steps as not applicable.
 14. Do not turn every debugging session into a Solution.
+15. No Solution or Lesson without passing the Durable Bar counterfactual (`knowledge-compounding`) — completion, effort, and diff size never qualify work.
 
 ---
 
@@ -323,7 +334,8 @@ A Project Memory task is complete only when, as applicable:
 7. Obsolete knowledge handled (regardless of origin).
 8. Ownership single: one primary home per concept across all origin tools.
 9. Navigation verified; AGENTS.md and tool-specific entry points
-   reconciled; current and historical knowledge separated.
+   reconciled; current and historical knowledge separated; the store is
+   discoverable from the project's instructions (Phase 10).
 10. Post-change verification completed.
 
 Do not claim completion for a step that was not performed. If a step is not

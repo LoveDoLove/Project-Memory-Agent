@@ -401,6 +401,14 @@ navigation: `AGENTS.md` → domain README → focused knowledge. Keep indexes
 concise — one-line links, never copied document content; update paths on
 move, remove entries on delete.
 
+### Index-Row Contract
+
+Every Create / Move / Merge / Delete / Supersede carries its navigation
+row in the **same change set**: domain README rows for created, moved, and
+removed units; AGENTS.md pointer changes for entry-point shifts. An index
+that lists a deleted unit, or omits a created one, silently misleads —
+treat the row update as part of the edit, not a follow-up.
+
 Treat `AGENTS.md` as high-impact. Modify it only when the approved
 architecture requires: new navigation, changed critical rule or constraint,
 changed architecture orientation or verification requirement, or

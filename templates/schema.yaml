@@ -1,0 +1,201 @@
+# Schema for Solution Document Frontmatter
+# This is the canonical contract for YAML frontmatter in docs/solutions/
+
+# Bug Track Schema
+bug_track:
+  title:
+    type: string
+    required: true
+    description: "Short descriptive title"
+  
+  problem_type:
+    type: enum
+    required: true
+    values: [bug]
+    description: "Must be 'bug' for bug track"
+  
+  category:
+    type: enum
+    required: true
+    values:
+      - bug
+      - test_failure
+      - runtime_error
+      - performance_issue
+      - integration_issue
+      - security_issue
+      - ui_bug
+      - logic_error
+      - build_error
+    description: "Type of defect"
+  
+  module:
+    type: string
+    required: true
+    description: "Affected module or subsystem"
+  
+  status:
+    type: enum
+    required: true
+    values: [active, superseded, deprecated, historical]
+    description: "Current lifecycle state"
+  
+  created:
+    type: date
+    required: true
+    format: "YYYY-MM-DD"
+    description: "When the document was created"
+  
+  last_verified:
+    type: date
+    required: true
+    format: "YYYY-MM-DD"
+    description: "When the document was last verified against code"
+  
+  applies_when:
+    type: string
+    required: false
+    description: "Conditions where this applies (optional for bug track)"
+  
+  symptoms:
+    type: array
+    required: true
+    items: string
+    description: "Observable failures or symptoms"
+  
+  root_cause:
+    type: string
+    required: true
+    description: "Verified mechanism that caused the defect"
+  
+  resolution_type:
+    type: enum
+    required: true
+    values:
+      - code_fix
+      - migration
+      - config_change
+      - test_fix
+      - dependency_update
+      - refactor
+    description: "How the defect was resolved"
+  
+  tags:
+    type: array
+    required: false
+    items: string
+    description: "Searchable tags"
+  
+  related:
+    type: array
+    required: false
+    items: string
+    description: "Paths to related documents"
+  
+  severity:
+    type: enum
+    required: true
+    values: [critical, high, medium, low]
+    description: "Impact severity"
+
+# Knowledge Track Schema
+knowledge_track:
+  title:
+    type: string
+    required: true
+    description: "Short descriptive title"
+  
+  problem_type:
+    type: enum
+    required: true
+    values: [knowledge]
+    description: "Must be 'knowledge' for knowledge track"
+  
+  category:
+    type: enum
+    required: true
+    values:
+      - best_practice
+      - convention
+      - tooling_decision
+      - workflow_issue
+      - developer_experience
+      - architecture_pattern
+      - documentation_gap
+    description: "Type of knowledge gap"
+  
+  module:
+    type: string
+    required: false
+    description: "Affected module or subsystem (optional)"
+  
+  status:
+    type: enum
+    required: true
+    values: [active, superseded, deprecated, historical]
+    description: "Current lifecycle state"
+  
+  created:
+    type: date
+    required: true
+    format: "YYYY-MM-DD"
+    description: "When the document was created"
+  
+  last_verified:
+    type: date
+    required: true
+    format: "YYYY-MM-DD"
+    description: "When the document was last verified against code"
+  
+  applies_when:
+    type: string
+    required: true
+    description: "Conditions where this guidance applies"
+  
+  symptoms:
+    type: array
+    required: false
+    items: string
+    description: "Observable failures or symptoms (optional)"
+  
+  root_cause:
+    type: string
+    required: false
+    description: "Verified mechanism (optional)"
+  
+  resolution_type:
+    type: string
+    required: true
+    value: guidance
+    description: "Always 'guidance' for knowledge track"
+  
+  tags:
+    type: array
+    required: false
+    items: string
+    description: "Searchable tags"
+  
+  related:
+    type: array
+    required: false
+    items: string
+    description: "Paths to related documents"
+  
+  severity:
+    type: enum
+    required: true
+    values: [critical, high, medium, low]
+    description: "Impact severity"
+
+# Validation Rules
+validation:
+  - "title must be unique within the repository"
+  - "problem_type determines which track schema applies"
+  - "category must match the track (bug categories for bug track, knowledge categories for knowledge track)"
+  - "status must be one of: active, superseded, deprecated, historical"
+  - "created and last_verified must be valid dates"
+  - "symptoms is required for bug track, optional for knowledge track"
+  - "root_cause is required for bug track, optional for knowledge track"
+  - "applies_when is required for knowledge track, optional for bug track"
+  - "resolution_type must be 'guidance' for knowledge track"
+  - "related paths must be valid file paths"

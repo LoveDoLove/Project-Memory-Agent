@@ -162,6 +162,29 @@ conventions are actually coherent, not accidental.
 
 ---
 
+# Project Glossary (CONCEPTS.md)
+
+A repository may keep a shared project vocabulary — a repo-root
+`CONCEPTS.md` (or an equivalent `docs/glossary.md` per the repo's
+conventions) recording domain terms with project-specific meaning.
+
+Design rules:
+
+- **Glossary is not a domain.** It owns word meanings; Architecture,
+  Decisions, and Solutions own claims. A glossary entry may point to the
+  unit that owns the full meaning, never absorb it.
+- **Accretes from compounding.** `knowledge-compounding` captures terms as
+  a side effect of writing learnings; classification and planning consult
+  it so the store speaks one vocabulary.
+- **Never a catch-all.** Definitional-only findings are Reference units.
+- **One line per entry.** The file stays scannable; deep meaning lives in
+  the owning unit.
+
+Glossary consultation rules are owned by `knowledge-classification` — do
+not redefine them here.
+
+---
+
 # Domain Maturity
 
 ## Stage 0 — Minimal
@@ -547,6 +570,16 @@ memory-architecture. Then strengthen existing knowledge where possible, or
 create one focused unit when genuinely new. The architecture should evolve
 from accumulated engineering knowledge rather than from arbitrary
 documentation templates.
+
+## Pattern Promotion
+
+When several verified Solutions share the same mechanism, generalize them
+into one pattern unit (a Lesson or a `patterns/` unit) and point the
+Solutions at it. A pattern outranks any single incident-level Solution in
+retrieval value — and outranks it in staleness risk, because future work
+treats it as broadly applicable. Promote only when the shared mechanism is
+verified across at least two units; never force unrelated Solutions
+together.
 
 ---
 

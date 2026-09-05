@@ -86,6 +86,23 @@ AGENTS.md
 
 Domains: `architecture/`, `decisions/`, `solutions/`, `lessons/`, `workflows/`, `constraints/`, `reference/`, `history/`. This is a pattern, not a mandatory scaffold — only create what holds verified knowledge.
 
+### Templates
+
+Templates provide starting points for creating new knowledge documents:
+
+- `templates/TEMPLATE.md` — Solution document template with dual-track schema (Bug track + Knowledge track)
+- `templates/CONCEPTS.md` — Project vocabulary with accretion/seeding/mutations system
+- `templates/SOLUTIONS.md` — Index template for tracking all Solutions
+- `templates/schema.yaml` — Canonical frontmatter contract
+
+### Reference Files
+
+Reference files provide detailed guidance for specific skills:
+
+- `skills/knowledge-compounding/references/` — Grounding validation, durable bar, quality constraints, auto-memory, session history
+- `skills/memory-edit/references/` — Edit operations, migration procedures
+- `skills/memory-verification/references/` — Claim verification, evidence confidence
+
 ## Testing
 
 Windows PowerShell 5.1, Pester 3.4.0:
