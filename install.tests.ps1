@@ -142,6 +142,68 @@ Describe 'install.ps1' {
         $pkg = Get-Content (Join-Path $fallbackProfile 'package.json') -Raw | ConvertFrom-Json
         $pkg.dsh.profile.bundles -contains $PluginName | Should Be $true
     }
+
+    It 'dsh target: seeds agent file into ~/.dsh/agents/ when profile exists' {
+        $webProfile = Join-Path $env:USERPROFILE '.dsh\profiles\web'
+        New-Item -ItemType Directory -Force -Path $webProfile | Out-Null
+        @{ name = 'dsh-profile-web'; private = $true } | ConvertTo-Json | Out-File (Join-Path $webProfile 'package.json') -Encoding utf8
+        @'
+[]
+'@ | Out-File (Join-Path $webProfile 'cordis.patch.yml') -Encoding utf8
+        $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+        $pluginSrc = Join-Path $scriptDir 'dsh-plugin'
+        if (-not (Test-Path $pluginSrc)) { $pluginSrc = Join-Path (Split-Path $scriptDir) 'Project-Memory-Agent\dsh-plugin' }
+        if (Test-Path $pluginSrc) {
+            $destDir = Join-Path $webProfile 'node_modules'
+            New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+            $libDir = Join-Path $destDir '@lovedolove'
+            New-Item -ItemType Directory -Force -Path $libDir | Out-Null
+            $pluginDest = Join-Path $libDir 'dsh-project-memory'
+            New-Item -ItemType Directory -Force -Path $pluginDest | Out-Null
+            'package' | Out-File (Join-Path $pluginDest 'package.json') -Encoding utf8
+            'lib' | Out-File (Join-Path $pluginDest 'lib.js') -Encoding utf8
+            'dsh' | Out-File (Join-Path $pluginDest 'dsh.js') -Encoding utf8
+            @'
+- id: skill-filesystem
+  config:
+    customSkillDirs:
+      - skills
+    includeDefaultRoots: true
+
+- insert:
+    - id: project-memory-dsh
+      name: '@lovedolove/dsh-project-memory/dsh'
+
+- insert:
+    - id: dsh-subagent-registry
+      name: '@aiwayds/dsh-subagent-registry'
+'@ | Out-File (Join-Path $pluginDest 'cordis.patch.yml') -Encoding utf8
+        }
+        $script:Target = 'dsh'
+        $script:Force = $true
+        Main
+        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
+    }
+
+    It 'dsh target: seeds agent file into ~/.dsh/agents/ when no profile exists' {
+        $script:Target = 'dsh'
+        $script:Force = $true
+        Main
+        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
+    }
+
+    It 'all target: also seeds agent file into ~/.dsh/agents/' {
+        $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+        $pluginSrc = Join-Path $scriptDir 'dsh-plugin'
+        if (-not (Test-Path $pluginSrc)) { $pluginSrc = Join-Path (Split-Path $scriptDir) 'Project-Memory-Agent\dsh-plugin' }
+        $script:Target = 'all'
+        $script:Force = $true
+        Main
+        (Join-Path $env:USERPROFILE '.claude\agents\project-memory.md') | Should Exist
+        (Join-Path $env:USERPROFILE '.config\opencode\agents\project-memory.md') | Should Exist
+        (Join-Path $env:USERPROFILE '.codex\agents\project-memory.toml') | Should Exist
+        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
+    }
 }
 
 Describe 'skill name <-> manifest sync' {

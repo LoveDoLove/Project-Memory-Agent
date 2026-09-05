@@ -18,3 +18,7 @@
 - insert:
     - id: project-memory-dsh
       name: '@lovedolove/dsh-project-memory/dsh'
+
+- insert:
+    - id: dsh-subagent-registry
+      name: '@aiwayds/dsh-subagent-registry'

@@ -35,7 +35,8 @@ Installed into each tool via `install.ps1`:
 
 A DeepSeek Harness bundle plugin (`@lovedolove/dsh-project-memory`) that
 mounts skills dynamically from the workspace's `skills/` directory into
-any DSH profile via Cordis.
+any DSH profile via Cordis. The plugin also bundles the subagent registry,
+enabling dispatch of the orchestrator agent via `use_agent(agent: "project-memory")`.
 
 ---
 
