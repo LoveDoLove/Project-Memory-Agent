@@ -258,6 +258,8 @@ function Main {
                     Write-Host "  Plugin not found locally; install from npm:"
                     Write-Host "    dsh plugin --profile $profileName add $PluginName"
                 }
+                # Seed agent file into ~/.dsh/agents/ so subagent-registry can find it.
+                Install-Agent $AgentMd (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md')
             }
             'all' {
                 Install-Skills "$env:USERPROFILE\.claude\skills"
@@ -274,7 +276,12 @@ function Main {
                 $resolved = Resolve-DshProfile -ProfileName $DshProfile
                 $profilePath = $resolved.Path
                 $profileName = $resolved.Name
+                $isCreated = $resolved.Created
                 Write-Host "  DSH profile: $profilePath ($profileName)"
+                if ($isCreated -and -not $Verify) {
+                    New-Item -ItemType Directory -Force -Path $profilePath | Out-Null
+                    Write-Host "  created profile: $profilePath"
+                }
                 $hasPlugin = Test-Path (Join-Path $pluginSrc 'package.json')
                 if ($hasPlugin) {
                     Add-Plugin-ToProfile -ProfilePath $profilePath -PluginName $PluginName -InstallOffline:$true -PluginSrc $pluginSrc
@@ -282,6 +289,8 @@ function Main {
                     Add-Plugin-ToProfile -ProfilePath $profilePath -PluginName $PluginName -InstallOffline:$false
                     Write-Host "    dsh plugin --profile $profileName add $PluginName"
                 }
+                # Seed agent file into ~/.dsh/agents/ so subagent-registry can find it.
+                Install-Agent $AgentMd (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md')
             }
             default { Write-Warning "Unknown target: $t"; $script:Failures += "target:$t" }
         }
