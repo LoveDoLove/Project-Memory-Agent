@@ -12,7 +12,6 @@ $Skills = @('knowledge-classification','knowledge-compounding','knowledge-discov
 $AgentMd = 'agents/project-memory.md'
 $AgentToml = 'agents/project-memory.toml'
 $PluginName = '@lovedolove/dsh-project-memory'
-$RegistryPlugin = '@aiwayds/dsh-subagent-registry'
 
 function Install-Skills($skillsDir) {
     New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
@@ -61,15 +60,15 @@ function Install-Agent($srcRel, $agentDest) {
     }
 }
 
-function Write-DshCommands {
-    param([string]$ProfileName)
-    Write-Host ""
-    Write-Host "  Run these commands to finish DSH setup:"
-    Write-Host "    dsh plugin --profile $ProfileName add $RegistryPlugin"
-    Write-Host "    dsh plugin --profile $ProfileName add $PluginName"
-    Write-Host ""
-    Write-Host "  Then dispatch the orchestrator as a subagent:"
-    Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
+function Get-DshProfileName {
+    param([string]$ExplicitName)
+    if ($ExplicitName) { return $ExplicitName }
+    $profileDir = Join-Path (Join-Path $env:USERPROFILE '.dsh') 'profiles'
+    $candidates = @('web') + @(Get-ChildItem $profileDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'node_modules' } | Select-Object -ExpandProperty Name)
+    foreach ($c in ($candidates | Select-Object -Unique)) {
+        if (Test-Path (Join-Path $profileDir $c)) { return $c }
+    }
+    return 'project-memory'
 }
 
 function Main {
@@ -111,31 +110,20 @@ function Main {
                 Install-Agent $AgentToml "$env:USERPROFILE\.codex\agents\project-memory.toml"
             }
             'global' {
-                # Install skills to ~/.agents/skills (shared by Codex + other tools)
-                # and agents to ~/.agents/agents (Claude Code compatible).
+                # Cross-tool: skills to ~/.agents/skills/, agent to ~/.agents/agents/
                 Install-Skills "$env:USERPROFILE\.agents\skills"
                 Install-Agent $AgentMd "$env:USERPROFILE\.agents\agents\project-memory.md"
             }
             'dsh' {
-                # Resolve profile name for command output.
-                $profileDir = Join-Path (Join-Path $env:USERPROFILE '.dsh') 'profiles'
-                $profileName = if ($DshProfile) {
-                    $DshProfile
-                } else {
-                    # Auto-detect: prefer 'web', else any existing profile, else 'project-memory'.
-                    $candidates = @('web') + @(Get-ChildItem $profileDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'node_modules' } | Select-Object -ExpandProperty Name)
-                    $found = $null
-                    foreach ($c in ($candidates | Select-Object -Unique)) {
-                        if (Test-Path (Join-Path $profileDir $c)) { $found = $c; break }
-                    }
-                    if (-not $found) { $found = 'project-memory' }
-                    $found
-                }
-
+                $profileName = Get-DshProfileName -ExplicitName $DshProfile
                 Write-Host "  DSH profile: $profileName"
-                Write-DshCommands $profileName
-
-                # Seed agent file into ~/.dsh/agents/ so subagent-registry can find it.
+                Write-Host ""
+                Write-Host "  Run:"
+                Write-Host "    dsh plugin --profile $profileName add $PluginName"
+                Write-Host ""
+                Write-Host "  Then dispatch the orchestrator as a subagent:"
+                Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
+                # Seed agent file so the subagent registry can discover it.
                 Install-Agent $AgentMd (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md')
             }
             'all' {
@@ -144,22 +132,13 @@ function Main {
                 Install-Agent $AgentMd "$env:USERPROFILE\.claude\agents\project-memory.md"
                 Install-Agent $AgentMd "$env:USERPROFILE\.config\opencode\agents\project-memory.md"
                 Install-Agent $AgentToml "$env:USERPROFILE\.codex\agents\project-memory.toml"
-                # DSH: resolve profile name and print commands.
-                $profileDir = Join-Path (Join-Path $env:USERPROFILE '.dsh') 'profiles'
-                $profileName = if ($DshProfile) {
-                    $DshProfile
-                } else {
-                    $candidates = @('web') + @(Get-ChildItem $profileDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'node_modules' } | Select-Object -ExpandProperty Name)
-                    $found = $null
-                    foreach ($c in ($candidates | Select-Object -Unique)) {
-                        if (Test-Path (Join-Path $profileDir $c)) { $found = $c; break }
-                    }
-                    if (-not $found) { $found = 'project-memory' }
-                    $found
-                }
+                $profileName = Get-DshProfileName -ExplicitName $DshProfile
+                Write-Host ""
                 Write-Host "  DSH profile: $profileName"
-                Write-DshCommands $profileName
-                # Seed agent file into ~/.dsh/agents/.
+                Write-Host "  Run:"
+                Write-Host "    dsh plugin --profile $profileName add $PluginName"
+                Write-Host "  Then:"
+                Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
                 Install-Agent $AgentMd (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md')
             }
             default { Write-Warning "Unknown target: $t"; $script:Failures += "target:$t" }
@@ -175,12 +154,6 @@ function Main {
     }
     Write-Host ""
     Write-Host 'Codex users: to spawn this agent you may need `[features] multi_agent = true` in `~/.codex/config.toml` (not auto-applied).'
-    Write-Host ''
-    if ($DshProfile) {
-        Write-Host "DSH plugin commands printed for profile '$DshProfile'."
-    } else {
-        Write-Host 'Run ``dsh plugin --profile <name> add @lovedolove/dsh-project-memory`` and ``dsh plugin --profile <name> add @aiwayds/dsh-subagent-registry`` manually, then use use_agent(agent: "project-memory", ...) to dispatch.'
-    }
     if ($script:Failures.Count -gt 0) { exit 1 }
 }
 

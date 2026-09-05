@@ -61,16 +61,15 @@ Describe 'install.ps1' {
         $script:Force = $true
         Main
 
-        (Join-Path $env:USERPROFILE '.agents\skills') | Should Exist
         (Get-ChildItem -Directory (Join-Path $env:USERPROFILE '.agents\skills')).Count | Should Be 8
         (Join-Path $env:USERPROFILE '.agents\agents\project-memory.md') | Should Exist
     }
 
-    It 'dsh target: prints plugin add commands, seeds agent to ~/.dsh/agents/' {
+    It 'dsh target: seeds agent to ~/.dsh/agents/ without touching profile files' {
         $script:Target = 'dsh'
         $script:Force = $true
         $script:DshProfile = 'web'
-        # Create fake web profile so profile detection finds it.
+        # Create fake web profile dir so Get-DshProfileName finds it.
         $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles'
         New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
         New-Item -ItemType Directory -Force -Path (Join-Path $profileDir 'web') | Out-Null
@@ -78,28 +77,22 @@ Describe 'install.ps1' {
 
         # Agent file should be seeded.
         (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
-        # Verify the commands were printed by checking $script:Installed does NOT include any profile files
-        # (no cordis.patch.yml or package.json modification — DSH target is CLI-only now).
+        # Nothing in $script:Installed should be a profile file.
         foreach ($item in $script:Installed) {
-            $item -notmatch 'cordis\.patch\.yml' | Should Be $true
-            $item -notmatch 'package\.json' | Should Be $true
-            $item -notmatch 'pnpm-workspace' | Should Be $true
+            $item -notmatch 'profiles' | Should Be $true
         }
     }
 
-    It 'all target: installs all + prints DSH commands + seeds agent' {
+    It 'all target: installs all platforms + seeds DSH agent' {
         $script:Target = 'all'
         $script:Force = $true
         Main
 
-        # Skills to both Claude and agents dirs.
         (Get-ChildItem -Directory (Join-Path $env:USERPROFILE '.claude\skills')).Count | Should Be 8
         (Get-ChildItem -Directory (Join-Path $env:USERPROFILE '.agents\skills')).Count | Should Be 8
-        # Agents to each platform.
         (Join-Path $env:USERPROFILE '.claude\agents\project-memory.md') | Should Exist
         (Join-Path $env:USERPROFILE '.config\opencode\agents\project-memory.md') | Should Exist
         (Join-Path $env:USERPROFILE '.codex\agents\project-memory.toml') | Should Exist
-        # DSH agent seeding.
         (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
     }
 
