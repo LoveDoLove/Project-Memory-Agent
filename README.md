@@ -60,7 +60,7 @@ To install from npm instead of the offline copy (receives updates automatically)
 dsh plugin --profile project-memory install @lovedolove/dsh-project-memory
 ```
 
-This works because `@lovedolove/dsh-project-memory` is published to [npm](https://github.com/LoveDoLove/Project-Memory-Agent/packages?query=dsh-plugin) via a GitHub Actions workflow â€” no npm token needed. The workflow triggers automatically whenever files under `dsh-plugin/` are pushed to `main`.
+This works because `@lovedolove/dsh-project-memory` is published to the public [npm registry](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via a GitHub Actions workflow. Anyone can install it with zero setup.
 
 To verify the profile is wired correctly:
 
