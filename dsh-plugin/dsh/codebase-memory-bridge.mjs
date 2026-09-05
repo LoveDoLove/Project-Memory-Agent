@@ -137,7 +137,11 @@ export function createClient(exePath) {
     startPromise = null;
   };
 
-  return { rpc, call, dispose };
+  // Eager start: initiates the MCP daemon without waiting for a tool call.
+  // Returns a promise that resolves when the daemon is ready.
+  const start = () => ensureStarted();
+
+  return { rpc, call, dispose, start };
 }
 
 /** Find codebase-memory-mcp.exe. Tries env var, then common install locations,
@@ -169,10 +173,20 @@ function findExe() {
 
 const EXE = findExe()
 
-/** Register cbm_* tools on ctx when ctx.tools is available. */
+/** Register cbm_* tools on ctx when ctx.tools is available.
+ * Also eagerly starts the MCP daemon so the UI (port 9749) is ready
+ * as soon as the plugin loads, not only after the first tool call. */
 export function cbmApply(ctx) {
   const client = createClient(EXE);
   ctx.effect(() => () => client.dispose());
+
+  // Eagerly start the daemon/UI so port 9749 is ready on plugin load.
+  if (EXE) {
+    client.start().catch((err) => {
+      console.warn('[project-memory] codebase-memory-mcp failed to start:', err.message)
+    })
+    console.log('[project-memory] codebase-memory UI: http://localhost:9749/')
+  }
 
   const tool = (name, description, parameters, exec) => ctx.effect(() => ctx.tools.register(defineTool({
     name,
