@@ -103,14 +103,14 @@ It discovers existing knowledge, inspects the repository, verifies claims agains
 
 | Capability | Description |
 |---|---|
-| 🔍 **Discover** | Inventories every pre-existing knowledge source with provenance |
-| ✓ **Verify** | Claims checked against code, tests, config, CI, Git — never assumed current |
-| 🗂‚ï¸ **Classify** | One canonical type per claim; conflicts settled by evidence, not file age |
-| ðŸ’¾ **Compound** | Durable Solutions and Lessons instead of more documents |
-| 🗂‘ï¸ **Clean** | Deletes obsolete knowledge regardless of origin |
-| 🗑 **Single Truth** | One primary home per concept; everything else references it |
-| ⚅ **Lean** | Aggressively deduplicated — no rule in two places |
-| 🔍„ **Self-Audit** | Quality bar (Memory Health) + Self-Audit directive to catch drift |
+| [D] **Discover** | Inventories every pre-existing knowledge source with provenance |
+| [V] **Verify** | Claims checked against code, tests, config, CI, Git — never assumed current |
+| [C] **Classify** | One canonical type per claim; conflicts settled by evidence, not file age |
+| [Co] **Compound** | Durable Solutions and Lessons instead of more documents |
+| [Cl] **Clean** | Deletes obsolete knowledge regardless of origin |
+| [S] **Single Truth** | One primary home per concept; everything else references it |
+| [L] **Lean** | Aggressively deduplicated — no rule in two places |
+| [A] **Self-Audit** | Quality bar (Memory Health) + Self-Audit directive to catch drift |
 
 ---
 
@@ -139,15 +139,15 @@ The orchestrator loads these progressively — you rarely invoke one directly. I
 
 ```
 AGENTS.md
-  ├œ├€├€ docs/architecture/README.md     → domain index
-  ├‚   ├”├€├€ docs/architecture/<topic>.md  → one concept per file
-  ├œ├€├€ docs/decisions/
-  ├œ├€├€ docs/solutions/
-  ├œ├€├€ docs/lessons/
-  ├œ├€├€ docs/workflows/
-  ├œ├€├€ docs/constraints/
-  ├œ├€├€ docs/reference/
-  ├”├€├€ docs/history/
+   +-- docs/architecture/README.md     -> domain index
+   |   +-- docs/architecture/<topic>.md  -> one concept per file
+   +-- docs/decisions/
+   +-- docs/solutions/
+   +-- docs/lessons/
+   +-- docs/workflows/
+   +-- docs/constraints/
+   +-- docs/reference/
+   +-- docs/history/
 ```
 
 Domains are a pattern, not a mandatory scaffold — only create what holds verified knowledge.
