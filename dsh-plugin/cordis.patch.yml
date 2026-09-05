@@ -1,11 +1,19 @@
-﻿# dsh-plugin: adds the project'\''s skill directory to the DSH skill registry.
-# Applied after dsh-base (which already mounts skill-filesystem with defaults).
-# This overrides the default skill-filesystem config to include the project'\''s
-# skills/ directory as a custom root, so the 8 Project Memory skills are
-# discoverable in any DSH profile (web, headless, sdk, etc.).
+# dsh-project-memory: Cordis bundle patch.
+#
+# Two rows:
+#   1. skill-filesystem — register the workspace's skills/ as a custom root
+#      (so the 8 Project Memory skills are discoverable via the skill registry).
+#   2. project-memory-dsh — load the DSH glue plugin (dsh/plugin.mjs) which:
+#      a) re-registers skills dynamically relative to the active workspace,
+#      b) injects a first-time-init hint when AGENTS.md is absent,
+#      c) injects a post-task memory prompt on turn/end when AGENTS.md exists.
 
 - id: skill-filesystem
   config:
     customSkillDirs:
-      - ../skills
+      - skills
     includeDefaultRoots: true
+
+- insert:
+    - id: project-memory-dsh
+      name: '@lovedolove/dsh-project-memory/dsh'

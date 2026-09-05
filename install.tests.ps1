@@ -105,10 +105,11 @@ Describe 'install.ps1' {
         Main
 
         $webProfile | Should Exist
-        # Cordis patch must contain skill-filesystem.
+        # Cordis patch must contain skill-filesystem AND project-memory-dsh.
         $patch = Get-Content (Join-Path $webProfile 'cordis.patch.yml') -Raw
         $patch -match 'skill-filesystem' | Should Be $true
         $patch -match 'customSkillDirs' | Should Be $true
+        $patch -match 'project-memory-dsh' | Should Be $true
         # package.json must list the plugin in bundles and dependencies.
         $pkg = Get-Content (Join-Path $webProfile 'package.json') -Raw | ConvertFrom-Json
         $pkg.dsh.profile.bundles -contains $PluginName | Should Be $true

@@ -1,15 +1,17 @@
 {
   "name": "@lovedolove/dsh-project-memory",
-  "description": "DSH bundle plugin: mounts the project's skills into the DeepSeek Harness skill registry.",
-  "version": "0.3.1",
+  "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, and prompts for memory compounding after tasks.",
+  "version": "0.4.0",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./dsh": "./dsh/plugin.mjs",
     "./package.json": "./package.json"
   },
   "files": [
     "lib/index.js",
+    "dsh/plugin.mjs",
     "cordis.patch.yml"
   ],
   "license": "MIT",

@@ -1,21 +1,18 @@
-/**
- * @lovedolove/dsh-plugin
+﻿/**
+ * @lovedolove/dsh-project-memory
  *
- * Runtime glue for the DSH bundle. Currently minimal — all configuration
- * lives in cordis.patch.yml. This module exists so the package has a valid
- * entry point and can grow (e.g. runtime skill registration) without
- * restructuring later.
+ * Runtime glue for the DSH bundle. The real logic lives in dsh/plugin.mjs
+ * (loaded as a separate Cordis row via cordis.patch.yml). This file exists
+ * only to satisfy the package entry-point requirement.
  */
-export const name = "project-memory-plugin";
+export const name = "dsh-project-memory";
 export const inject = [];
 
 /**
- * Plugin apply function called by the Cordis Loader when this bundle is
- * mounted into a DSH profile. Intentionally empty: the patch layer handles
- * all configuration; no runtime services are registered here.
- *
- * @param {import('\''@deepseek-ai/cordis'\'').Context} ctx
+ * Minimal no-op apply. All behavior is in dsh/plugin.mjs.
+ * @param {object} ctx
  */
 export function apply(ctx) {
-  // Patch-only bundle — no runtime glue needed today.
+  // Patch-only bundle — dynamic skill registration and lifecycle hooks
+  // are handled by the dsh/plugin.mjs Cordis row.
 }

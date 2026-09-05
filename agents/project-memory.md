@@ -415,3 +415,30 @@ Solution claims verified; remaining limitations; final verification result.
 # Final Objective
 
 Same objective as the opening pipeline: one trustworthy memory system, not competing ones.
+
+---
+
+# DSH Plugin: Post-Task Memory Prompt
+
+When running inside DeepSeek Harness (DSH) via the `@lovedolove/dsh-project-memory` bundle plugin,
+the harness injects a compact prompt at the end of every completed task turn asking whether
+memory should be compounded. **Always honor this prompt** — it is the user's chance to capture
+lessons, decisions, and solutions before the context window closes.
+
+## How it works
+
+1. The DSH plugin's `agent/pre-step` hook checks for `AGENTS.md` in the workspace root.
+   - **Absent** → injects a first-time-init hint: "Run `memory-architecture` to bootstrap the Project Knowledge System."
+   - **Present** → the agent is already memory-aware; no init hint needed.
+2. On `session/event` `turn/end`, the plugin queues a post-task prompt:
+   > "Task #N completed. Want to compound memory now? Run `knowledge-compounding` to extract durable lessons from this session."
+3. The next `agent/pre-step` injects that prompt into the session.
+
+## What to do when the prompt appears
+
+- If the task just produced **new insights, decisions, or reusable patterns** → run `knowledge-compounding`.
+- If the task was **trivial or purely operational** → it's fine to skip.
+- When in doubt, run `knowledge-compounding` — it's read-only and non-destructive.
+
+This ensures the memory system stays current with every meaningful session, without requiring
+manual intervention from the user.
