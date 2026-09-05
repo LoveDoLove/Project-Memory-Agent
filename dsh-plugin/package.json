@@ -1,38 +1,36 @@
 {
-  "name": "@lovedolove/dsh-project-memory",
-  "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, and prompts for memory compounding after tasks.",
-  "version": "0.4.0",
-  "type": "module",
-  "main": "lib/index.js",
-  "exports": {
-    ".": "./lib/index.js",
-    "./dsh": "./dsh/plugin.mjs",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "lib/index.js",
-    "dsh/plugin.mjs",
-    "cordis.patch.yml"
-  ],
-  "license": "MIT",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/LoveDoLove/Project-Memory-Agent.git"
-  },
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
-  },
-  "dependencies": {
-    "@deepseek-ai/dsh-skill-filesystem": "^0.1.2-rc.1"
-  },
-  "peerDependencies": {
-    "@deepseek-ai/cordis": "^4.0.2"
-  }
+    "name":  "@lovedolove/dsh-project-memory",
+    "description":  "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, and prompts for memory compounding after tasks.",
+    "version":  "0.4.1",
+    "type":  "module",
+    "main":  "lib/index.js",
+    "exports":  {
+                    ".":  "./lib/index.js",
+                    "./dsh":  "./dsh/plugin.mjs",
+                    "./package.json":  "./package.json"
+                },
+    "files":  [
+                  "lib/index.js",
+                  "dsh/plugin.mjs",
+                  "cordis.patch.yml"
+              ],
+    "license":  "MIT",
+    "publishConfig":  {
+                          "registry":  "https://registry.npmjs.org"
+                      },
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/LoveDoLove/Project-Memory-Agent.git"
+                   },
+    "dsh":  {
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           }
+            },
+    "dependencies":  {
+                         "@deepseek-ai/dsh-skill-filesystem":  "^0.1.2-rc.1"
+                     },
+    "peerDependencies":  {
+                             "@deepseek-ai/cordis":  "^4.0.2"
+                         }
 }
-
-
