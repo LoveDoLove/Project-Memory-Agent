@@ -128,7 +128,7 @@ autoInstallPeers: false
 
     # Install the plugin.
     if ($InstallOffline -and $PluginSrc) {
-        # PluginName = '@lovedolove/dsh-project-memory' Ã¢â€ â€™ node_modules/@lovedolove/dsh-project-memory
+        # PluginName = '@lovedolove/dsh-project-memory' —→ node_modules/@lovedolove/dsh-project-memory
         $scope, $pkg = $PluginName -split '/', 2
         $pluginDest = Join-Path $ProfilePath "node_modules\$scope\$pkg"
         if (-not $Verify) {

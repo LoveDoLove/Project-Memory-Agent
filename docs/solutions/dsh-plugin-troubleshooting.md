@@ -1,5 +1,5 @@
 ---
-title: "DSH Plugin Boot Failures Ã¢â‚¬â€ Triple-Layer Error Diagnosis"
+title: "DSH Plugin Boot Failures —→ Triple-Layer Error Diagnosis"
 problem_type: bug
 category: integration_issue
 module: "dsh-plugin / cordis loader"
@@ -37,22 +37,22 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 ```javascript
 // BEFORE (broken):
 /**
- * registers every skills/*/SKILL.md found there  Ã¢â€ Â */ closes comment
+ * registers every skills/*/SKILL.md found there  → */ closes comment
  */
-// The word "found" is now outside the comment Ã¢â€ â€™ SyntaxError
+// The word "found" is now outside the comment —→ SyntaxError
 ```
 
 **Fix:** Escape the `/` and `*` inside comments: `skills\/\*\/SKILL.md`
 
 ### 2. Duplicate Loader Entry (TypeError)
 
-`install.ps1` wrote `project-memory-dsh` into the **profile's** `cordis.patch.yml`, while the plugin's own `cordis.patch.yml` (loaded via `dsh.profile.bundles`) also defined the same entry. Cordis applies all patch layers in a single `EntryGroup`, so the same ID registered twice Ã¢â€ â€™ `duplicate loader entry id`.
+`install.ps1` wrote `project-memory-dsh` into the **profile's** `cordis.patch.yml`, while the plugin's own `cordis.patch.yml` (loaded via `dsh.profile.bundles`) also defined the same entry. Cordis applies all patch layers in a single `EntryGroup`, so the same ID registered twice —→ `duplicate loader entry id`.
 
 **Fix:** `install.ps1` only writes a clean empty layer (`[]`) to the profile patch. The plugin manages its own patches via the bundle mechanism.
 
 ### 3. Missing Inject Declaration (RuntimeError)
 
-`lib/index.js` exported `inject = []` (empty), but `plugin.mjs:apply()` immediately accessed `ctx.skills`. Cordis uses the module's `inject` export to decide which services to wait for before calling `apply()`. Empty array Ã¢â€ â€™ no waiting Ã¢â€ â€™ `ctx.skills` not yet available Ã¢â€ â€™ error.
+`lib/index.js` exported `inject = []` (empty), but `plugin.mjs:apply()` immediately accessed `ctx.skills`. Cordis uses the module's `inject` export to decide which services to wait for before calling `apply()`. Empty array —→ no waiting —→ `ctx.skills` not yet available —→ error.
 
 **Fix:** Add `export const inject = ['skills']` to `plugin.mjs`. Reference: `@deepseek-ai/dsh-skill-badge` uses the same pattern.
 
@@ -60,7 +60,7 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 
 ## Solution
 
-### Step 1 Ã¢â‚¬â€ Fix syntax: escape `*/` in JSDoc comments
+### Step 1 —→ Fix syntax: escape `*/` in JSDoc comments
 
 ```javascript
 // In dsh/plugin.mjs, change:
@@ -69,7 +69,7 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 *      registers every skills\/\*\/SKILL.md found there,
 ```
 
-### Step 2 Ã¢â‚¬â€ Fix installer: don't write plugin entries to profile patch
+### Step 2 —→ Fix installer: don't write plugin entries to profile patch
 
 ```powershell
 # In install.ps1, Remove-Plugin-ToProfile should only write empty layer:
@@ -77,7 +77,7 @@ $emptyPatch = "# Your patch layer...\n[]`n"
 [System.IO.File]::WriteAllText($patchPath, $emptyPatch, [System.Text.UTF8Encoding]::new($false))
 ```
 
-### Step 3 Ã¢â‚¬â€ Fix inject: declare required services
+### Step 3 —→ Fix inject: declare required services
 
 ```javascript
 // In dsh/plugin.mjs, add after export const name:
@@ -91,10 +91,10 @@ Also update `lib/index.js` if it's used as a secondary entry point.
 
 ## Verification
 
-- `node --check dsh-plugin/dsh/plugin.mjs` Ã¢â€ â€™ exit 0
-- `Invoke-Pester install.tests.ps1` Ã¢â€ â€™ 10/10 passed
-- `dsh --profile web --dump-config` Ã¢â€ â€™ loads `project-memory-dsh` correctly
-- `npm view @lovedolove/dsh-project-memory version` Ã¢â€ â€™ 0.4.2
+- `node --check dsh-plugin/dsh/plugin.mjs` —→ exit 0
+- `Invoke-Pester install.tests.ps1` —→ 10/10 passed
+- `dsh --profile web --dump-config` —→ loads `project-memory-dsh` correctly
+- `npm view @lovedolove/dsh-project-memory version` —→ 0.4.2
 
 ---
 
@@ -125,10 +125,10 @@ This document compresses ~2 hours of debugging into a single reference.
 **Diagnostic sequence for DSH plugin boot failures:**
 
 ```text
-1. SyntaxError Ã¢â€ â€™ check plugin.mjs for unescaped */ in comments
-2. duplicate loader entry id Ã¢â€ â€™ check both profile AND plugin cordis.patch.yml
-3. cannot get property "X" without inject Ã¢â€ â€™ check lib/index.js for inject=['X']
-4. ERR_MODULE_NOT_FOUND Ã¢â€ â€™ check package is installed
+1. SyntaxError —→ check plugin.mjs for unescaped */ in comments
+2. duplicate loader entry id —→ check both profile AND plugin cordis.patch.yml
+3. cannot get property "X" without inject —→ check lib/index.js for inject=['X']
+4. ERR_MODULE_NOT_FOUND —→ check package is installed
 ```
 
 **Design rule:** A DSH bundle plugin must declare `inject` in its primary entry point. The module's `inject` array tells Cordis which services to resolve before calling `apply()`.

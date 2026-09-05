@@ -5,13 +5,13 @@
 
 > **Durable, evidence-backed memory for coding agents.**
 
-Project Memory gives every coding agent a single, trustworthy knowledge base for your repository â€” so it stops re-learning the same facts and writing conflicting "memory" files.
+Project Memory gives every coding agent a single, trustworthy knowledge base for your repository — so it stops re-learning the same facts and writing conflicting "memory" files.
 
 ```text
-Discover â†’ Verify â†’ Classify â†’ Compound â†’ Reconstruct â†’ Single Source of Truth
+Discover → Verify → Classify → Compound → Reconstruct → Single Source of Truth
 ```
 
-Code tells agents **what exists**. Project Memory helps them remember **why** â€” and reconciles every place that already tried to write it down.
+Code tells agents **what exists**. Project Memory helps them remember **why** — and reconciles every place that already tried to write it down.
 
 ---
 
@@ -30,7 +30,7 @@ With Project Memory, that knowledge is discovered, verified against actual code,
 irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
 ```
 
-The installer downloads the agent and its 8 skills into your chosen tool's global config. Pick a target from the interactive menu (`1` OpenCode Â· `2` Codex Â· `3` Claude Â· `4` DSH Â· `5` All). Via `irm | iex` it defaults to `all` non-interactively.
+The installer downloads the agent and its 8 skills into your chosen tool's global config. Pick a target from the interactive menu (`1` OpenCode · `2` Codex · `3` Claude · `4` DSH · `5` All). Via `irm | iex` it defaults to `all` non-interactively.
 
 ### Supported Platforms
 
@@ -52,10 +52,10 @@ The installer downloads the agent and its 8 skills into your chosen tool's globa
 
 The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry.
 
-The installer integrates into your **existing** profile (auto-detects `web` first, falls back to creating `project-memory`). It writes `cordis.patch.yml`, updates `package.json`, and patches `pnpm-workspace.yaml` â€” no separate profile is created unless you don't have one.
+The installer integrates into your **existing** profile (auto-detects `web` first, falls back to creating `project-memory`). It writes `cordis.patch.yml`, updates `package.json`, and patches `pnpm-workspace.yaml` — no separate profile is created unless you don't have one.
 
 ```powershell
-# Interactive â€” picks your existing profile (or creates project-memory)
+# Interactive — picks your existing profile (or creates project-memory)
 .\install.ps1 -Target dsh
 
 # Explicitly target your web profile
@@ -81,7 +81,7 @@ Install the plugin from npm (receives updates automatically):
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
 
-Published to [npm](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via GitHub Actions â€” install with zero setup.
+Published to [npm](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via GitHub Actions — install with zero setup.
 
 ---
 
@@ -93,7 +93,7 @@ Invoke the orchestrator in any supported agent:
 @project-memory
 ```
 
-It discovers existing knowledge, inspects the repository, verifies claims against real evidence, and reports what to keep, change, merge, or remove â€” across every origin tool, not just its own files.
+It discovers existing knowledge, inspects the repository, verifies claims against real evidence, and reports what to keep, change, merge, or remove — across every origin tool, not just its own files.
 
 **Typical tasks:** *audit this repo*, *build memory for a repo that already has docs*, *reconcile conflicting AGENTS.md / CLAUDE.md*, *compound lessons after this feature*.
 
@@ -103,14 +103,14 @@ It discovers existing knowledge, inspects the repository, verifies claims agains
 
 | Capability | Description |
 |---|---|
-| ðŸ” **Discover** | Inventories every pre-existing knowledge source with provenance |
-| âœ… **Verify** | Claims checked against code, tests, config, CI, Git â€” never assumed current |
-| ðŸ—‚ï¸ **Classify** | One canonical type per claim; conflicts settled by evidence, not file age |
+| 🔍 **Discover** | Inventories every pre-existing knowledge source with provenance |
+| ✓ **Verify** | Claims checked against code, tests, config, CI, Git — never assumed current |
+| 🗂‚ï¸ **Classify** | One canonical type per claim; conflicts settled by evidence, not file age |
 | ðŸ’¾ **Compound** | Durable Solutions and Lessons instead of more documents |
-| ðŸ—‘ï¸ **Clean** | Deletes obsolete knowledge regardless of origin |
-| ðŸŽ¯ **Single Truth** | One primary home per concept; everything else references it |
-| âš¡ **Lean** | Aggressively deduplicated â€” no rule in two places |
-| ðŸ”„ **Self-Audit** | Quality bar (Memory Health) + Self-Audit directive to catch drift |
+| 🗂‘ï¸ **Clean** | Deletes obsolete knowledge regardless of origin |
+| 🗑 **Single Truth** | One primary home per concept; everything else references it |
+| ⚅ **Lean** | Aggressively deduplicated — no rule in two places |
+| 🔍„ **Self-Audit** | Quality bar (Memory Health) + Self-Audit directive to catch drift |
 
 ---
 
@@ -129,7 +129,7 @@ Eight specialized skills instead of one huge prompt:
 | `memory-edit` | Apply approved documentation changes |
 | `memory-verification` | Final consistency and quality gate |
 
-The orchestrator loads these progressively â€” you rarely invoke one directly. It can also delegate to `codebase-memory` (read-only code graph) and `cavecrew-builder` (bounded edits). Every rule has exactly one canonical owner across the agent and skills; skills reference each other instead of duplicating, so guidance can't drift apart.
+The orchestrator loads these progressively — you rarely invoke one directly. It can also delegate to `codebase-memory` (read-only code graph) and `cavecrew-builder` (bounded edits). Every rule has exactly one canonical owner across the agent and skills; skills reference each other instead of duplicating, so guidance can't drift apart.
 
 ---
 
@@ -139,35 +139,35 @@ The orchestrator loads these progressively â€” you rarely invoke one direct
 
 ```
 AGENTS.md
-  â”œâ”€â”€ docs/architecture/README.md     â† domain index
-  â”‚   â””â”€â”€ docs/architecture/<topic>.md  â† one concept per file
-  â”œâ”€â”€ docs/decisions/
-  â”œâ”€â”€ docs/solutions/
-  â”œâ”€â”€ docs/lessons/
-  â”œâ”€â”€ docs/workflows/
-  â”œâ”€â”€ docs/constraints/
-  â”œâ”€â”€ docs/reference/
-  â””â”€â”€ docs/history/
+  ├œ├€├€ docs/architecture/README.md     → domain index
+  ├‚   ├”├€├€ docs/architecture/<topic>.md  → one concept per file
+  ├œ├€├€ docs/decisions/
+  ├œ├€├€ docs/solutions/
+  ├œ├€├€ docs/lessons/
+  ├œ├€├€ docs/workflows/
+  ├œ├€├€ docs/constraints/
+  ├œ├€├€ docs/reference/
+  ├”├€├€ docs/history/
 ```
 
-Domains are a pattern, not a mandatory scaffold â€” only create what holds verified knowledge.
+Domains are a pattern, not a mandatory scaffold — only create what holds verified knowledge.
 
 ### Templates
 
 Templates provide starting points for new knowledge documents:
 
-- `templates/TEMPLATE.md` â€” Solution document with dual-track schema (Bug + Knowledge)
-- `templates/CONCEPTS.md` â€” Project vocabulary with accretion/seeding/mutations
-- `templates/SOLUTIONS.md` â€” Index template for tracking all Solutions
-- `templates/schema.yaml` â€” Canonical frontmatter contract
+- `templates/TEMPLATE.md` — Solution document with dual-track schema (Bug + Knowledge)
+- `templates/CONCEPTS.md` — Project vocabulary with accretion/seeding/mutations
+- `templates/SOLUTIONS.md` — Index template for tracking all Solutions
+- `templates/schema.yaml` — Canonical frontmatter contract
 
 ### Reference Files
 
 Detailed guidance lives in each skill:
 
-- `skills/knowledge-compounding/references/` â€” Grounding validation, durable bar, quality constraints
-- `skills/memory-edit/references/` â€” Edit operations, migration procedures
-- `skills/memory-verification/references/` â€” Claim verification, evidence confidence
+- `skills/knowledge-compounding/references/` — Grounding validation, durable bar, quality constraints
+- `skills/memory-edit/references/` — Edit operations, migration procedures
+- `skills/memory-verification/references/` — Claim verification, evidence confidence
 
 ---
 
@@ -183,7 +183,7 @@ Invoke-Pester ./install.tests.ps1
 
 ## License
 
-MIT â€” see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
 
 ---
 
