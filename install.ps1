@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$Target = '',
     [switch]$Force,
     [switch]$Verify,
@@ -171,6 +171,19 @@ autoInstallPeers: false
                     Write-Host "  wrote pnpm-workspace: $workspacePath"
                     $script:Installed += $workspacePath
                 }
+                # Direct users to GitHub Packages for the online install path.
+                # Without this, `dsh plugin install @lovedolove/dsh-project-memory`
+                # hits npmjs.org and 404s. The token is already configured globally
+                # by the user via `npm config set //npm.pkg.github.com/:_authToken …`
+                # or by the DSH setup wizard; if missing the install will 401.
+                $npmrcPath = Join-Path $profilePath '.npmrc'
+                if (-not (Test-Path $npmrcPath)) {
+                    @"
+@lovedolove:registry=https://npm.pkg.github.com
+"@ | Out-File -FilePath $npmrcPath -Encoding utf8
+                    Write-Host "  wrote .npmrc (points @lovedolove scope to GitHub Packages)"
+                    $script:Installed += $npmrcPath
+                }
             }
             'all' {
                 Install-Skills "$env:USERPROFILE\.claude\skills"
@@ -233,6 +246,14 @@ nodeLinker: hoisted
 autoInstallPeers: false
 "@ | Out-File -FilePath $workspacePath -Encoding utf8
                                 $script:Installed += $workspacePath
+                            }
+                            # Direct users to GitHub Packages for the online install path.
+                            $npmrcPath = Join-Path $dshProfilePath '.npmrc'
+                            if (-not (Test-Path $npmrcPath)) {
+                                @"
+@lovedolove:registry=https://npm.pkg.github.com
+"@ | Out-File -FilePath $npmrcPath -Encoding utf8
+                                $script:Installed += $npmrcPath
                             }
                         }
                     }

@@ -1,4 +1,4 @@
-﻿# Pester tests for install.ps1 (no network; Invoke-WebRequest mocked)
+# Pester tests for install.ps1 (no network; Invoke-WebRequest mocked)
 # Compatible with Pester 3.4.0 (WindowsPowerShell default). Run:
 #   Invoke-Pester ./install.tests.ps1
 # If you upgrade to Pester 5, change "Should Be/Exist/Not Exist" accordingly
@@ -93,6 +93,9 @@ Describe 'install.ps1' {
         (Join-Path $profileDir 'package.json') | Should Exist
         (Join-Path $profileDir 'cordis.patch.yml') | Should Exist
         (Join-Path $profileDir 'pnpm-workspace.yaml') | Should Exist
+        (Join-Path $profileDir '.npmrc') | Should Exist
+        $npmrc = Get-Content (Join-Path $profileDir '.npmrc') -Raw
+        $npmrc -match '@lovedolove:registry' | Should Be $true
     }
 }
 
