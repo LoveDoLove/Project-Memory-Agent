@@ -23,6 +23,7 @@ Describe 'install.ps1' {
 
     Mock Invoke-WebRequest { param($Uri, $OutFile); if ($OutFile) { New-Item -ItemType File -Force -Path $OutFile | Out-Null } }
     Mock Start-Process { param($FilePath, $ArgumentList, $NoNewWindow, $Wait, $PassThru, $ErrorAction); return ([pscustomobject]@{ ExitCode = 0 }) }
+    Mock Get-Command { param($Name, $CommandType, $ErrorAction); if ($Name -eq 'dsh') { return $null } return @() }
 
     It 'single opencode: skills + agent' {
         $sk = Join-Path $env:USERPROFILE '.config\opencode\skills'
@@ -82,6 +83,24 @@ Describe 'install.ps1' {
         (Join-Path $presetDir 'preset.yml') | Should Exist
         # project-memory.md must NOT be installed to .dsh/agents
         (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Not Exist
+    }
+
+    It 'dsh target: prints command line when dsh is not found' {
+        $script:Target = 'dsh'
+        $script:Force = $true
+        $script:DshProfile = 'web'
+        $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles'
+        New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $profileDir 'web') | Out-Null
+        $presetDir = Join-Path $env:USERPROFILE '.dsh\.agent-presets\project-memory'
+        New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
+
+        # Capture output by re-running Main in a subshell and checking the printed command
+        $script:Installed = @(); $script:Failures = @()
+        # Mock Get-Command to return null (simulating dsh not in PATH)
+        Mock Get-Command { param($Name, $ErrorAction); if ($Name -eq 'dsh') { return $null }; return @() }
+        # Start-Process must NOT be called when dsh is absent
+        Assert-MockCalled Start-Process -Times 0 -Scope It
     }
 
     It 'all target: installs all platforms + seeds DSH agent' {

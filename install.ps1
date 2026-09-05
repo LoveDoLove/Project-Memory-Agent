@@ -145,17 +145,23 @@ function Main {
                     }
                 }
                 Write-Host ""
-                # Install plugin and start orchestrator hint for DSH
+                # Install plugin hint for DSH (auto-run if dsh is available, else print command)
                 if (-not $Verify) {
-                    try {
-                        $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
-                        if ($proc.ExitCode -eq 0) {
-                            Write-Host "  plugin installed: $PluginName on profile '$profileName'"
-                        } else {
-                            Write-Warning "  plugin install failed (exit $($_.ExitCode))"
+                    $dshCmd = Get-Command 'dsh' -CommandType Application -ErrorAction SilentlyContinue
+                    if ($dshCmd) {
+                        try {
+                            $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
+                            if ($proc.ExitCode -eq 0) {
+                                Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                            } else {
+                                Write-Warning "  plugin install failed (exit code $($proc.ExitCode))"
+                            }
+                        } catch {
+                            Write-Warning "  dsh plugin command failed: $_"
                         }
-                    } catch {
-                        Write-Warning "  dsh plugin command not available: $_"
+                    } else {
+                        Write-Host "  Run plugin command:"
+                        Write-Host "    dsh plugin --profile $profileName add $PluginName"
                     }
                 } else {
                     Write-Host "  would install plugin: dsh plugin --profile $profileName add $PluginName"
@@ -195,15 +201,21 @@ function Main {
                 }
                 Write-Host ""
                 if (-not $Verify) {
-                    try {
-                        $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
-                        if ($proc.ExitCode -eq 0) {
-                            Write-Host "  plugin installed: $PluginName on profile '$profileName'"
-                        } else {
-                            Write-Warning "  plugin install failed (exit $($_.ExitCode))"
+                    $dshCmd = Get-Command 'dsh' -CommandType Application -ErrorAction SilentlyContinue
+                    if ($dshCmd) {
+                        try {
+                            $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
+                            if ($proc.ExitCode -eq 0) {
+                                Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                            } else {
+                                Write-Warning "  plugin install failed (exit code $($proc.ExitCode))"
+                            }
+                        } catch {
+                            Write-Warning "  dsh plugin command failed: $_"
                         }
-                    } catch {
-                        Write-Warning "  dsh plugin command not available: $_"
+                    } else {
+                        Write-Host "  Run plugin command:"
+                        Write-Host "    dsh plugin --profile $profileName add $PluginName"
                     }
                 } else {
                     Write-Host "  would install plugin: dsh plugin --profile $profileName add $PluginName"
