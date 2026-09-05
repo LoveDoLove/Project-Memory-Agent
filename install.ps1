@@ -147,7 +147,7 @@ function Main {
                 Write-Host ""
                 # Install plugin hint for DSH (auto-run if dsh is available, else print command)
                 if (-not $Verify) {
-                    $dshCmd = Get-Command 'dsh' -CommandType Application -ErrorAction SilentlyContinue
+                    $dshCmd = Get-Command 'dsh' -ErrorAction SilentlyContinue
                     if ($dshCmd) {
                         try {
                             $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
@@ -201,7 +201,7 @@ function Main {
                 }
                 Write-Host ""
                 if (-not $Verify) {
-                    $dshCmd = Get-Command 'dsh' -CommandType Application -ErrorAction SilentlyContinue
+                    $dshCmd = Get-Command 'dsh' -ErrorAction SilentlyContinue
                     if ($dshCmd) {
                         try {
                             $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop

@@ -23,7 +23,7 @@ Describe 'install.ps1' {
 
     Mock Invoke-WebRequest { param($Uri, $OutFile); if ($OutFile) { New-Item -ItemType File -Force -Path $OutFile | Out-Null } }
     Mock Start-Process { param($FilePath, $ArgumentList, $NoNewWindow, $Wait, $PassThru, $ErrorAction); return ([pscustomobject]@{ ExitCode = 0 }) }
-    Mock Get-Command { param($Name, $CommandType, $ErrorAction); if ($Name -eq 'dsh') { return $null } return @() }
+    Mock Get-Command { param($Name, $CommandType, $ErrorAction); if ($Name -eq 'dsh') { return $null } return @() }  # no -CommandType Application filter (handles .cmd)
 
     It 'single opencode: skills + agent' {
         $sk = Join-Path $env:USERPROFILE '.config\opencode\skills'
@@ -98,7 +98,7 @@ Describe 'install.ps1' {
         # Capture output by re-running Main in a subshell and checking the printed command
         $script:Installed = @(); $script:Failures = @()
         # Mock Get-Command to return null (simulating dsh not in PATH)
-        Mock Get-Command { param($Name, $ErrorAction); if ($Name -eq 'dsh') { return $null }; return @() }
+        Mock Get-Command { param($Name, $CommandType, $ErrorAction); if ($Name -eq 'dsh') { return $null }; return @() }
         # Start-Process must NOT be called when dsh is absent
         Assert-MockCalled Start-Process -Times 0 -Scope It
     }
