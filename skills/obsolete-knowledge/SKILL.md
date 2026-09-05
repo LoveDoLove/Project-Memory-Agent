@@ -210,9 +210,9 @@ Investigate
 The lifecycle state and the cleanup action are different concepts:
 
 ```text
-State: Superseded   → Action: Preserve as Historical
-State: Deprecated   → Action: Mark Deprecated
-State: Abandoned    → Action: Delete
+State: Superseded   -> Action: Preserve as Historical
+State: Deprecated   -> Action: Mark Deprecated
+State: Abandoned    -> Action: Delete
 ```
 
 State definitions (Current, In Progress, Partial, Experimental, Deprecated,
@@ -226,33 +226,33 @@ Superseded, Abandoned, Historical, Unknown) are owned by
 A store-wide refresh gives every knowledge unit **exactly one** outcome:
 
 ```text
-Keep          — accurate and distinct; no change
-Update        — accurate but incomplete or stale in detail
-Consolidate   — overlaps another unit or units; merge into one canonical
-Replace       — a newer unit supersedes it; link the replacement
-Delete        — invalid, no historical value, misleading if kept
+Keep          - accurate and distinct; no change
+Update        - accurate but incomplete or stale in detail
+Consolidate   - overlaps another unit or units; merge into one canonical
+Replace       - a newer unit supersedes it; link the replacement
+Delete        - invalid, no historical value, misleading if kept
 ```
 
 The six-action vocabulary above is the execution vocabulary. Map outcomes
 to actions:
 
 ```text
-Keep        → Keep Current
-Update      → (fixed through `memory-edit` as accuracy drift)
-Consolidate → (merged through `memory-edit`; duplicates resolved)
-Replace     → Mark Superseded + link replacement
-Delete      → Delete
+Keep        -> Keep Current
+Update      -> (fixed through `memory-edit` as accuracy drift)
+Consolidate -> (merged through `memory-edit`; duplicates resolved)
+Replace     -> Mark Superseded + link replacement
+Delete      -> Delete
 ```
 
 Two boundaries hold whatever the evidence says. The ordinary refresh
-judges **accuracy** — is each unit still true and still distinct. It never
+judges **accuracy** - is each unit still true and still distinct. It never
 deletes an accurate unit merely because the codebase states the same
 knowledge elsewhere; that second judgment (worth) runs only when the user
 explicitly asks to prune the store, and never deletes a unit until the
 codebase is confirmed to state the same reasoning.
 
 Never archive a unit in place: there is no permanent `_archived/`
-directory — Git history is the archive. Preserve as Historical applies
+directory - Git history is the archive. Preserve as Historical applies
 only when the old state explains the current system.
 
 ---
@@ -397,29 +397,29 @@ If no, historical preservation is probably unnecessary.
 
 Apply the Decision Tree to each case; typical evidence:
 
-- **Abandoned features** — Abandoned ≠ Delete automatically. Rejected
-  because of an important architectural problem → Historical Decision;
+- **Abandoned features** - Abandoned ≠ Delete automatically. Rejected
+  because of an important architectural problem -> Historical Decision;
   otherwise Delete.
-- **Removed features** — Verify removal. History matters? No → Delete;
-  Yes → Historical / Superseded. Never leave removed features in current
+- **Removed features** - Verify removal. History matters? No -> Delete;
+  Yes -> Historical / Superseded. Never leave removed features in current
   architecture documentation.
-- **Removed dependencies** — Evidence: dependency manifest, source imports,
+- **Removed dependencies** - Evidence: dependency manifest, source imports,
   build configuration, lockfiles, CI, documentation, Git history.
-  Genuinely removed → Delete old installation instructions unless the
+  Genuinely removed -> Delete old installation instructions unless the
   removal explains an important architectural decision.
-- **Completed migrations** — Old operational workflow is obsolete
+- **Completed migrations** - Old operational workflow is obsolete
   (`Run npm install`); only the migration rationale may remain historical.
   Do not keep an old operational workflow merely because it was once valid.
-- **Solved workarounds** — Normally Delete once the root cause is fixed.
+- **Solved workarounds** - Normally Delete once the root cause is fixed.
   Preserve only if it explains a difficult root cause, an important
   historical incident, a compatibility limitation, or a recurring failure
   mode.
-- **Obsolete constraints** — Old platform, API, compatibility, vendor, or
+- **Obsolete constraints** - Old platform, API, compatibility, vendor, or
   security-workaround restrictions. Verify the constraint still exists; do
   not let historical constraints block current engineering work.
-- **Incident vs noise** — Preserve the engineering lesson, not the terminal
+- **Incident vs noise** - Preserve the engineering lesson, not the terminal
   transcript. `Command X failed, tried Y, ran Z, it worked` is noise.
-- **Stale workflow detection** — Workflows referencing old package manager,
+- **Stale workflow detection** - Workflows referencing old package manager,
   runtime, command, build system, deployment process, environment variable,
   directory, CI system, authentication flow, or setup requirement. Determine
   Still valid / Legacy only / Deprecated / Superseded / Invalid / Unknown.
@@ -429,7 +429,7 @@ Apply the Decision Tree to each case; typical evidence:
 # Contradiction Outranks Staleness
 
 A contradiction misleads actively, so it outranks individual staleness.
-When one unit contradicts another — or contradicts verified current code —
+When one unit contradicts another - or contradicts verified current code -
 resolve the conflict before ordinary drift cleanup: establish which side
 current code follows, then treat the losing side as stale. Do not clean up
 an unrelated stale unit and call a live contradiction handled.
@@ -438,9 +438,9 @@ an unrelated stale unit and call a live contradiction handled.
 
 When a learning contradicts a guidance file it names (a skill's SKILL.md,
 a runbook, an instruction file), compare only guidance the learning names
-— never search the guidance layer for one. Resolve by which side current
+- never search the guidance layer for one. Resolve by which side current
 code follows. Report the wrong side; this Skill never edits a guidance
-file — `memory-edit` does, only under an approved plan. Independently
+file - `memory-edit` does, only under an approved plan. Independently
 supported guidance does not become false merely because implementation
 stopped satisfying it: classify the unit from the guidance evidence and
 report the implementation conflict as a potential regression, not as
@@ -503,7 +503,7 @@ Previous security model
 Previous data model
 ```
 
-If the rejection rationale is important → Preserve as Historical / Decision,
+If the rejection rationale is important -> Preserve as Historical / Decision,
 but make the current replacement explicit.
 
 ## Decision Reversal Protection
@@ -526,7 +526,7 @@ This prevents repeated architectural rediscovery.
 An obsolete document can remain indirectly active through links. Every
 action also carries its navigation row: a unit that is updated,
 consolidated, replaced, or deleted changes the domain index row in the
-same change set (see `memory-edit` — Navigation, Indexes). A store whose
+same change set (see `memory-edit` - Navigation, Indexes). A store whose
 index lists dead units is a store that looks fuller than it is.
 
 After identifying obsolete knowledge, inspect:
@@ -546,7 +546,7 @@ Agent instructions
 Look for references implying the old knowledge is current: old path still
 exists, old workflow still supported, old implementation recommended.
 
-These references must be corrected during the edit phase — by `memory-edit`,
+These references must be corrected during the edit phase - by `memory-edit`,
 not by this Skill.
 
 ## Broken vs Obsolete
@@ -581,24 +581,24 @@ previously used.
 
 # Duplicate, Archive, and Unit-Level Rules
 
-- **Duplicate obsolete knowledge** — Multiple documents describing the same
+- **Duplicate obsolete knowledge** - Multiple documents describing the same
   old approach: do not preserve all. Prefer **one historical record** when
   the information can be consolidated without losing meaningful context.
-- **No archive dumps** — Never create an archive merely to avoid deleting
+- **No archive dumps** - Never create an archive merely to avoid deleting
   files. `docs/history/authentication-migration.md` with durable
   engineering value: good. `docs/archive/everything-ever-written.md`: bad.
-- **Knowledge-unit level** — Never assume an entire directory is obsolete
+- **Knowledge-unit level** - Never assume an entire directory is obsolete
   because its files are old. Classify each knowledge unit separately; the
   same tree may yield Delete + Historical + Delete.
-- **Historical boundary** — Historical knowledge must be clearly
+- **Historical boundary** - Historical knowledge must be clearly
   distinguishable from current: prefer `docs/history/` or an explicit
   status marker. Avoid `old-auth.md` beside `new-auth.md` looking equally
   authoritative.
-- **Consolidation** — When consolidating historical knowledge, preserve
+- **Consolidation** - When consolidating historical knowledge, preserve
   decision, reason, impact, replacement, and important lessons. Remove
   repeated wording, terminal logs, minor chronology, temporary debugging
   details, and commentary.
-- **Preservation has a cost** — More files, more retrieval choices, more
+- **Preservation has a cost** - More files, more retrieval choices, more
   context, more confusion, more maintenance. Preserve only history that
   materially improves future engineering decisions.
 
@@ -609,7 +609,7 @@ previously used.
 Evidence confidence scale (High / Medium / Low): see `repository-audit`
 (canonical owner).
 
-Rule: **low-confidence candidates must never be automatically deleted** —
+Rule: **low-confidence candidates must never be automatically deleted** -
 route them to Investigate.
 
 Risk/severity classification (Critical / High / Medium / Low): see
@@ -654,19 +654,19 @@ Return findings using:
 
 ### Historical Knowledge
 
-- `<path>` — <why it remains valuable>
+- `<path>` - <why it remains valuable>
 
 ### High-Risk Obsolete Guidance
 
-- `<path>` — <risk>
+- `<path>` - <risk>
 
 ### Reference Cleanup Required
 
-- `<path>` → <reference that must change>
+- `<path>` -> <reference that must change>
 
 ### Unresolved Candidates
 
-- `<path>` — <why evidence is insufficient>
+- `<path>` - <why evidence is insufficient>
 ```
 
 Do not use lack of references as sufficient evidence of obsolescence.
@@ -745,8 +745,8 @@ The higher the retrieval priority, the more dangerous stale information
 becomes:
 
 ```text
-AGENTS.md → current domain indexes → current workflows → current
-architecture → current decisions → reference → history
+AGENTS.md -> current domain indexes -> current workflows -> current
+architecture -> current decisions -> reference -> history
 ```
 
 ---
@@ -758,7 +758,7 @@ architecture → current decisions → reference → history
 2. Never leave superseded or deprecated knowledge looking current; identify
    the replacement or current path whenever one is known.
 3. Never leave obsolete operational instructions in `AGENTS.md`.
-4. Never auto-delete low-confidence candidates — Investigate.
+4. Never auto-delete low-confidence candidates - Investigate.
 5. Never modify repository files; never claim deletion, reference repair, or
    final verification occurred.
 6. Never preserve terminal logs, debugging noise, or duplicate historical

@@ -185,7 +185,7 @@ Edit receipts are inputs, not proof of verification.
 
 Use three levels.
 
-## Level 1 — Edit Verification
+## Level 1 - Edit Verification
 
 Checks:
 
@@ -197,7 +197,7 @@ Deleted files
 Immediate references
 ```
 
-## Level 2 — Memory Verification
+## Level 2 - Memory Verification
 
 Checks:
 
@@ -210,7 +210,7 @@ Progressive loading
 Historical boundaries
 ```
 
-## Level 3 — Repository Consistency Verification
+## Level 3 - Repository Consistency Verification
 
 Checks:
 
@@ -294,12 +294,12 @@ For each material claim, mechanically verify against the codebase:
 ```text
 1. Identify claim type (file path, function name, API, behavior, config)
 2. Select verification method:
-   - File paths → glob/grep
-   - Function names → codebase-memory
-   - API endpoints → route discovery
-   - Behaviors → tests or manual verification
-   - Config values → config files
-   - Dependencies → package manifests
+   - File paths -> glob/grep
+   - Function names -> codebase-memory
+   - API endpoints -> route discovery
+   - Behaviors -> tests or manual verification
+   - Config values -> config files
+   - Dependencies -> package manifests
 3. Verify claim against current codebase
 4. Record evidence (file, line, commit)
 5. Assign confidence (High / Medium / Low / Unknown)
@@ -318,10 +318,10 @@ For each material claim, mechanically verify against the codebase:
 ## Confidence Scale
 
 ```text
-High     — verified against multiple sources (code + tests + config)
-Medium   — verified against one source (code or tests)
-Low      — partially verified or inferred
-Unknown  — cannot verify mechanically
+High     - verified against multiple sources (code + tests + config)
+Medium   - verified against one source (code or tests)
+Low      - partially verified or inferred
+Unknown  - cannot verify mechanically
 ```
 
 ## codebase-memory
@@ -344,7 +344,7 @@ Source / grep fallback
 Record: Tier, Project, Generation, checked paths/scopes, coverage status
 (`Complete | Partial | Skipped | Excluded | Stale | Unknown`), and fallback
 usage. The verification receipt must carry these graph coverage fields. A
-clean graph result means no recorded index gap — not complete repository
+clean graph result means no recorded index gap - not complete repository
 coverage. Use read/grep source fallback when coverage is partial, stale,
 excluded, or graph evidence is insufficient.
 
@@ -352,7 +352,7 @@ excluded, or graph evidence is insufficient.
 
 Negative claims ("X does not exist", "Y is no longer used") and exhaustive
 claims ("all", "every", "none", "never", "only", "completely") require
-relevant scope coverage. If coverage is incomplete: `Not Fully Verified` —
+relevant scope coverage. If coverage is incomplete: `Not Fully Verified` -
 never `Verified`, never `False`. Canonical rules: `repository-audit`.
 
 ---
@@ -374,10 +374,10 @@ Sources:
 
 ```text
 Docs vs source code
-Tests — no test does not mean the feature does not exist
-Configuration — conditional configuration does not make a claim universal
-Build / CI — documented commands remain compatible with current setup
-Git history — never invent rationale from a commit title alone
+Tests - no test does not mean the feature does not exist
+Configuration - conditional configuration does not make a claim universal
+Build / CI - documented commands remain compatible with current setup
+Git history - never invent rationale from a commit title alone
 AGENTS.md
 Skills
 Agent instructions
@@ -395,7 +395,7 @@ deprecation, architectural transition, and rejected approaches.
   knowledge unit; no unit redefines a glossary term differently. A wrong
   glossary term poisons every unit that uses it.
 - **Store discoverability:** an agent following the documented progressive
-  path (`AGENTS.md` → domain index → unit) can reach every current unit;
+  path (`AGENTS.md` -> domain index -> unit) can reach every current unit;
   no current unit is orphaned from navigation, and no index lists a unit
   that no longer exists (see `memory-edit` Index-Row Contract).
 
@@ -584,11 +584,11 @@ These are different failures with different fixes. Report them separately.
 # Ownership, Duplicates, Contradictions
 
 * Every important knowledge item has one primary home. Duplicates reference
-  it — do not keep independent copies that can diverge. Do not flag
+  it - do not keep independent copies that can diverge. Do not flag
   repetition that aids navigation without creating conflicting authority.
 * Contradictions between knowledge units: classify as True Contradiction /
   Different Scope / Historical Context / Conditional Behaviour / Unclear.
-  Check scope before reporting failure — different-scope or conditional
+  Check scope before reporting failure - different-scope or conditional
   knowledge is not a contradiction. Unresolved true contradictions are
   failures.
 
@@ -596,8 +596,8 @@ These are different failures with different fixes. Report them separately.
 
 # Per-Type Verification
 
-Generic rule: for each knowledge unit — workflow, constraint, decision,
-lesson, compounded knowledge — verify its content matches its evidence, its
+Generic rule: for each knowledge unit - workflow, constraint, decision,
+lesson, compounded knowledge - verify its content matches its evidence, its
 lifecycle status is correct, and its canonical ownership is clear. No
 per-type exceptions.
 
@@ -632,7 +632,7 @@ Prioritize obsolete operational guidance.
 
 # Migration Verification
 
-For a migration (Old → New) verify:
+For a migration (Old -> New) verify:
 
 ```text
 New exists
@@ -652,7 +652,7 @@ use the old system.
 # File Structure, Orphans, Unreachable Knowledge
 
 Check: no empty documentation directories, placeholder files, orphaned
-indexes, duplicate domain structures, or obviously misplaced knowledge —
+indexes, duplicate domain structures, or obviously misplaced knowledge -
 against the approved architecture only. An orphan is useful knowledge
 undiscoverable through intended navigation; intentionally on-demand
 reference knowledge is not an orphan. Do not force every document into
@@ -730,15 +730,15 @@ FAIL
 BLOCKED
 ```
 
-* `PASS` — no material verification failures within scope.
-* `PASS WITH WARNINGS` — no critical/high failures, but non-blocking issues
+* `PASS` - no material verification failures within scope.
+* `PASS WITH WARNINGS` - no critical/high failures, but non-blocking issues
   or limitations remain.
-* `FAIL` — one or more material correctness, lifecycle, navigation, or
+* `FAIL` - one or more material correctness, lifecycle, navigation, or
   retrieval failures remain.
-* `BLOCKED` — verification could not be completed; required evidence or
+* `BLOCKED` - verification could not be completed; required evidence or
   access was unavailable.
 
-## Severity → Result Matrix
+## Severity -> Result Matrix
 
 | Severity | Result |
 |---|---|
@@ -785,7 +785,7 @@ If a defect is discovered: report it. The parent Agent may then invoke
 ## Re-Verification After Repair
 
 If the parent Agent applies fixes after a failed verification, do not assume
-previous verification remains valid. Re-run affected checks — at minimum
+previous verification remains valid. Re-run affected checks - at minimum
 changed files, affected references, navigation, lifecycle, and repository
 claims.
 
@@ -886,8 +886,8 @@ Expected:
 
 ```text
 AGENTS.md
-→ Domain README
-→ Focused Knowledge
+-> Domain README
+-> Focused Knowledge
 ```
 
 Result: <result>
@@ -944,7 +944,7 @@ Critical evidence limitation hidden
 # Hard Rules
 
 1. Do not guess or invent repository or historical facts.
-2. Do not silently repair files — report; the parent invokes `memory-edit`;
+2. Do not silently repair files - report; the parent invokes `memory-edit`;
    then re-verify.
 3. Never upgrade Not Checked to Verified; preserve the four-way result
    states.

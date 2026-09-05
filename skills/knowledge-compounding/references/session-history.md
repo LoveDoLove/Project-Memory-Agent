@@ -108,7 +108,7 @@ Recurring Approaches:
 # Integration with Workflow
 
 ```text
-Step 0 (Before Compounding) → Session History Probe → Auto-Memory Scan
+Step 0 (Before Compounding) -> Session History Probe -> Auto-Memory Scan
 ```
 
 Session history probe runs BEFORE auto-memory scan. It provides
@@ -129,6 +129,6 @@ additional context for identifying related knowledge.
 
 # References
 
-- `knowledge-compounding` — main compounding workflow
-- `auto-memory.md` — auto-memory scan rules
-- `knowledge-classification` — knowledge type definitions
+- `knowledge-compounding` - main compounding workflow
+- `auto-memory.md` - auto-memory scan rules
+- `knowledge-classification` - knowledge type definitions

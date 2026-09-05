@@ -69,7 +69,7 @@ If no related knowledge exists:
 When auto-memory scan finds related knowledge, tag the provenance:
 
 ```text
-Source: MEMORY.md → domain/index.md → unit.md
+Source: MEMORY.md -> domain/index.md -> unit.md
 Status: active | superseded | deprecated | historical
 Relevance: high | medium | low
 ```
@@ -108,7 +108,7 @@ Better:       "Use B; A was rejected because X fails on Android 11."
 # Integration with Workflow
 
 ```text
-Step 0 (Before Compounding) → Auto-Memory Scan → Durable Bar Test
+Step 0 (Before Compounding) -> Auto-Memory Scan -> Durable Bar Test
 ```
 
 Auto-memory scan runs BEFORE the durable bar test. If related knowledge
@@ -129,6 +129,6 @@ exists, the durable bar test applies to the strengthening action.
 
 # References
 
-- `knowledge-compounding` — main compounding workflow
-- `memory-edit` — how to apply changes
-- `knowledge-classification` — knowledge type definitions
+- `knowledge-compounding` - main compounding workflow
+- `memory-edit` - how to apply changes
+- `knowledge-classification` - knowledge type definitions

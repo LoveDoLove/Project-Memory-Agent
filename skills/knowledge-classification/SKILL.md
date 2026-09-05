@@ -2,9 +2,9 @@
 name: knowledge-classification
 description: >
   Evidence-based project knowledge classification skill. Classifies verified
-  repository findings — including claims extracted from existing multi-origin
+  repository findings - including claims extracted from existing multi-origin
   knowledge sources (AGENTS.md, CLAUDE.md, .cursor/rules/, .claude/, docs/)
-  — into current facts, architecture, decisions, solutions, lessons,
+  - into current facts, architecture, decisions, solutions, lessons,
   constraints, workflows, reference, historical, or obsolete knowledge;
   determines current-state status, durability, and knowledge value; resolves
   cross-source conflicts with evidence; detects semantic duplicates across
@@ -16,7 +16,7 @@ description: >
 
 You determine **what verified information actually means as project knowledge**.
 
-Input: evidence gathered from the repository, plus — when applicable — the
+Input: evidence gathered from the repository, plus - when applicable - the
 Existing Knowledge Inventory from `knowledge-discovery` and verification
 results from `repository-audit`. Treat the discovery inventory as **candidate
 claims with provenance**, not verified input: re-verify every inventory entry
@@ -29,7 +29,7 @@ consolidated, superseded, preserved, or removed.
 
 ## Non-Responsibilities
 
-- No repository discovery, evidence-gathering, architecture, or editing —
+- No repository discovery, evidence-gathering, architecture, or editing -
   those belong to other Project Memory skills.
 - No action execution: recommendations only; the parent Agent decides.
 - Read-only: never modify repository files.
@@ -97,7 +97,7 @@ multiple documents without a clear reason.
 
 Current operational fact: supported platform, active package manager,
 runtime requirement, entry point, configuration behavior, enabled feature,
-dependency relationship. No rationale — rationale is Decision. Question:
+dependency relationship. No rationale - rationale is Decision. Question:
 "What is true about the project now?"
 
 ## Architecture
@@ -111,7 +111,7 @@ system, not why a choice was made.
 ## Decision
 
 Why an important engineering direction was chosen. The choice must
-materially affect future engineering decisions — not a mere dependency,
+materially affect future engineering decisions - not a mere dependency,
 installed framework, created file, or ordinary implementation choice.
 Question: "Why did the project choose this direction?"
 
@@ -123,7 +123,7 @@ problem, not a generic tutorial.
 ## Lesson
 
 A generalizable engineering principle distilled from a verified experience.
-Not a duplicate of a Solution — a Solution may contain its own reusable
+Not a duplicate of a Solution - a Solution may contain its own reusable
 guidance without a separate Lesson.
 
 ## Constraint
@@ -159,7 +159,7 @@ No longer valid and no meaningful historical or explanatory value: removed
 feature with no lasting relevance, obsolete command, deleted dependency,
 invalid workflow, stale documentation with no historical value, a losing
 claim in a resolved conflict with no explanatory value. If keeping it
-creates more confusion than value → Obsolete.
+creates more confusion than value -> Obsolete.
 
 ## Classification Matrix
 
@@ -187,9 +187,9 @@ Source Provenance (if applicable)
 ```
 
 Ambiguous case (fits several types): classify by the question it *primarily*
-answers. "Why is Redis not used?" — architectural choice → Decision;
-technical limitation to obey → Constraint; past Redis failure fix →
-Solution; broad reusable principle → Lesson. Do not create four documents
+answers. "Why is Redis not used?" - architectural choice -> Decision;
+technical limitation to obey -> Constraint; past Redis failure fix ->
+Solution; broad reusable principle -> Lesson. Do not create four documents
 because four categories are technically related.
 
 ---
@@ -210,27 +210,27 @@ Historical
 Unknown
 ```
 
-- **Current** — implementation exists, configuration enables it, tests or
+- **Current** - implementation exists, configuration enables it, tests or
   runtime evidence support it, no stronger evidence of replacement.
-- **In Progress** — active implementation or migration work is incomplete.
+- **In Progress** - active implementation or migration work is incomplete.
   Do not call incomplete work Current merely because source code exists.
-- **Partial** — some described behavior exists but the full claim is
+- **Partial** - some described behavior exists but the full claim is
   unsupported. Implemented ≠ Complete.
-- **Experimental** — exists for experimentation, evaluation, proof of
+- **Experimental** - exists for experimentation, evaluation, proof of
   concept, unstable development (explicit labeling, prototype structure,
   feature flags, isolated PoC). Do not infer from unusual code alone.
-- **Deprecated** — subject still present but should no longer be used for
+- **Deprecated** - subject still present but should no longer be used for
   new work: deprecation markers, migration guidance, replacement docs,
   current code using another mechanism.
-- **Superseded** — a newer implementation/architecture/workflow/decision
-  replaced it. Strong evidence: old approach → migration → new approach.
+- **Superseded** - a newer implementation/architecture/workflow/decision
+  replaced it. Strong evidence: old approach -> migration -> new approach.
   Identify `Superseded by: <replacement>` whenever possible.
-- **Abandoned** — started, no longer pursued (abandoned implementation,
+- **Abandoned** - started, no longer pursued (abandoned implementation,
   removed references, Git history, replacement by another direction). Do
   not infer merely from a development pause.
-- **Historical** — no longer current but remains useful for understanding
+- **Historical** - no longer current but remains useful for understanding
   the project. Link to the current state.
-- **Unknown** — evidence insufficient. Use internally rather than guessing.
+- **Unknown** - evidence insufficient. Use internally rather than guessing.
   Never publish Unknown as a confident repository fact.
 
 This 9-state list is the canonical copy. Other Project Memory documents
@@ -275,7 +275,7 @@ On June 4, the developer tested implementation A.
 ```
 
 The second should not become Project Memory. Do not preserve history for
-nostalgia — only when it explains something important.
+nostalgia - only when it explains something important.
 
 This table is the canonical copy. Other documents reference it instead of
 re-deriving type distinctions.
@@ -343,14 +343,14 @@ redefining unit structure.
 
 # Corpus-First Vocabulary (Canonical)
 
-Memory units that carry open-vocabulary fields — `component`, `root_cause`,
-`problem_type`, tags — must speak the vocabulary the memory corpus already
+Memory units that carry open-vocabulary fields - `component`, `root_cause`,
+`problem_type`, tags - must speak the vocabulary the memory corpus already
 speaks, not a fresh set of near-synonyms.
 
 Rules:
 
 1. **Sample before choosing.** Before proposing a value, read the existing
-   memory corpus for that area — the domain directory the unit will live
+   memory corpus for that area - the domain directory the unit will live
    in, and any units mentioning the same concept. The corpus is the
    reference; the template list is only a fallback.
 2. **Most-used spelling wins.** When the corpus disagrees about the value
@@ -376,7 +376,7 @@ merges units.
 
 # Project Glossary (CONCEPTS.md)
 
-A repository may carry a shared project vocabulary — a glossary file
+A repository may carry a shared project vocabulary - a glossary file
 (CE-style `CONCEPTS.md` at the repo root, or an equivalent
 `docs/glossary.md` following the repo's conventions). It records domain
 terms with project-specific meaning so memory units, planning, and
@@ -395,7 +395,7 @@ Rules:
    avoid choosing a type. A finding that is only a definition is a
    Reference unit, not a glossary entry.
 4. When classification contradicts a glossary entry, flag the
-   contradiction to the parent Agent — a wrong glossary term poisons
+   contradiction to the parent Agent - a wrong glossary term poisons
    every unit that uses it.
 
 ---
@@ -449,12 +449,12 @@ Evidence requirements: every classification retains Evidence, Scope,
 Confidence, and Limitations. Do not classify from an isolated documentation
 sentence when implementation evidence is available.
 
-Evidence hierarchy (not an automatic precedence rule — conflicts require
+Evidence hierarchy (not an automatic precedence rule - conflicts require
 investigation):
 
 ```text
-Current Source → Tests → Active Configuration → Build/CI
-→ Verified Git History → Current Documentation → Historical Documentation
+Current Source -> Tests -> Active Configuration -> Build/CI
+-> Verified Git History -> Current Documentation -> Historical Documentation
 ```
 
 ---
@@ -480,22 +480,22 @@ Four outcome classes:
 
 ```text
 1. One source correct, others wrong
-    → Correct source becomes/strengthens the canonical knowledge unit.
-    → Incorrect sources: Obsolete (delete) or Historical (if the
+    -> Correct source becomes/strengthens the canonical knowledge unit.
+    -> Incorrect sources: Obsolete (delete) or Historical (if the
       divergence itself has explanatory value, e.g. "CLAUDE.md still
       referenced the old build tool after the migration").
 
 2. Scope-dependent, not actually conflicting
-    → Classify as Current Fact with explicit scope in each case
+    -> Classify as Current Fact with explicit scope in each case
       (e.g. "development uses X; production uses Y").
 
 3. None of the sources match current reality
-    → All sources: Obsolete or Historical, depending on explanatory value.
-    → New Current Fact created from verified evidence, not from any of
+    -> All sources: Obsolete or Historical, depending on explanatory value.
+    -> New Current Fact created from verified evidence, not from any of
       the conflicting sources.
 
 4. Cannot be resolved with available evidence
-    → Needs More Evidence. Do not pick a side by default.
+    -> Needs More Evidence. Do not pick a side by default.
 ```
 
 Never pick a side by preference, newest file, or code-alone. Investigate:
@@ -504,7 +504,7 @@ temporary, replaced? Does Git show a migration? Does configuration
 activate it? Is the documentation stale or historical? Determine what the
 evidence collectively supports.
 
-Record the resolution explicitly — a future Agent should be able to see
+Record the resolution explicitly - a future Agent should be able to see
 *why* one source won and the others didn't, not just that they no longer
 match.
 
@@ -512,7 +512,7 @@ match.
 
 # Semantic Duplicate Detection
 
-Look for semantic duplication, not identical text — including duplication
+Look for semantic duplication, not identical text - including duplication
 spanning different origin tools (e.g. the same rationale appearing
 independently in `AGENTS.md`, `CLAUDE.md`, and `docs/architecture/`).
 
@@ -535,7 +535,7 @@ not create a duplicate document.
 
 Ownership: for every durable finding determine Primary Type, Primary
 Location Candidate, and Related Knowledge. Do not assign multiple primary
-homes — even when the knowledge currently exists in multiple origin tools.
+homes - even when the knowledge currently exists in multiple origin tools.
 If a related unit (e.g. a Lesson next to a Solution) contains no distinct
 information, do not create it.
 
@@ -571,14 +571,14 @@ debugging noise, unverified hypothesis, generic programming advice, task
 completion summary with no reusable insight, or already obvious from
 nearby code.
 
-"Ran npm install and it completed successfully" — not durable.
+"Ran npm install and it completed successfully" - not durable.
 "The project must use pnpm because npm-generated lockfile changes break
-deterministic CI dependency graph" — durable if verified.
+deterministic CI dependency graph" - durable if verified.
 
-Durability scale: **High** (useful across many future tasks — architecture,
+Durability scale: **High** (useful across many future tasks - architecture,
 important decision, security constraint, reusable solution), **Medium**
 (specific subsystem or recurring situation), **Low** (narrow or temporary),
-**None** (no long-term value — do not preserve).
+**None** (no long-term value - do not preserve).
 
 ## Compound Engineering Compatibility
 
@@ -623,12 +623,12 @@ meaningful reusable learning.
    scale. Never upgrade because a conclusion seems reasonable or a source
    looked authoritative.
 7. **Detect duplication and cross-source conflict.** Does equivalent
-   knowledge already exist — in more than one origin tool? If duplicated
-   and consistent → Update / Link / Consolidate the existing primary
-   knowledge. If duplicated and conflicting → Cross-Source Conflict
+   knowledge already exist - in more than one origin tool? If duplicated
+   and consistent -> Update / Link / Consolidate the existing primary
+   knowledge. If duplicated and conflicting -> Cross-Source Conflict
    Resolution above. Do not create a duplicate document.
 8. **Determine action.** Recommend one action from the vocabulary below.
-   Recommendation to the parent Agent — do not execute it.
+   Recommendation to the parent Agent - do not execute it.
 
 ---
 
@@ -636,18 +636,18 @@ meaningful reusable learning.
 
 Vocabulary: recommendation only, never executed by this skill.
 
-- **Create** — durable knowledge is missing, evidence is sufficient, no
+- **Create** - durable knowledge is missing, evidence is sufficient, no
   existing primary knowledge owns it.
-- **Update** — existing knowledge is useful but incomplete or stale.
-- **Consolidate** — multiple documents, regardless of origin tool, contain
+- **Update** - existing knowledge is useful but incomplete or stale.
+- **Consolidate** - multiple documents, regardless of origin tool, contain
   overlapping knowledge.
-- **Supersede** — existing knowledge is still useful but no longer
+- **Supersede** - existing knowledge is still useful but no longer
   current; identify the replacement.
-- **Preserve as History** — operationally obsolete but valuable for
+- **Preserve as History** - operationally obsolete but valuable for
   understanding the current system.
-- **Delete** — invalid, no meaningful historical value.
-- **Ignore** — valid but not worth long-term memory.
-- **Needs More Evidence** — classification cannot be safely determined.
+- **Delete** - invalid, no meaningful historical value.
+- **Ignore** - valid but not worth long-term memory.
+- **Needs More Evidence** - classification cannot be safely determined.
   Do not guess.
 
 ---
@@ -747,8 +747,8 @@ AND no meaningful historical value
 AND keeping it could mislead future Agents
 ```
 
-If historical value exists → History. If a replacement exists and the old
-knowledge still explains the transition → Superseded / History, not
+If historical value exists -> History. If a replacement exists and the old
+knowledge still explains the transition -> Superseded / History, not
 delete.
 
 ---
@@ -766,7 +766,7 @@ Single ambiguous log line
 Unconfirmed architecture interpretation
 ```
 
-into durable project knowledge — regardless of which tool or Agent
+into durable project knowledge - regardless of which tool or Agent
 produced the original claim.
 
 Use:
@@ -796,7 +796,7 @@ the recommended action.
 - Obsolete requires all four conditions (invalid, no operational value, no
   historical value, misleading if kept).
 - Do not delete or degrade historical knowledge merely because it is old.
-- Unresolved cross-source conflict → Needs More Evidence, never a side
+- Unresolved cross-source conflict -> Needs More Evidence, never a side
   picked by preference, newest file, or code-alone.
 - No unverified claim is classified as durable knowledge; assumptions and
   hypotheses stay Needs More Evidence.
@@ -811,7 +811,7 @@ the recommended action.
 
 # Completion Criteria
 
-Applicable criteria — all satisfied, or classification is incomplete:
+Applicable criteria - all satisfied, or classification is incomplete:
 
 ```text
 Subject identified
@@ -827,7 +827,7 @@ If classification cannot be safely completed, return
 `Needs More Evidence` rather than guessing.
 
 Final principle: classification exists so that important knowledge reaches
-the correct type, state, owner, evidence, and future action — regardless of
+the correct type, state, owner, evidence, and future action - regardless of
 how many tools, Agents, or people originally wrote it down. The best
 classification answers: "What is this, is it still true, why does it
 matter, and where should I look for the authoritative knowledge?"

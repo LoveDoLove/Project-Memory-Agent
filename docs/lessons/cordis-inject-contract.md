@@ -1,5 +1,5 @@
 ---
-title: "Cordis Plugin Contract — inject, patch, and bundle mechanics"
+title: "Cordis Plugin Contract - inject, patch, and bundle mechanics"
 problem_type: knowledge
 category: architecture_pattern
 module: "dsh / cordis"
@@ -28,16 +28,16 @@ Cordis reads `inject` from the plugin's module export to decide which services t
 // CORRECT:
 export const inject = ['skills']
 export function apply(ctx) {
-  const skills = ctx.skills  // safe — waited for
+  const skills = ctx.skills  // safe - waited for
 }
 
-// WRONG: missing inject → apply() called before skills exists
+// WRONG: missing inject -> apply() called before skills exists
 export function apply(ctx) {
   const skills = ctx.skills  // TypeError: cannot get property "skills" without inject
 }
 ```
 
-**Reference:** `@deepseek-ai/dsh-skill-badge` uses `const inject = ["skills"]` — same pattern.
+**Reference:** `@deepseek-ai/dsh-skill-badge` uses `const inject = ["skills"]` - same pattern.
 
 ---
 
@@ -46,11 +46,11 @@ export function apply(ctx) {
 DSH composes the plugin tree by applying patch layers in order:
 
 ```text
-dsh-base         → cordis.patch.yml (core plugins)
-dsh-web-app      → cordis.patch.yml (web UI)
-[other bundles]  → their patches
+dsh-base         -> cordis.patch.yml (core plugins)
+dsh-web-app      -> cordis.patch.yml (web UI)
+[other bundles]  -> their patches
 ────────────────────────────────
-profile cordis.patch.yml  (user customizations — KEEP CLEAN)
+profile cordis.patch.yml  (user customizations - KEEP CLEAN)
 ```
 
 **Rule:** A plugin MUST NOT write its loader entries to the profile's `cordis.patch.yml`. The plugin's own `cordis.patch.yml` (declared in `package.json` as `dsh.bundle.patch`) is automatically loaded when the package is listed in `dsh.profile.bundles`.
@@ -69,13 +69,13 @@ TypeError: duplicate loader entry id: <id>
 JavaScript block comments end at the first `*/` encountered, even inside string-like content:
 
 ```javascript
-// BROKEN — */ closes the comment prematurely:
+// BROKEN - */ closes the comment prematurely:
 /**
  * registers every skills/*/SKILL.md found there
  */
-// The word "found" is now parsed as code → SyntaxError
+// The word "found" is now parsed as code -> SyntaxError
 
-// FIXED — escape the characters:
+// FIXED - escape the characters:
 /**
  * registers every skills\/\*\/SKILL.md found there
  */

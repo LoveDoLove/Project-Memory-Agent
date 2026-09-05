@@ -164,7 +164,7 @@ conventions are actually coherent, not accidental.
 
 # Project Glossary (CONCEPTS.md)
 
-A repository may keep a shared project vocabulary — a repo-root
+A repository may keep a shared project vocabulary - a repo-root
 `CONCEPTS.md` (or an equivalent `docs/glossary.md` per the repo's
 conventions) recording domain terms with project-specific meaning.
 
@@ -180,14 +180,14 @@ Design rules:
 - **One line per entry.** The file stays scannable; deep meaning lives in
   the owning unit.
 
-Glossary consultation rules are owned by `knowledge-classification` — do
+Glossary consultation rules are owned by `knowledge-classification` - do
 not redefine them here.
 
 ---
 
 # Domain Maturity
 
-## Stage 0 — Minimal
+## Stage 0 - Minimal
 
 ```text
 AGENTS.md
@@ -195,7 +195,7 @@ AGENTS.md
 
 Little durable project-specific knowledge.
 
-## Stage 1 — Small
+## Stage 1 - Small
 
 ```text
 AGENTS.md
@@ -205,7 +205,7 @@ docs/
 
 A small amount of structured knowledge; multiple domains not yet justified.
 
-## Stage 2 — Domain-Based
+## Stage 2 - Domain-Based
 
 ```text
 AGENTS.md
@@ -223,7 +223,7 @@ docs/
 
 Multiple knowledge domains have meaningful content.
 
-## Stage 3 — Nested Domains
+## Stage 3 - Nested Domains
 
 ```text
 docs/
@@ -274,7 +274,7 @@ Every related subsystem
 
 Indexes should narrow retrieval.
 
-## Level 0 — Always Read
+## Level 0 - Always Read
 
 `AGENTS.md`. Contains only:
 
@@ -287,7 +287,7 @@ Verification expectations
 Memory navigation
 ```
 
-## Level 1 — Domain Orientation
+## Level 1 - Domain Orientation
 
 `docs/<domain>/README.md`. Contains:
 
@@ -300,7 +300,7 @@ Relationships
 
 It must not reproduce the underlying documents.
 
-## Level 2 — Focused Knowledge
+## Level 2 - Focused Knowledge
 
 ```text
 docs/architecture/security/trust-boundaries.md
@@ -308,7 +308,7 @@ docs/architecture/security/trust-boundaries.md
 
 Contains one coherent knowledge unit.
 
-## Level 3 — Related Detail
+## Level 3 - Related Detail
 
 Load related documents only when the current task requires them:
 
@@ -344,8 +344,8 @@ Boundary test:
 > Can a future Agent retrieve this file independently to answer a specific
 > engineering question?
 
-Yes → candidate for a separate file. No → keep the concept together. Do not
-split tightly coupled information merely to satisfy a category — six
+Yes -> candidate for a separate file. No -> keep the concept together. Do not
+split tightly coupled information merely to satisfy a category - six
 `authentication-*.md` files normally understood together are worse than one
 `authentication.md` with a related Decision referenced separately.
 
@@ -385,7 +385,7 @@ be better than many tiny files.
 
 When a domain contains multiple focused knowledge units, create
 `README.md` (or `index.md`). The index is a navigation map, not a summary
-database. It must never duplicate the content of the documents it indexes —
+database. It must never duplicate the content of the documents it indexes -
 an index that restates every document's content creates duplicate knowledge.
 
 A useful index answers:
@@ -411,21 +411,21 @@ than a generic table of contents:
 ```markdown
 ## Read When
 
-- Changing authentication → `security/authentication.md`
-- Modifying background execution → `runtime/background.md`
-- Changing persistence → `data/storage.md`
-- Investigating build failures → `../solutions/build/`
+- Changing authentication -> `security/authentication.md`
+- Modifying background execution -> `runtime/background.md`
+- Changing persistence -> `data/storage.md`
+- Investigating build failures -> `../solutions/build/`
 ```
 
 ---
 
 # Cross-References
 
-Cross-references express relationships (Decision→Architecture,
-Solution→Lesson, Current→History, Current→Superseded, Constraint→Decision,
-Workflow→Constraint). Do not add links merely to increase connectivity.
+Cross-references express relationships (Decision->Architecture,
+Solution->Lesson, Current->History, Current->Superseded, Constraint->Decision,
+Workflow->Constraint). Do not add links merely to increase connectivity.
 
-Direction: General→Specific (`AGENTS.md` → domain index → topic), never
+Direction: General->Specific (`AGENTS.md` -> domain index -> topic), never
 every-document↔every-document. Use a link only when it reduces retrieval
 cost; avoid links that duplicate information, create circular navigation,
 or force unnecessary reading. A document should remain understandable
@@ -501,7 +501,7 @@ every future Agent.
 Agent-oriented operational entry point. They may reference each other but
 must not become duplicate knowledge bases. Use repository root for what
 Agents must discover immediately, `docs/` for deeper durable knowledge, and
-never duplicate the same knowledge between them — assign one canonical
+never duplicate the same knowledge between them - assign one canonical
 owner.
 
 ---
@@ -521,14 +521,14 @@ directory tree, and do not create one directory per knowledge unit.
 ## Structural Duplication
 
 Same concept, rationale, workflow, constraint, historical explanation, or
-solution stored in multiple places — including places produced by different
+solution stored in multiple places - including places produced by different
 origin tools. Do not solve structural duplication by adding links while
 leaving conflicting canonical copies. Choose one Primary Owner; everything
 else references it.
 
 ## Semantic Duplication
 
-Two files can be duplicates even when their text is different — e.g.
+Two files can be duplicates even when their text is different - e.g.
 `docs/architecture/auth.md`, `docs/decisions/authentication-choice.md`, and
 `CLAUDE.md` § Authentication all containing the same rationale. Resolution
 pattern: Architecture owns how it works; Decision owns why it was selected;
@@ -546,14 +546,14 @@ For each proposed file:
 4. Which document is authoritative for related knowledge?
 5. Can this file be loaded independently?
 
-Unanswerable → boundary unclear.
+Unanswerable -> boundary unclear.
 
 ---
 
 # Retrieval
 
 Validate by simulating future Agent tasks ("Modify authentication", "Fix
-recurring Gradle build failure"), not by looking at the tree — the
+recurring Gradle build failure"), not by looking at the tree - the
 architecture must serve the question a future Agent will actually ask. If
 an Agent must read 20 unrelated files, the architecture is too broad.
 Retrieval cost = initial context + navigation + irrelevant knowledge loaded
@@ -564,8 +564,8 @@ Retrieval cost = initial context + navigation + irrelevant knowledge loaded
 # Compound Engineering Compatibility
 
 Architecture should absorb durable knowledge without turning every
-completed engineering task into a new document. Flow: engineering work →
-knowledge-compounding → durable knowledge → knowledge-classification →
+completed engineering task into a new document. Flow: engineering work ->
+knowledge-compounding -> durable knowledge -> knowledge-classification ->
 memory-architecture. Then strengthen existing knowledge where possible, or
 create one focused unit when genuinely new. The architecture should evolve
 from accumulated engineering knowledge rather than from arbitrary
@@ -576,7 +576,7 @@ documentation templates.
 When several verified Solutions share the same mechanism, generalize them
 into one pattern unit (a Lesson or a `patterns/` unit) and point the
 Solutions at it. A pattern outranks any single incident-level Solution in
-retrieval value — and outranks it in staleness risk, because future work
+retrieval value - and outranks it in staleness risk, because future work
 treats it as broadly applicable. Promote only when the shared mechanism is
 verified across at least two units; never force unrelated Solutions
 together.
@@ -624,11 +624,11 @@ Canonical Type (Architecture | Decision | Solution | Lesson | Constraint |
       ↓
 Canonical Target Path
       ↓
-Origin Sources → Disposition
-    <origin path 1> → Merge into canonical
-    <origin path 2> → Delete (fully redundant once merged)
-    <origin path 3> → Preserve as Historical (explains a past divergence)
-    <origin path 4> → Keep as thin pointer to canonical (tool-specific
+Origin Sources -> Disposition
+    <origin path 1> -> Merge into canonical
+    <origin path 2> -> Delete (fully redundant once merged)
+    <origin path 3> -> Preserve as Historical (explains a past divergence)
+    <origin path 4> -> Keep as thin pointer to canonical (tool-specific
                        entry point that must remain, e.g. CLAUDE.md)
 ```
 
@@ -636,10 +636,10 @@ Origin Sources → Disposition
 
 When `knowledge-discovery` flags competing primary entry points (commonly
 `AGENTS.md` and `CLAUDE.md`, or either of these plus `.cursor/rules/`),
-design one of these outcomes — do not leave the ambiguity unresolved:
+design one of these outcomes - do not leave the ambiguity unresolved:
 
 ```text
-Option A — Single Canonical Entry Point
+Option A - Single Canonical Entry Point
 AGENTS.md becomes the sole source of navigation and critical rules.
 Other tool-specific files become thin pointers:
 
@@ -647,7 +647,7 @@ Other tool-specific files become thin pointers:
     "See AGENTS.md for project rules and navigation. This file exists
     only for Claude-specific tooling notes, if any."
 
-Option B — Synchronized Parallel Entry Points
+Option B - Synchronized Parallel Entry Points
 Only when the repository has a genuine reason to need tool-specific
 divergence (rare). Requires an explicit Decision recording why parallel
 entry points are necessary and how they will be kept in sync. Absent that
@@ -692,7 +692,7 @@ Actual migration belongs to `memory-edit`.
 
 # Empty Structure / Progressive Growth
 
-Never recommend empty scaffolding for symmetry — no domain directories
+Never recommend empty scaffolding for symmetry - no domain directories
 without meaningful content. Grow only when retrieval needs grow: Stage 0/1
 first; add domains when meaningful verified knowledge exists; nest only
 when complexity justifies it. Do not jump directly to the most complex
@@ -753,19 +753,19 @@ AGENTS.md
 
 ### Documents To Create
 
-* <path> — <purpose>
+* <path> - <purpose>
 
 ### Documents To Merge
 
-* <paths> → <canonical path>
+* <paths> -> <canonical path>
 
 ### Documents To Move
 
-* <source> → <destination>
+* <source> -> <destination>
 
 ### Documents To Remove
 
-* <path> — <reason>
+* <path> - <reason>
 
 ### AGENTS.md Changes
 
@@ -811,7 +811,7 @@ Expected path:
 # Minimal Mode
 
 Small repositories may need only `AGENTS.md` plus a single `docs/README.md`
-(or one focused document) — do not force domain scaffolding.
+(or one focused document) - do not force domain scaffolding.
 
 If the existing architecture is already good, do not redesign for the sake
 of change. Return:
@@ -838,17 +838,17 @@ Recommended Changes:
 
 # Architecture Quality Checklist
 
-- **Discoverability** — can an Agent find relevant knowledge from `AGENTS.md`?
-- **Progressive loading** — can the Agent avoid loading unrelated knowledge?
-- **Ownership** — one canonical home per important concept, across all origin tools?
-- **Duplication** — same rationale stored in multiple places, including cross-tool?
-- **Lifecycle** — current and historical knowledge clearly separated?
-- **Boundaries** — each document a meaningful retrieval unit?
-- **Navigation** — do indexes help an Agent choose what to read?
-- **Entry points** — exactly one canonical Agent-facing entry point, others thin pointers or explicitly justified parallels?
-- **Stability** — paths based on stable concepts, not temporary states?
-- **Scalability** — can the structure grow without becoming a giant tree?
-- **Retrieval cost** — common tasks reach relevant knowledge with minimal context?
+- **Discoverability** - can an Agent find relevant knowledge from `AGENTS.md`?
+- **Progressive loading** - can the Agent avoid loading unrelated knowledge?
+- **Ownership** - one canonical home per important concept, across all origin tools?
+- **Duplication** - same rationale stored in multiple places, including cross-tool?
+- **Lifecycle** - current and historical knowledge clearly separated?
+- **Boundaries** - each document a meaningful retrieval unit?
+- **Navigation** - do indexes help an Agent choose what to read?
+- **Entry points** - exactly one canonical Agent-facing entry point, others thin pointers or explicitly justified parallels?
+- **Stability** - paths based on stable concepts, not temporary states?
+- **Scalability** - can the structure grow without becoming a giant tree?
+- **Retrieval cost** - common tasks reach relevant knowledge with minimal context?
 
 ---
 
@@ -857,7 +857,7 @@ Recommended Changes:
 1. No empty domains, placeholder files, or structure for structure's sake.
 2. One canonical owner per concept; no parallel authoritative copies across
    origin tools.
-3. No detailed knowledge in `AGENTS.md` — navigation and critical rules
+3. No detailed knowledge in `AGENTS.md` - navigation and critical rules
    only.
 4. Indexes are navigation maps; never duplicate the documents they index.
 5. Do not over-fragment coupled concepts; do not merge unrelated ones.

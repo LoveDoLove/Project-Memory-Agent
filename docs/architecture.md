@@ -1,5 +1,5 @@
 ---
-title: "Project Memory — System Architecture"
+title: "Project Memory - System Architecture"
 category: reference
 status: active
 created: "2026-09-05"
@@ -26,9 +26,9 @@ The core memory pipeline: 8 specialized skills plus an orchestrator agent.
 Installed into each tool via `install.ps1`:
 
 ```
-~/.claude/skills/          ← Claude / Codex
-~/.config/opencode/skills/ ← OpenCode
-~/.dsh/profiles/<name>/node_modules/ ← DeepSeek Harness
+~/.claude/skills/          <- Claude / Codex
+~/.config/opencode/skills/ <- OpenCode
+~/.dsh/profiles/<name>/node_modules/ <- DeepSeek Harness
 ```
 
 ### 2. DSH Plugin (npm package)
@@ -63,10 +63,10 @@ then applies the profile's own `cordis.patch.yml` on top.
 ### Two-Layer Patch System
 
 ```
-dsh-base            → cordis.patch.yml (core plugins)
-dsh-web-app         → cordis.patch.yml (web UI plugins)
+dsh-base            -> cordis.patch.yml (core plugins)
+dsh-web-app         -> cordis.patch.yml (web UI plugins)
 ...
-@lovedolove/dsh-project-memory → cordis.patch.yml (skill mount + glue)
+@lovedolove/dsh-project-memory -> cordis.patch.yml (skill mount + glue)
 ────── BUNDLE LAYERS ABOVE ──────
 ────── PROFILE PATCH BELOW ──────
 profile/cordis.patch.yml (user customizations, kept empty by default)
@@ -74,10 +74,10 @@ profile/cordis.patch.yml (user customizations, kept empty by default)
 
 The plugin's `cordis.patch.yml` adds two rows:
 
-1. **`skill-filesystem`** — registers the workspace's `skills/` directory
+1. **`skill-filesystem`** - registers the workspace's `skills/` directory
    as a custom skill root so the 8 Project Memory skills are discoverable
    via the skill registry.
-2. **`project-memory-dsh`** — loads `dsh/plugin.mjs`, the runtime glue
+2. **`project-memory-dsh`** - loads `dsh/plugin.mjs`, the runtime glue
    that re-registers skills dynamically, injects first-time-init hints,
    and posts-task memory prompts.
 
@@ -94,7 +94,7 @@ boot time.
 
 The glue plugin exports:
 - `name`: plugin identifier
-- `inject`: `['skills']` — tells Cordis to wait until `ctx.skills` is
+- `inject`: `['skills']` - tells Cordis to wait until `ctx.skills` is
   available before calling `apply()`
 - `apply(ctx)`: registers workspace skills, listens for session events,
   injects prompts
@@ -103,9 +103,9 @@ The glue plugin exports:
 
 ## Skill Registration Flow
 
-1. DSH loads bundles → applies plugin's `cordis.patch.yml`
+1. DSH loads bundles -> applies plugin's `cordis.patch.yml`
 2. `skill-filesystem` configures `customSkillDirs: [skills]`
-3. `project-memory-dsh` runs `apply(ctx)` → calls
+3. `project-memory-dsh` runs `apply(ctx)` -> calls
    `registerWorkspaceSkills(ctx, workspaceRoot)`
 4. Plugin discovers all `skills/*/SKILL.md` files in the workspace
 5. Each skill is registered with `ctx.skills.register()`

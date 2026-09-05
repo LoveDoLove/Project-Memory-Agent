@@ -12,7 +12,7 @@ description: >
 # Knowledge Compounding
 
 Turn valuable engineering experience into durable project knowledge. Your
-purpose is not to document everything that happened — it is to identify the
+purpose is not to document everything that happened - it is to identify the
 small amount of knowledge that will make future Agents substantially more
 effective.
 
@@ -66,7 +66,7 @@ Compact durable memory
 
 # Role
 
-You extract and propose. You never modify repository files — approved
+You extract and propose. You never modify repository files - approved
 proposals are applied by `memory-edit`. Final type and state are determined
 by `knowledge-classification`; placement is designed by `memory-architecture`;
 implemented memory is verified by `memory-verification`.
@@ -113,7 +113,7 @@ Evidence confidence scale (High / Medium / Low / Unknown): see
 # Root Cause vs Symptom
 
 Prefer root-cause knowledge. Weak: "Gradle failed; changing version X fixed
-it." Stronger: the verified mechanism — why it failed and what the fix
+it." Stronger: the verified mechanism - why it failed and what the fix
 actually addressed. Only preserve the stronger statement if evidence supports
 it. Do not invent root causes.
 
@@ -121,7 +121,7 @@ it. Do not invent root causes.
 
 # The Durable Bar (Canonical Gate)
 
-Before promoting anything, apply the counterfactual test — it outranks all
+Before promoting anything, apply the counterfactual test - it outranks all
 other criteria:
 
 > If this learning disappeared, would a future Agent reading the final
@@ -134,7 +134,7 @@ recoverable** from the artifacts the work left behind, and losing it would
 plausibly cause recurrence, material risk, or substantial rediscovery.
 
 When the counterfactual fails, propose nothing and say why. When it
-passes, the Promote/Reject criteria below refine — never overrule — it.
+passes, the Promote/Reject criteria below refine - never overrule - it.
 
 ---
 
@@ -144,16 +144,16 @@ Canonical value criteria. Apply this test to every candidate.
 
 ## Promote when
 
-* it is non-obvious — an experienced Agent would need to investigate
-* it is reusable — it helps with another future task
-* it is durable — it remains useful after the current task is forgotten
-* it is evidence-backed — repository or verified evidence supports it
+* it is non-obvious - an experienced Agent would need to investigate
+* it is reusable - it helps with another future task
+* it is durable - it remains useful after the current task is forgotten
+* it is evidence-backed - repository or verified evidence supports it
 * it prevents future mistakes:
   * repeating a failed approach
   * breaking a constraint
   * misunderstanding architecture
   * making an invalid assumption
-* a future Agent would otherwise rediscover it — strongest signal
+* a future Agent would otherwise rediscover it - strongest signal
 * it lets future Agents avoid repeating research, reproduce a verified
   solution, recognize a known failure pattern, respect a constraint,
   understand non-obvious architecture, understand why an approach was
@@ -177,9 +177,9 @@ Test:
 > If a future Agent can obtain the same information immediately by reading the
 > obvious nearby code, it does not belong in Project Memory.
 
-Compounding value: High / Medium / Low / None. High — substantially affects
-future engineering decisions. Medium — useful within a subsystem or recurring
-workflow. Low — narrow; preserve only if retrieval cost is low. None — do not
+Compounding value: High / Medium / Low / None. High - substantially affects
+future engineering decisions. Medium - useful within a subsystem or recurring
+workflow. Low - narrow; preserve only if retrieval cost is low. None - do not
 compound.
 
 ---
@@ -253,10 +253,10 @@ A proposed Solution carries one of two tracks, decided by the problem it
 solves:
 
 ```text
-Bug track       — the problem is a diagnosed defect (build_error,
+Bug track       - the problem is a diagnosed defect (build_error,
                   test_failure, runtime_error, performance_issue,
                   integration_issue, security_issue, ui_bug, logic_error)
-Knowledge track — the problem is a gap in practice (best_practice,
+Knowledge track - the problem is a gap in practice (best_practice,
                   convention, tooling_decision, workflow_issue,
                   developer_experience, architecture_pattern,
                   documentation_gap)
@@ -266,16 +266,16 @@ Required fields by track, beyond the shared Problem / Solution /
 Verification / Evidence:
 
 ```text
-Bug track       — symptoms (observable failures), root_cause (verified
+Bug track       - symptoms (observable failures), root_cause (verified
                   mechanism), resolution_type (code_fix | migration |
                   config_change | test_fix | dependency_update | ...)
-Knowledge track — applies_when (conditions where the guidance applies);
+Knowledge track - applies_when (conditions where the guidance applies);
                   symptoms / root_cause optional, never required
 ```
 
 Do not force bug-track fields onto knowledge-track learnings or vice
 versa. Open-vocabulary values (`component`, `root_cause`, `problem_type`)
-follow the corpus-first rule in `knowledge-classification` — sample the
+follow the corpus-first rule in `knowledge-classification` - sample the
 corpus before choosing, never coin a near-synonym.
 
 ---
@@ -414,7 +414,7 @@ Update / Supersede / Historical / Flag for Removal
 ```
 
 Do not silently append contradictory information. Do not automatically
-rewrite historical knowledge into current knowledge — preserve as History if
+rewrite historical knowledge into current knowledge - preserve as History if
 it explains the current system; recommend removal or supersession if it is
 actively misleading.
 
@@ -464,10 +464,10 @@ One Lesson per minor incident
 ```
 
 When several findings express the same durable idea, compress them into one
-knowledge unit. Do not lose important distinctions during compression —
+knowledge unit. Do not lose important distinctions during compression -
 preserve conditions, exceptions, constraints, and evidence.
 
-Maximize knowledge density — the ratio of useful engineering information to
+Maximize knowledge density - the ratio of useful engineering information to
 document volume. Avoid long narrative, chronological logs, repeated
 background, generic explanations, and implementation trivia. Never sacrifice
 important constraints merely to make knowledge shorter.
@@ -478,7 +478,7 @@ important constraints merely to make knowledge shorter.
 
 Grounding, overlap detection, and cross-referencing each assume a single
 solved problem. When several findings qualify, rank them, then compound
-the single strongest one this run — the parent Agent runs the compounding
+the single strongest one this run - the parent Agent runs the compounding
 phase again for the next candidate. Never batch several unrelated
 learnings into one proposal document, and never merge their rationale so
 they can share a write. A proposal may list lower-ranked candidates as
@@ -489,7 +489,7 @@ they can share a write. A proposal may list lower-ranked candidates as
 # Vocabulary Capture (CONCEPTS.md)
 
 While compounding, flag domain terms the work used with project-specific
-meaning — names the codebase, docs, and future work must mean the same
+meaning - names the codebase, docs, and future work must mean the same
 thing by. Propose each as a short glossary entry (term + one-line
 definition), tagged for the parent Agent to apply via `memory-edit`
 alongside the learning.
@@ -502,7 +502,7 @@ Rules:
   shares is noise.
 - Never a catch-all. Definitional findings are Reference units or stay in
   the learning's own body; the glossary is not a knowledge dump.
-- Glossary rules are owned by `knowledge-classification` — do not
+- Glossary rules are owned by `knowledge-classification` - do not
   redefine them here.
 
 ---
@@ -538,12 +538,12 @@ After mechanical validation, check for semantic accuracy:
 ## Claim Verification Rules
 
 ```text
-File paths     → verify with glob/grep
-Function names → verify with codebase-memory
-API endpoints  → verify with route discovery
-Behaviors      → verify with tests or manual verification
-Config values  → verify with config files
-Dependencies   → verify with package manifests
+File paths     -> verify with glob/grep
+Function names -> verify with codebase-memory
+API endpoints  -> verify with route discovery
+Behaviors      -> verify with tests or manual verification
+Config values  -> verify with config files
+Dependencies   -> verify with package manifests
 ```
 
 ## Discrepancy Handling
@@ -579,7 +579,7 @@ knowledge. This prevents duplicates and enables strengthening.
 When auto-memory scan finds related knowledge, tag the provenance:
 
 ```text
-Source: MEMORY.md → domain/index.md → unit.md
+Source: MEMORY.md -> domain/index.md -> unit.md
 Status: active | superseded | deprecated | historical
 Relevance: high | medium | low
 ```
@@ -645,51 +645,51 @@ When session history reveals patterns:
 
 This skill references additional guidance in `references/`:
 
-- `references/grounding-validation.md` — detailed validation rules
-- `references/durable-bar.md` — durable bar test criteria
-- `references/quality-constraints.md` — quality gates and constraints
-- `references/auto-memory.md` — auto-memory scan rules
-- `references/session-history.md` — session history integration
+- `references/grounding-validation.md` - detailed validation rules
+- `references/durable-bar.md` - durable bar test criteria
+- `references/quality-constraints.md` - quality gates and constraints
+- `references/auto-memory.md` - auto-memory scan rules
+- `references/session-history.md` - session history integration
 
 ---
 
 # Compound Engineering Workflow
 
-## Step 1 — Collect work context
+## Step 1 - Collect work context
 
 Task, problem, affected subsystem, changes made, tests performed, failures
 encountered, final outcome.
 
-## Step 2 — Separate noise from signal
+## Step 2 - Separate noise from signal
 
 Drop routine commands, temporary attempts, repeated logs, obvious details.
 Keep unexpected behavior, root causes, constraints, rejected approaches,
 architectural discoveries, reusable solutions.
 
-## Step 3 — Verify the important claims
+## Step 3 - Verify the important claims
 
-Claim → evidence → confidence → limitations. Do not compound unsupported
+Claim -> evidence -> confidence -> limitations. Do not compound unsupported
 reasoning.
 
-## Step 4 — Identify the durable insight
+## Step 4 - Identify the durable insight
 
 Ask: what would we regret forgetting six months from now?
 
-## Step 5 — Select knowledge type
+## Step 5 - Select knowledge type
 
 Solution / Lesson / Decision / Constraint / Workflow / Architecture / History.
 If uncertain, hand off to `knowledge-classification`.
 
-## Step 6 — Search existing memory
+## Step 6 - Search existing memory
 
 Find related knowledge. Prefer strengthening existing memory.
 
-## Step 7 — Determine compounding action
+## Step 7 - Determine compounding action
 
 Create / Update / Strengthen / Consolidate / Link / Ignore / Needs More
 Evidence.
 
-## Step 8 — Produce a compact knowledge proposal
+## Step 8 - Produce a compact knowledge proposal
 
 Do not edit the repository. Return the proposal to the parent Agent.
 
@@ -698,7 +698,7 @@ Do not edit the repository. Return the proposal to the parent Agent.
 # Compound After Verification
 
 ```text
-Plan → Implement → Review → Verify → Identify Learning → Compound Knowledge
+Plan -> Implement -> Review -> Verify -> Identify Learning -> Compound Knowledge
 ```
 
 The compounding step must happen after sufficient verification. Do not turn
@@ -731,7 +731,7 @@ Canonical output contract:
 
 ### Current State
 
-<lifecycle state — see knowledge-classification>
+<lifecycle state - see knowledge-classification>
 
 ### Compounding Value
 
@@ -814,8 +814,8 @@ expand only the findings that require explanation:
 
 A learning that cannot be found does not compound. After a Solution is
 applied, verify the project's instructions would lead a future Agent to
-the store before working in the area it covers — `AGENTS.md` → domain
-index → unit. When they would not, the parent Agent adds the smallest
+the store before working in the area it covers - `AGENTS.md` -> domain
+index -> unit. When they would not, the parent Agent adds the smallest
 pointer, never a copy of the learning. `memory-edit` applies it;
 `memory-verification` confirms it.
 
@@ -823,17 +823,17 @@ pointer, never a copy of the learning. `memory-edit` applies it;
 
 # Relationships
 
-* `knowledge-classification` — answers "what exact knowledge type and state
+* `knowledge-classification` - answers "what exact knowledge type and state
   does this finding represent?"; this Skill answers "what should we remember
   from this experience?" Do not duplicate classification logic.
-* `memory-architecture` — determines where knowledge belongs, how it is
+* `memory-architecture` - determines where knowledge belongs, how it is
   structured, linked, and indexed. Do not design the documentation hierarchy
   here.
-* `memory-edit` — applies approved proposals to the repository. This Skill
+* `memory-edit` - applies approved proposals to the repository. This Skill
   never modifies files.
-* `obsolete-knowledge` — determines delete / preserve as history / mark
+* `obsolete-knowledge` - determines delete / preserve as history / mark
   deprecated / mark superseded when new evidence invalidates old memory.
-* `memory-verification` — verifies implemented memory for accuracy,
+* `memory-verification` - verifies implemented memory for accuracy,
   consistency, non-duplication, navigability. Do not claim verification here.
 
 ---
@@ -842,7 +842,7 @@ pointer, never a copy of the learning. `memory-edit` applies it;
 
 ```text
 Decision:  Use B.
-Rejected:  A — violates platform constraint X.
+Rejected:  A - violates platform constraint X.
 Evidence:  Integration tests + platform verification.
 ```
 
@@ -868,9 +868,9 @@ That is a valid outcome. Do not create a Lesson.
 * Do not create a Lesson merely because a Solution exists.
 * Preserve rejected approaches and history only when future Agents may repeat
   or need them.
-* Prefer compact knowledge over chronological narrative — but never sacrifice
+* Prefer compact knowledge over chronological narrative - but never sacrifice
   constraints, evidence, or limitations for brevity.
-* Compound only after verification — never plans, hypotheses, or temporary
+* Compound only after verification - never plans, hypotheses, or temporary
   debugging state.
 * Do not modify repository files; do not design the documentation hierarchy;
   do not claim post-change verification.
@@ -901,4 +901,4 @@ Recommended Action: Ignore.
 
 That is a valid and successful outcome. Measure success by how much future
 engineering work can be done correctly without repeating the same
-investigation — not by the number of documents created.
+investigation - not by the number of documents created.

@@ -40,15 +40,15 @@ can and cannot be proven.
 
 # Role and Non-Responsibilities
 
-**Read-only** — no file creation, modification, deletion, renaming,
+**Read-only** - no file creation, modification, deletion, renaming,
 documentation rewrites, or index updates. If changes are required, return the
 evidence to the parent Agent, which loads `memory-edit` when appropriate.
 
-**No classification or fixes** — identify candidate knowledge and report
+**No classification or fixes** - identify candidate knowledge and report
 mismatches, but never decide final classification, documentation architecture,
 deletion of stale knowledge, or the `docs/` hierarchy.
 
-**No discovery re-work** — do not re-derive what `knowledge-discovery` owns;
+**No discovery re-work** - do not re-derive what `knowledge-discovery` owns;
 verify what it finds.
 
 ---
@@ -80,7 +80,7 @@ Specific implementation claim
 
 # Evidence Classes
 
-Never audit documentation in isolation — documentation claims are verified
+Never audit documentation in isolation - documentation claims are verified
 against implementation, tests, configuration, build/CI, and history.
 
 ## 1. Source Code
@@ -123,10 +123,10 @@ was temporary, whether a feature was abandoned, whether a migration is
 incomplete.
 
 Check: commit history, file history, blame, renames, moves, relevant tags
-and branches. Sequence: current file → relevant commit → previous version →
-related commits → reason/migration context. Read only related history.
+and branches. Sequence: current file -> relevant commit -> previous version ->
+related commits -> reason/migration context. Read only related history.
 
-Commit messages are historical evidence to compare against repository state —
+Commit messages are historical evidence to compare against repository state -
 not unquestionable truth, and never sufficient evidence for current behavior.
 
 ## 6. Documentation
@@ -149,7 +149,7 @@ audit.
 ## 8. Existing Knowledge Inventory (from `knowledge-discovery`)
 
 Treat any Existing Knowledge Inventory as a list of claims requiring
-verification — not established fact. See "Verifying the Existing Knowledge
+verification - not established fact. See "Verifying the Existing Knowledge
 Inventory" below.
 
 ---
@@ -158,38 +158,38 @@ Inventory" below.
 
 Use this procedure unless the parent Agent specifies a narrower workflow.
 
-1. **Establish scope** — record the requested task, repository area, relevant
+1. **Establish scope** - record the requested task, repository area, relevant
    components, and expected evidence.
-2. **Map repository structure** — identify root, source, tests, config,
+2. **Map repository structure** - identify root, source, tests, config,
    build, CI, docs, agent instructions, skills, Git. Verify languages,
    frameworks, build system, package managers, and test frameworks from
-   configuration or implementation — never infer them solely from directory
+   configuration or implementation - never infer them solely from directory
    names.
-3. **Identify evidence paths** — identify the exact files/directories likely
+3. **Identify evidence paths** - identify the exact files/directories likely
    to contain evidence; avoid reading the entire repository unnecessarily.
-4. **Verify implementation** — inspect source and relevant relationships; use
+4. **Verify implementation** - inspect source and relevant relationships; use
    `codebase-memory` first when material graph verification is useful.
-5. **Verify tests** — determine whether tests support the implementation
+5. **Verify tests** - determine whether tests support the implementation
    claim; record important gaps.
-6. **Verify configuration** — determine whether the relevant behavior is
+6. **Verify configuration** - determine whether the relevant behavior is
    enabled, disabled, conditional, environment-specific, experimental,
    unused, or unknown. Do not classify it beyond what evidence supports.
-7. **Verify build/CI** — check whether the relevant behavior is exercised by
+7. **Verify build/CI** - check whether the relevant behavior is exercised by
    build or CI.
-8. **Check documentation** — compare current claims against implementation
+8. **Check documentation** - compare current claims against implementation
    evidence.
-9. **Investigate history** — use Git history only where it can materially
+9. **Investigate history** - use Git history only where it can materially
    clarify intent, migration, replacement, removal, historical state, or
    rationale.
-10. **Check existing memory** — locate duplicate knowledge, conflicting
+10. **Check existing memory** - locate duplicate knowledge, conflicting
     documents, stale instructions, missing references, and historical
     material presented as current.
-11. **Verify the Existing Knowledge Inventory** — when `knowledge-discovery`
+11. **Verify the Existing Knowledge Inventory** - when `knowledge-discovery`
     supplied one, work through its clusters and record a verification result
     for each.
-12. **Build evidence inventory** — for each important finding, record
+12. **Build evidence inventory** - for each important finding, record
     Finding, Evidence, Scope, Confidence, Limitations.
-13. **Return to parent Agent** — return the evidence without making decisions
+13. **Return to parent Agent** - return the evidence without making decisions
     owned by other skills.
 
 ---
@@ -208,20 +208,20 @@ Verified Current | Verified Historical | Contradicted | Partially Verified | Unv
 
 Prioritize verification of:
 
-- `Conflicting` clusters — repository evidence is what resolves them.
+- `Conflicting` clusters - repository evidence is what resolves them.
 - Claims backing current operational guidance in Agent-facing entry points
   (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and similar).
 - Claims that, if wrong, would cause a future Agent to violate a constraint
   or repeat a rejected approach.
 
 Do not re-derive the inventory yourself if `knowledge-discovery` has already
-produced one — verify it. If no inventory was produced and existing knowledge
+produced one - verify it. If no inventory was produced and existing knowledge
 sources are present, note this as a scope limitation and, when the task
 warrants it, recommend the parent Agent load `knowledge-discovery` before
 proceeding.
 
 When auditing existing memory, inspect knowledge across **every** origin
-tool, not only `docs/` — AGENTS.md, CLAUDE.md, `.cursor/rules/`,
+tool, not only `docs/` - AGENTS.md, CLAUDE.md, `.cursor/rules/`,
 `.windsurfrules`, `.github/copilot-instructions.md`, `.claude/`, `skills/`,
 `agents/`, and `docs/` subdirectories (architecture, decisions, solutions,
 lessons, constraints, workflows, history, reference).
@@ -242,7 +242,7 @@ This section is the canonical Project Memory definition of the
 rules. Other skills reference this section instead of duplicating it.
 
 For material repository claims, use `codebase-memory` as the default
-graph-based verification layer when available — for definitions, references,
+graph-based verification layer when available - for definitions, references,
 call paths, dependencies, module and architecture relationships, feature
 usage, abstraction usage, and implementation relationships.
 
@@ -344,7 +344,7 @@ Limitations:
 Did not audit external identity provider configuration.
 ```
 
-Banned vague verdicts — never output:
+Banned vague verdicts - never output:
 
 ```text
 Seems correct.
@@ -362,7 +362,7 @@ Convert uncertainty into explicit limitations.
 This section is the canonical Project Memory negative-claims discipline.
 Other skills reference this section instead of duplicating it.
 
-Negative claims require stronger evidence — e.g. "the project does not use
+Negative claims require stronger evidence - e.g. "the project does not use
 Redis", "there is no authentication middleware", "the old API has been
 completely removed", "no tests exist for this feature".
 
@@ -398,7 +398,7 @@ removed, entirely migrated** require explicit scope evidence.
 Before making an exhaustive claim:
 
 ```text
-Define Scope → Enumerate Relevant Paths → Inspect Coverage → Cross-check Dependencies/References → Inspect History if Relevant → Report Limitations
+Define Scope -> Enumerate Relevant Paths -> Inspect Coverage -> Cross-check Dependencies/References -> Inspect History if Relevant -> Report Limitations
 ```
 
 If adequate coverage is unavailable, qualify the claim.
@@ -426,7 +426,7 @@ Confidence
 ```
 
 When implementation and documentation disagree, investigate which
-current-state explanation fits — current, incomplete, experimental,
+current-state explanation fits - current, incomplete, experimental,
 temporary, deprecated, or abandoned implementation; stale or historical
 documentation; migration in progress; or unknown. Report the evidence
 supporting each possibility.
@@ -464,13 +464,13 @@ next.
 This section is the canonical Project Memory evidence-quality model. Other
 skills reference this section instead of duplicating it.
 
-- **High** — multiple independent evidence sources agree
+- **High** - multiple independent evidence sources agree
   (e.g. Source + Tests + Configuration).
-- **Medium** — a strong direct source exists but independent corroboration is
+- **Medium** - a strong direct source exists but independent corroboration is
   limited (e.g. Implementation + Documentation).
-- **Low** — evidence is indirect, incomplete, or historical
+- **Low** - evidence is indirect, incomplete, or historical
   (e.g. commit message only).
-- **Unknown** — available evidence is insufficient.
+- **Unknown** - available evidence is insufficient.
 
 Never silently upgrade evidence quality.
 
@@ -576,7 +576,7 @@ Use:
    hypotheses.
 3. Do not treat documentation as automatically current, code as
    automatically sufficient proof, or an existing knowledge source as correct
-   because `knowledge-discovery` found it — verify every claim.
+   because `knowledge-discovery` found it - verify every claim.
 4. Use `codebase-memory` for material graph-based claims, verify exact
    implementation evidence where necessary, use source fallback when graph
    coverage is incomplete, and record evidence limitations.
@@ -584,10 +584,10 @@ Use:
 6. Do not make unsupported negative claims or unsupported exhaustive claims.
 7. Do not modify repository files; do not classify knowledge, decide whether
    stale knowledge should be deleted, or create documentation during the
-   audit — other skills own those decisions.
+   audit - other skills own those decisions.
 8. Do not claim repository-wide coverage from a targeted audit. Do not expand
    scope without a reason.
-9. Do not hide uncertainty — convert it into explicit limitations.
+9. Do not hide uncertainty - convert it into explicit limitations.
 10. Do not report an edit as completed. Do not preserve terminal output as
     knowledge.
 

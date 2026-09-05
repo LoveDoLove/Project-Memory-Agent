@@ -92,10 +92,10 @@ Confidence: High if tests verify claimed behavior
 # Confidence Scale
 
 ```text
-High     — verified against multiple sources (code + tests + config)
-Medium   — verified against one source (code or tests)
-Low      — partially verified or inferred
-Unknown  — cannot verify mechanically
+High     - verified against multiple sources (code + tests + config)
+Medium   - verified against one source (code or tests)
+Low      - partially verified or inferred
+Unknown  - cannot verify mechanically
 ```
 
 ---
@@ -105,10 +105,10 @@ Unknown  — cannot verify mechanically
 ## Types of Discrepancies
 
 ```text
-Outdated Claim    — code has changed since claim was made
-Incorrect Claim   — claim was never accurate
-Incomplete Claim  — claim is partially correct
-Contradictory     — claim conflicts with other verified claims
+Outdated Claim    - code has changed since claim was made
+Incorrect Claim   - claim was never accurate
+Incomplete Claim  - claim is partially correct
+Contradictory     - claim conflicts with other verified claims
 ```
 
 ## Handling Process
@@ -126,7 +126,7 @@ Contradictory     — claim conflicts with other verified claims
 # Integration with Workflow
 
 ```text
-Step 3 (Verify Claims) → Grounding Validation → Step 4 (Identify Insight)
+Step 3 (Verify Claims) -> Grounding Validation -> Step 4 (Identify Insight)
 ```
 
 Grounding validation is not optional. Every factual claim in a knowledge
@@ -136,6 +136,6 @@ proposal must pass mechanical validation before the proposal is finalized.
 
 # References
 
-- `templates/schema.yaml` — canonical frontmatter contract
-- `repository-audit` — evidence gathering workflow
-- `knowledge-classification` — knowledge type definitions
+- `templates/schema.yaml` - canonical frontmatter contract
+- `repository-audit` - evidence gathering workflow
+- `knowledge-classification` - knowledge type definitions

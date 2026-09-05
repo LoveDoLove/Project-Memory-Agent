@@ -82,7 +82,7 @@ unavailable during initial configuration. The project requires
 strategy B."
 
 Test: Would a future Agent rediscover this by reading the build config?
-Answer: No — the config shows the current strategy but not why the
+Answer: No - the config shows the current strategy but not why the
 other strategy was rejected.
 
 Verdict: PASSES durable bar
@@ -94,7 +94,7 @@ Verdict: PASSES durable bar
 Learning: "The project uses TypeScript for type safety."
 
 Test: Would a future Agent rediscover this by reading the codebase?
-Answer: Yes — package.json shows TypeScript, tsconfig.json exists,
+Answer: Yes - package.json shows TypeScript, tsconfig.json exists,
 code uses TypeScript syntax.
 
 Verdict: FAILS durable bar
@@ -105,11 +105,11 @@ Verdict: FAILS durable bar
 # Integration with Workflow
 
 ```text
-Step 0 (Before Compounding) → Durable Bar Test → Step 1 (Collect Context)
+Step 0 (Before Compounding) -> Durable Bar Test -> Step 1 (Collect Context)
 ```
 
 The durable bar test runs BEFORE any other compounding work. If the test
-fails, compounding stops immediately — no research, no analysis, no proposal.
+fails, compounding stops immediately - no research, no analysis, no proposal.
 
 ---
 
@@ -138,6 +138,6 @@ strongest one this run.
 
 # References
 
-- `knowledge-compounding` — main compounding workflow
-- `references/quality-constraints.md` — additional quality gates
-- `knowledge-classification` — knowledge type definitions
+- `knowledge-compounding` - main compounding workflow
+- `references/quality-constraints.md` - additional quality gates
+- `knowledge-classification` - knowledge type definitions

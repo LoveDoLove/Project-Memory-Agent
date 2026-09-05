@@ -1,7 +1,7 @@
 ---
 name: memory-edit
 description: >
-  Applies approved Project Memory changes to repository documentation —
+  Applies approved Project Memory changes to repository documentation -
   scoped additions, modifications, moves, merges, deletions, thin-pointer
   conversions, and navigation updates, including multi-source
   reconstruction consolidating pre-existing origin tools (AGENTS.md,
@@ -32,9 +32,9 @@ approved plan and is the smallest valid change that executes it.
 Do not edit by improvisation. Expected flow:
 
 ```text
-knowledge-discovery → repository-audit → knowledge-classification
-    → knowledge-compounding → memory-architecture
-    → Approved Edit Plan → memory-edit → memory-verification
+knowledge-discovery -> repository-audit -> knowledge-classification
+    -> knowledge-compounding -> memory-architecture
+    -> Approved Edit Plan -> memory-edit -> memory-verification
 ```
 
 `memory-edit` executes the approved plan. It does not silently redesign
@@ -112,9 +112,9 @@ Three origin tools independently described the same authentication flow;
 repository evidence confirms only one description matches current code.
 
 Disposition:
-AGENTS.md   → keep pointer + minimal orientation, link to destination
-CLAUDE.md   → convert to thin pointer to AGENTS.md
-.cursor/rules/auth.md → delete (fully redundant once merged)
+AGENTS.md   -> keep pointer + minimal orientation, link to destination
+CLAUDE.md   -> convert to thin pointer to AGENTS.md
+.cursor/rules/auth.md -> delete (fully redundant once merged)
 ```
 
 If the required information is missing and the edit cannot be performed
@@ -187,7 +187,7 @@ Remove obsolete source
 Forbidden:
 
 ```text
-Delete source → hope replacement exists
+Delete source -> hope replacement exists
 ```
 
 Keep every migration reversible until its destination is established.
@@ -196,7 +196,7 @@ Keep every migration reversible until its destination is established.
 
 # Minimal Edit Principle
 
-Change only what the approved plan requires — the smallest valid edit, no
+Change only what the approved plan requires - the smallest valid edit, no
 unrequested changes. Every unrelated change increases verification cost.
 
 Preserve repository conventions (heading, terminology, link, and formatting
@@ -213,7 +213,7 @@ Create a new knowledge unit only when approved by the architecture plan.
 A new file needs clear purpose, clear ownership, a useful retrieval
 boundary, correct location, correct navigation.
 
-Check whether an existing document — regardless of origin tool — already
+Check whether an existing document - regardless of origin tool - already
 owns the knowledge; if so, reference it instead of creating another copy.
 
 Do not create placeholder content (`TODO`, `TBD`, example content presented
@@ -223,7 +223,7 @@ return the requirement to the parent Agent.
 ## Modify
 
 ```text
-Read → locate exact target → apply smallest valid change → re-read section
+Read -> locate exact target -> apply smallest valid change -> re-read section
 ```
 
 Do not edit based solely on a filename or search result. Preserve all
@@ -232,8 +232,8 @@ approved durable knowledge unless the plan explicitly removes it.
 ## Move
 
 ```text
-Source → read → destination → preserve knowledge → update references
-    → verify destination → remove source
+Source -> read -> destination -> preserve knowledge -> update references
+    -> verify destination -> remove source
 ```
 
 Do not create duplicate long-term copies unless explicitly required.
@@ -241,12 +241,12 @@ Prefer a clean move over delete-and-recreate to preserve file history.
 
 ## Merge
 
-Consolidating documents — including documents from different origin tools:
+Consolidating documents - including documents from different origin tools:
 
 ```text
-Identify canonical owner → combine unique durable knowledge
-    → remove duplicated content → preserve important historical context
-    → update references → remove or thin-point obsolete documents
+Identify canonical owner -> combine unique durable knowledge
+    -> remove duplicated content -> preserve important historical context
+    -> update references -> remove or thin-point obsolete documents
 ```
 
 Do not concatenate documents blindly.
@@ -273,7 +273,7 @@ Principle, applied across tool boundaries:
 1. Establish canonical destination content from verified knowledge
 2. Write canonical destination
 3. Convert non-canonical origin sources to thin pointers, or remove them,
-   per the approved disposition — one file at a time
+   per the approved disposition - one file at a time
 4. Update AGENTS.md navigation
 5. Re-read every touched origin file
 6. Produce edit receipt covering all origin tools touched
@@ -297,7 +297,7 @@ receipt under both `Modified` and a dedicated `Reconciled` entry noting
 which dual-entry-point finding it resolves.
 
 Never route a multi-source reconstruction touching 3+ origin files through
-`cavecrew-builder` — it requires the deliberate scoped workflow, never
+`cavecrew-builder` - it requires the deliberate scoped workflow, never
 mechanical delegation.
 
 ## Delete
@@ -334,20 +334,20 @@ Confirm historical value decision
 Delete
 ```
 
-If references cannot be reasonably assessed, do not blindly delete —
+If references cannot be reasonably assessed, do not blindly delete -
 report the limitation.
 
 ## Lifecycle Marks
 
 Mark deprecated or superseded knowledge per the approved plan, using the
-repository's established status convention — never invent a new one.
+repository's established status convention - never invent a new one.
 Preserve content unless the plan says otherwise; identify the replacement
 for superseded knowledge; never invent a replacement.
 
 ## Obsolete Handling
 
 Execute the approved disposition (delete / historical / superseded /
-deprecated / thin-pointer) as classified — action semantics and formats are
+deprecated / thin-pointer) as classified - action semantics and formats are
 owned by `obsolete-knowledge`. Do not change the classification during
 editing unless new evidence makes the plan impossible or unsafe.
 
@@ -390,15 +390,15 @@ No Longer Needed
 ```
 
 Do not redirect historical references to current knowledge if doing so
-destroys historical meaning — keep the historical destination explicit.
+destroys historical meaning - keep the historical destination explicit.
 
 ---
 
 # Navigation, Indexes, AGENTS.md
 
 When adding, moving, or removing a knowledge unit, update the appropriate
-navigation: `AGENTS.md` → domain README → focused knowledge. Keep indexes
-concise — one-line links, never copied document content; update paths on
+navigation: `AGENTS.md` -> domain README -> focused knowledge. Keep indexes
+concise - one-line links, never copied document content; update paths on
 move, remove entries on delete.
 
 ### Index-Row Contract
@@ -406,7 +406,7 @@ move, remove entries on delete.
 Every Create / Move / Merge / Delete / Supersede carries its navigation
 row in the **same change set**: domain README rows for created, moved, and
 removed units; AGENTS.md pointer changes for entry-point shifts. An index
-that lists a deleted unit, or omits a created one, silently misleads —
+that lists a deleted unit, or omits a created one, silently misleads -
 treat the row update as part of the edit, not a follow-up.
 
 Treat `AGENTS.md` as high-impact. Modify it only when the approved
@@ -460,7 +460,7 @@ workflow.
 Required flow:
 
 ```text
-Delegate → Read → smallest valid edit → Re-read → Receipt
+Delegate -> Read -> smallest valid edit -> Re-read -> Receipt
 ```
 
 Treat the receipt as edit evidence only; it does not prove repository-wide
@@ -479,7 +479,7 @@ For larger changes:
 4. Check navigation relationships; produce edit receipt
 ```
 
-Splitting: split by retrieval boundary, not line count — identify knowledge
+Splitting: split by retrieval boundary, not line count - identify knowledge
 units, assign canonical ownership, create focused documents, move knowledge,
 update references, remove redundant original content. Consolidation: keep
 unique knowledge, remove duplicate rationale, preserve important history,
@@ -521,7 +521,7 @@ Architecture
 Code
 ```
 
-unless the approved change requires it — a focused change is easier to
+unless the approved change requires it - a focused change is easier to
 verify.
 
 ---
@@ -532,7 +532,7 @@ If editing reveals new information that materially changes the
 architecture:
 
 ```text
-Stop → report discovery → return to classification / architecture
+Stop -> report discovery -> return to classification / architecture
 ```
 
 Do not silently redesign the system while editing. Examples:
@@ -564,43 +564,43 @@ After editing, produce an edit receipt:
 
 ### Created
 
-- `<path>` — <purpose>
+- `<path>` - <purpose>
 
 ### Modified
 
-- `<path>` — <summary>
+- `<path>` - <summary>
 
 ### Moved
 
-- `<source>` → `<destination>`
+- `<source>` -> `<destination>`
 
 ### Merged
 
-- `<sources>` → `<canonical destination>`
+- `<sources>` -> `<canonical destination>`
 
 ### Reconciled (Dual/Competing Sources)
 
-- `<origin path>` — converted to thin pointer to `<canonical path>`
+- `<origin path>` - converted to thin pointer to `<canonical path>`
 
 ### Deleted
 
-- `<path>` — <reason>
+- `<path>` - <reason>
 
 ### Deprecated
 
-- `<path>` — <reason>
+- `<path>` - <reason>
 
 ### Superseded
 
-- `<path>` → `<replacement>`
+- `<path>` -> `<replacement>`
 
 ### Navigation Updated
 
-- `<path>` — <change>
+- `<path>` - <change>
 
 ### References Updated
 
-- `<path>` — <change>
+- `<path>` - <change>
 
 ### Files Re-read
 
@@ -684,7 +684,7 @@ Recommended Recovery
 Identify partial changes clearly.
 
 If a migration cannot be completed safely, preserve the source and report
-the incomplete migration — never delete the source merely to make the tree
+the incomplete migration - never delete the source merely to make the tree
 look clean.
 
 ---
@@ -708,7 +708,7 @@ look clean.
    is the default disposition for tool-specific entry points.
 8. Preserve historical rationale and boundaries; never turn historical
    knowledge into current guidance or redirect historical meaning away.
-9. Do not put detailed knowledge into `AGENTS.md` — pointer over detail.
+9. Do not put detailed knowledge into `AGENTS.md` - pointer over detail.
 10. `cavecrew-builder`: bounded mechanical edits only; never 3+ files,
     never multi-source consolidation or restructuring.
 

@@ -46,10 +46,10 @@ the single strongest one this run.
 ## Definitions
 
 ```text
-High     — verified against multiple sources (code + tests + config)
-Medium   — verified against one source (code or tests)
-Low      — partially verified or inferred
-Unknown  — cannot verify mechanically
+High     - verified against multiple sources (code + tests + config)
+Medium   - verified against one source (code or tests)
+Low      - partially verified or inferred
+Unknown  - cannot verify mechanically
 ```
 
 ## Usage
@@ -67,10 +67,10 @@ Unknown  — cannot verify mechanically
 ## Definitions
 
 ```text
-High     — substantially affects future engineering decisions
-Medium   — useful within a subsystem or recurring workflow
-Low      — narrow; preserve only if retrieval cost is low
-None     — do not compound
+High     - substantially affects future engineering decisions
+Medium   - useful within a subsystem or recurring workflow
+Low      - narrow; preserve only if retrieval cost is low
+None     - do not compound
 ```
 
 ## Usage
@@ -88,19 +88,19 @@ None     — do not compound
 ## States
 
 ```text
-active      — current and applicable
-superseded  — replaced by newer knowledge
-deprecated  — no longer recommended
-historical  — preserved for reference
+active      - current and applicable
+superseded  - replaced by newer knowledge
+deprecated  - no longer recommended
+historical  - preserved for reference
 ```
 
 ## Transitions
 
 ```text
-active → superseded (when newer knowledge replaces it)
-active → deprecated (when no longer recommended)
-active → historical (when no longer current but has value)
-superseded → historical (when superseding knowledge is itself superseded)
+active -> superseded (when newer knowledge replaces it)
+active -> deprecated (when no longer recommended)
+active -> historical (when no longer current but has value)
+superseded -> historical (when superseding knowledge is itself superseded)
 ```
 
 ---
@@ -125,7 +125,7 @@ Before publishing a knowledge proposal:
 # Integration with Workflow
 
 ```text
-Step 7 (Determine Action) → Quality Constraints → Step 8 (Produce Proposal)
+Step 7 (Determine Action) -> Quality Constraints -> Step 8 (Produce Proposal)
 ```
 
 Quality constraints are applied after action determination but before
@@ -135,6 +135,6 @@ proposal production. They ensure the proposal meets all quality gates.
 
 # References
 
-- `knowledge-compounding` — main compounding workflow
-- `references/durable-bar.md` — durable bar test criteria
-- `knowledge-classification` — knowledge type definitions
+- `knowledge-compounding` - main compounding workflow
+- `references/durable-bar.md` - durable bar test criteria
+- `knowledge-classification` - knowledge type definitions
