@@ -12,6 +12,8 @@ $Skills = @('knowledge-classification','knowledge-compounding','knowledge-discov
 $AgentMd = 'agents/project-memory.md'
 $AgentToml = 'agents/project-memory.toml'
 $PluginName = '@lovedolove/dsh-project-memory'
+$AgentCordisYml = 'agent.cordis.yml'
+$PresetYml = 'preset.yml'
 
 function Install-Skills($skillsDir) {
     New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
@@ -116,15 +118,38 @@ function Main {
             }
             'dsh' {
                 $profileName = Get-DshProfileName -ExplicitName $DshProfile
+                $presetDir = Join-Path (Join-Path (Join-Path $env:USERPROFILE '.dsh') '.agent-presets') 'project-memory'
+                New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
                 Write-Host "  DSH profile: $profileName"
                 Write-Host ""
-                Write-Host "  Run:"
+                # Download cordis preset files from GitHub
+                foreach ($f in @($AgentCordisYml, $PresetYml)) {
+                    $u = "$Base/$f"
+                    $d = Join-Path $presetDir $f
+                    if ($Verify) {
+                        Write-Host "  would install: $d"
+                        $script:Installed += $d
+                        continue
+                    }
+                    if ((Test-Path $d) -and -not $Force) {
+                        $ans = Read-Host "Overwrite $d ? [Y/N]"
+                        if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: $d"; continue }
+                    }
+                    try {
+                        Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $d
+                        Write-Host "  installed preset: $d"
+                        $script:Installed += $d
+                    } catch {
+                        Write-Warning "  failed: $u ($_)"
+                        $script:Failures += $u
+                    }
+                }
+                Write-Host ""
+                Write-Host "  Run plugin command:"
                 Write-Host "    dsh plugin --profile $profileName add $PluginName"
                 Write-Host ""
                 Write-Host "  Then dispatch the orchestrator as a subagent:"
                 Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
-                # Seed agent file so the subagent registry can discover it.
-                Install-Agent $AgentMd (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md')
             }
             'all' {
                 Install-Skills "$env:USERPROFILE\.claude\skills"
@@ -133,13 +158,37 @@ function Main {
                 Install-Agent $AgentMd "$env:USERPROFILE\.config\opencode\agents\project-memory.md"
                 Install-Agent $AgentToml "$env:USERPROFILE\.codex\agents\project-memory.toml"
                 $profileName = Get-DshProfileName -ExplicitName $DshProfile
+                $presetDir = Join-Path (Join-Path (Join-Path $env:USERPROFILE '.dsh') '.agent-presets') 'project-memory'
+                New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
+                Write-Host ""
+                # Download cordis preset files from GitHub
+                foreach ($f in @($AgentCordisYml, $PresetYml)) {
+                    $u = "$Base/$f"
+                    $d = Join-Path $presetDir $f
+                    if ($Verify) {
+                        Write-Host "  would install: $d"
+                        $script:Installed += $d
+                        continue
+                    }
+                    if ((Test-Path $d) -and -not $Force) {
+                        $ans = Read-Host "Overwrite $d ? [Y/N]"
+                        if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: $d"; continue }
+                    }
+                    try {
+                        Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $d
+                        Write-Host "  installed preset: $d"
+                        $script:Installed += $d
+                    } catch {
+                        Write-Warning "  failed: $u ($_)"
+                        $script:Failures += $u
+                    }
+                }
                 Write-Host ""
                 Write-Host "  DSH profile: $profileName"
-                Write-Host "  Run:"
+                Write-Host "  Run plugin command:"
                 Write-Host "    dsh plugin --profile $profileName add $PluginName"
                 Write-Host "  Then:"
                 Write-Host "    use_agent(agent: ""project-memory"", prompt: ""compound my last task"")"
-                Install-Agent $AgentMd (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md')
             }
             default { Write-Warning "Unknown target: $t"; $script:Failures += "target:$t" }
         }

@@ -65,27 +65,30 @@ Describe 'install.ps1' {
         (Join-Path $env:USERPROFILE '.agents\agents\project-memory.md') | Should Exist
     }
 
-    It 'dsh target: seeds agent to ~/.dsh/agents/ without touching profile files' {
+    It 'dsh target: installs agent.cordis.yml and preset.yml to preset dir' {
         $script:Target = 'dsh'
         $script:Force = $true
         $script:DshProfile = 'web'
-        # Create fake web profile dir so Get-DshProfileName finds it.
         $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles'
         New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
         New-Item -ItemType Directory -Force -Path (Join-Path $profileDir 'web') | Out-Null
+        # Ensure preset dir exists so Copy-Item works
+        $presetDir = Join-Path $env:USERPROFILE '.dsh\.agent-presets\project-memory'
+        New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
         Main
 
-        # Agent file should be seeded.
-        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
-        # Nothing in $script:Installed should be a profile file.
-        foreach ($item in $script:Installed) {
-            $item -notmatch 'profiles' | Should Be $true
-        }
+        (Join-Path $presetDir 'agent.cordis.yml') | Should Exist
+        (Join-Path $presetDir 'preset.yml') | Should Exist
+        # project-memory.md must NOT be installed to .dsh/agents
+        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Not Exist
     }
 
     It 'all target: installs all platforms + seeds DSH agent' {
         $script:Target = 'all'
         $script:Force = $true
+        # Ensure preset dir exists so Copy-Item works (same as dsh test)
+        $presetDir = Join-Path $env:USERPROFILE '.dsh\.agent-presets\project-memory'
+        New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
         Main
 
         (Get-ChildItem -Directory (Join-Path $env:USERPROFILE '.claude\skills')).Count | Should Be 8
@@ -93,7 +96,11 @@ Describe 'install.ps1' {
         (Join-Path $env:USERPROFILE '.claude\agents\project-memory.md') | Should Exist
         (Join-Path $env:USERPROFILE '.config\opencode\agents\project-memory.md') | Should Exist
         (Join-Path $env:USERPROFILE '.codex\agents\project-memory.toml') | Should Exist
-        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Exist
+        # DSH: preset files installed, not agent.md to .dsh/agents
+        $dshPresetDir = Join-Path $env:USERPROFILE '.dsh\.agent-presets\project-memory'
+        (Join-Path $dshPresetDir 'agent.cordis.yml') | Should Exist
+        (Join-Path $dshPresetDir 'preset.yml') | Should Exist
+        (Join-Path $env:USERPROFILE '.dsh\agents\project-memory.md') | Should Not Exist
     }
 
     It 'all: no double-load into opencode skills' {
