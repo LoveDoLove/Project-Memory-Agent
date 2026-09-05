@@ -257,3 +257,5 @@ export function apply(ctx, config = {}) {
 }
 
 export const name = PLUGIN_ID
+/** Services this plugin requires from Cordis. */
+export const inject = ['skills']
