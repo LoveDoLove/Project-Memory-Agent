@@ -1,5 +1,5 @@
-﻿/**
- * @project-memory-agent/dsh-plugin
+/**
+ * @lovedolove/dsh-plugin
  *
  * Runtime glue for the DSH bundle. Currently minimal — all configuration
  * lives in cordis.patch.yml. This module exists so the package has a valid
