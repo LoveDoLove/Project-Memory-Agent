@@ -1,5 +1,5 @@
 ---
-title: "DSH Plugin Boot Failures â€” Triple-Layer Error Diagnosis"
+title: "DSH Plugin Boot Failures Ã¢â‚¬â€ Triple-Layer Error Diagnosis"
 problem_type: bug
 category: integration_issue
 module: "dsh-plugin / cordis loader"
@@ -37,22 +37,22 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 ```javascript
 // BEFORE (broken):
 /**
- * registers every skills/*/SKILL.md found there  â† */ closes comment
+ * registers every skills/*/SKILL.md found there  Ã¢â€ Â */ closes comment
  */
-// The word "found" is now outside the comment â†’ SyntaxError
+// The word "found" is now outside the comment Ã¢â€ â€™ SyntaxError
 ```
 
 **Fix:** Escape the `/` and `*` inside comments: `skills\/\*\/SKILL.md`
 
 ### 2. Duplicate Loader Entry (TypeError)
 
-`install.ps1` wrote `project-memory-dsh` into the **profile's** `cordis.patch.yml`, while the plugin's own `cordis.patch.yml` (loaded via `dsh.profile.bundles`) also defined the same entry. Cordis applies all patch layers in a single `EntryGroup`, so the same ID registered twice â†’ `duplicate loader entry id`.
+`install.ps1` wrote `project-memory-dsh` into the **profile's** `cordis.patch.yml`, while the plugin's own `cordis.patch.yml` (loaded via `dsh.profile.bundles`) also defined the same entry. Cordis applies all patch layers in a single `EntryGroup`, so the same ID registered twice Ã¢â€ â€™ `duplicate loader entry id`.
 
 **Fix:** `install.ps1` only writes a clean empty layer (`[]`) to the profile patch. The plugin manages its own patches via the bundle mechanism.
 
 ### 3. Missing Inject Declaration (RuntimeError)
 
-`lib/index.js` exported `inject = []` (empty), but `plugin.mjs:apply()` immediately accessed `ctx.skills`. Cordis uses the module's `inject` export to decide which services to wait for before calling `apply()`. Empty array â†’ no waiting â†’ `ctx.skills` not yet available â†’ error.
+`lib/index.js` exported `inject = []` (empty), but `plugin.mjs:apply()` immediately accessed `ctx.skills`. Cordis uses the module's `inject` export to decide which services to wait for before calling `apply()`. Empty array Ã¢â€ â€™ no waiting Ã¢â€ â€™ `ctx.skills` not yet available Ã¢â€ â€™ error.
 
 **Fix:** Add `export const inject = ['skills']` to `plugin.mjs`. Reference: `@deepseek-ai/dsh-skill-badge` uses the same pattern.
 
@@ -60,7 +60,7 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 
 ## Solution
 
-### Step 1 â€” Fix syntax: escape `*/` in JSDoc comments
+### Step 1 Ã¢â‚¬â€ Fix syntax: escape `*/` in JSDoc comments
 
 ```javascript
 // In dsh/plugin.mjs, change:
@@ -69,7 +69,7 @@ The plugin's `dsh/plugin.mjs` contained a JSDoc comment with `skills/*/SKILL.md`
 *      registers every skills\/\*\/SKILL.md found there,
 ```
 
-### Step 2 â€” Fix installer: don't write plugin entries to profile patch
+### Step 2 Ã¢â‚¬â€ Fix installer: don't write plugin entries to profile patch
 
 ```powershell
 # In install.ps1, Remove-Plugin-ToProfile should only write empty layer:
@@ -77,7 +77,7 @@ $emptyPatch = "# Your patch layer...\n[]`n"
 [System.IO.File]::WriteAllText($patchPath, $emptyPatch, [System.Text.UTF8Encoding]::new($false))
 ```
 
-### Step 3 â€” Fix inject: declare required services
+### Step 3 Ã¢â‚¬â€ Fix inject: declare required services
 
 ```javascript
 // In dsh/plugin.mjs, add after export const name:
@@ -91,10 +91,10 @@ Also update `lib/index.js` if it's used as a secondary entry point.
 
 ## Verification
 
-- `node --check dsh-plugin/dsh/plugin.mjs` â†’ exit 0
-- `Invoke-Pester install.tests.ps1` â†’ 10/10 passed
-- `dsh --profile web --dump-config` â†’ loads `project-memory-dsh` correctly
-- `npm view @lovedolove/dsh-project-memory version` â†’ 0.4.2
+- `node --check dsh-plugin/dsh/plugin.mjs` Ã¢â€ â€™ exit 0
+- `Invoke-Pester install.tests.ps1` Ã¢â€ â€™ 10/10 passed
+- `dsh --profile web --dump-config` Ã¢â€ â€™ loads `project-memory-dsh` correctly
+- `npm view @lovedolove/dsh-project-memory version` Ã¢â€ â€™ 0.4.2
 
 ---
 
@@ -125,10 +125,10 @@ This document compresses ~2 hours of debugging into a single reference.
 **Diagnostic sequence for DSH plugin boot failures:**
 
 ```text
-1. SyntaxError â†’ check plugin.mjs for unescaped */ in comments
-2. duplicate loader entry id â†’ check both profile AND plugin cordis.patch.yml
-3. cannot get property "X" without inject â†’ check lib/index.js for inject=['X']
-4. ERR_MODULE_NOT_FOUND â†’ check package is installed
+1. SyntaxError Ã¢â€ â€™ check plugin.mjs for unescaped */ in comments
+2. duplicate loader entry id Ã¢â€ â€™ check both profile AND plugin cordis.patch.yml
+3. cannot get property "X" without inject Ã¢â€ â€™ check lib/index.js for inject=['X']
+4. ERR_MODULE_NOT_FOUND Ã¢â€ â€™ check package is installed
 ```
 
 **Design rule:** A DSH bundle plugin must declare `inject` in its primary entry point. The module's `inject` array tells Cordis which services to resolve before calling `apply()`.
@@ -188,3 +188,61 @@ return REPO_ROOT
 - npm: `@lovedolove/dsh-project-memory@0.4.4`
 - Commit: `cb2bf22`
 - Tests: 9/9 passed
+
+---
+
+## Bug 5: False Init Hint When Workspace Unresolvable (Fixed in v0.4.5)
+
+### Problem
+
+After v0.4.4's walk-up fix, DSH web still showed:
+
+> Project Memory: this workspace has no AGENTS.md yet -- run the
+> `memory-architecture` skill to bootstrap...
+
+when opened from the DSH web GUI, even though AGENTS.md exists.
+
+### Root Cause
+
+`resolveWorkspace()` fell back to `REPO_ROOT` (the plugin package
+directory: `node_modules/@lovedolove/dsh-project-memory`) when no
+candidate cwd resolved. That directory has no AGENTS.md either, so
+`needsInit()` returned `true` → hint injected every session.
+
+The real issue: DSH web GUI runs from its own directory
+(`C:\Users\...\pnpm\bin\node.EXE` or `~/.dsh/profiles/web`), and
+walking up 6 levels from there never reaches the user's project on a
+different drive (`D:\Projects\...`).
+
+### Fix
+
+`resolveWorkspace()` now returns `null` instead of `REPO_ROOT` when no
+workspace is found. The pre-step handler checks `if (workspace && ...)`
+before injecting the init hint. When the workspace can't be determined,
+no hint is shown.
+
+The post-task hint was already safe (it checks AGENTS.md existence
+before queuing).
+
+```javascript
+// Before:
+return REPO_ROOT  // → always has no AGENTS.md → always shows hint
+
+// After:
+return null  // → caller skips init-hint injection
+```
+
+### Why This Is Correct
+
+The init hint is only meaningful when the agent is working in a project
+that lacks AGENTS.md. When DSH can't determine the workspace (web GUI
+without explicit project context), silently skipping is better than
+showing a confusing hint about a directory that isn't the user's project.
+
+Users in headless DSH or when DSH's payload.cwd correctly points to a
+project directory will still get the init hint as expected.
+
+### Evidence
+
+- npm: `@lovedolove/dsh-project-memory@0.4.5`
+- Commit: `40e8819`
