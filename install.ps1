@@ -150,11 +150,16 @@ function Main {
                     $dshCmd = Get-Command 'dsh' -ErrorAction SilentlyContinue
                     if ($dshCmd) {
                         try {
-                            $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
-                            if ($proc.ExitCode -eq 0) {
-                                Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                            if ($dshCmd.CommandType -eq 'ExternalScript') {
+                                # .ps1 scripts can't be started directly via Start-Process; invoke through this session
+                                & $dshCmd.Source plugin --profile $profileName add $PluginName
                             } else {
-                                Write-Warning "  plugin install failed (exit code $($proc.ExitCode))"
+                                $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
+                                if ($proc.ExitCode -eq 0) {
+                                    Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                                } else {
+                                    Write-Warning "  plugin install failed (exit code $($proc.ExitCode))"
+                                }
                             }
                         } catch {
                             Write-Warning "  dsh plugin command failed: $_"
@@ -204,11 +209,15 @@ function Main {
                     $dshCmd = Get-Command 'dsh' -ErrorAction SilentlyContinue
                     if ($dshCmd) {
                         try {
-                            $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
-                            if ($proc.ExitCode -eq 0) {
-                                Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                            if ($dshCmd.CommandType -eq 'ExternalScript') {
+                                & $dshCmd.Source plugin --profile $profileName add $PluginName
                             } else {
-                                Write-Warning "  plugin install failed (exit code $($proc.ExitCode))"
+                                $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
+                                if ($proc.ExitCode -eq 0) {
+                                    Write-Host "  plugin installed: $PluginName on profile '$profileName'"
+                                } else {
+                                    Write-Warning "  plugin install failed (exit code $($proc.ExitCode))"
+                                }
                             }
                         } catch {
                             Write-Warning "  dsh plugin command failed: $_"
