@@ -89,50 +89,22 @@ function Add-Plugin-ToProfile {
         [switch]$InstallOffline,
         [string]$PluginSrc
     )
-    # Ensure cordis.patch.yml contains both the skill mount AND the DSH glue row.
-    # We write the full patch when either entry is missing (idempotent, safe overwrite).
+    # When installing via npm bundle mechanism (package.json bundles),
+    # the plugin's own cordis.patch.yml is applied automatically.
+    # We do NOT write plugin entries to the profile's cordis.patch.yml
+    # to avoid duplicate loader entry IDs.
+    # Only ensure the profile patch exists with a clean empty layer.
     $patchPath = Join-Path $ProfilePath 'cordis.patch.yml'
-    $fullPatch = @"
-# dsh-project-memory: Cordis bundle patch.
-#
-# Two rows:
-#   1. skill-filesystem — register the workspace's skills/ as a custom root
-#      (so the 8 Project Memory skills are discoverable via the skill registry).
-#   2. project-memory-dsh — load the DSH glue plugin (dsh/plugin.mjs) which:
-#      a) re-registers skills dynamically relative to the active workspace,
-#      b) injects a first-time-init hint when AGENTS.md is absent,
-#      c) injects a post-task memory prompt on turn/end when AGENTS.md exists.
-
-- id: skill-filesystem
-  config:
-    customSkillDirs:
-      - skills
-    includeDefaultRoots: true
-
-- insert:
-    - id: project-memory-dsh
-      name: '@lovedolove/dsh-project-memory/dsh'
-"@
-    $needsWrite = $false
+    $emptyPatch = "# Your patch layer for this dsh profile, applied after every bundle layer:`n# a top-level YAML array of loader patch entries (id-targeted config`n# overrides, disables, and insert lists; \`!!js\` expressions allowed).`n[]`n"
     if (-not (Test-Path $patchPath)) {
-        $needsWrite = $true
-    } else {
-        $existing = Get-Content $patchPath -Raw
-        if (-not ($existing -match 'skill-filesystem') -or -not ($existing -match 'project-memory-dsh')) {
-            $needsWrite = $true
-        }
-    }
-    if ($needsWrite) {
         if (-not $Verify) {
-            $fullPatch | Out-File -FilePath $patchPath -Encoding utf8
-            if (Test-Path $patchPath) { Write-Host "  updated cordis.patch.yml" } else { Write-Host "  wrote cordis.patch.yml" }
+            [System.IO.File]::WriteAllText($patchPath, $emptyPatch, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "  wrote cordis.patch.yml"
             $script:Installed += $patchPath
         } else {
-            Write-Host "  would update cordis.patch.yml"
+            Write-Host "  would write cordis.patch.yml"
             $script:Installed += $patchPath
         }
-    } else {
-        Write-Host "  cordis.patch.yml up to date"
     }
 
     # Ensure pnpm-workspace.yaml exists.
@@ -156,7 +128,7 @@ autoInstallPeers: false
 
     # Install the plugin.
     if ($InstallOffline -and $PluginSrc) {
-        # PluginName = '@lovedolove/dsh-project-memory' → node_modules/@lovedolove/dsh-project-memory
+        # PluginName = '@lovedolove/dsh-project-memory' â†’ node_modules/@lovedolove/dsh-project-memory
         $scope, $pkg = $PluginName -split '/', 2
         $pluginDest = Join-Path $ProfilePath "node_modules\$scope\$pkg"
         if (-not $Verify) {
@@ -202,9 +174,9 @@ autoInstallPeers: false
     }
     $deps = $pkg.dependencies
     if ($deps -is [System.Management.Automation.PSCustomObject]) {
-        $deps | Add-Member -NotePropertyName $PluginName -NotePropertyValue '^0.3.0' -Force
+        $deps | Add-Member -NotePropertyName $PluginName -NotePropertyValue '^0.4.1' -Force
     } else {
-        $deps[$PluginName] = '^0.3.0'
+        $deps[$PluginName] = '^0.4.1'
     }
 
     if (-not $Verify) {
