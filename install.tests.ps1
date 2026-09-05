@@ -95,12 +95,44 @@ Describe 'install.ps1' {
         $presetDir = Join-Path $env:USERPROFILE '.dsh\.agent-presets\project-memory'
         New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
 
-        # Capture output by re-running Main in a subshell and checking the printed command
-        $script:Installed = @(); $script:Failures = @()
-        # Mock Get-Command to return null (simulating dsh not in PATH)
         Mock Get-Command { param($Name, $CommandType, $ErrorAction); if ($Name -eq 'dsh') { return $null }; return @() }
-        # Start-Process must NOT be called when dsh is absent
         Assert-MockCalled Start-Process -Times 0 -Scope It
+    }
+
+    It 'dsh target: invokes dsh.ps1 directly instead of Start-Process when dsh is an ExternalScript' {
+        $script:Target = 'dsh'
+        $script:Force = $true
+        $script:DshProfile = 'web'
+        $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles'
+        $dshBinDir = Join-Path $env:USERPROFILE '.dsh\bin'
+        New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $profileDir 'web') | Out-Null
+        New-Item -ItemType Directory -Force -Path $dshBinDir | Out-Null
+        $presetDir = Join-Path $env:USERPROFILE '.dsh\.agent-presets\project-memory'
+
+        # Fake dsh.ps1: PowerShell consumes the first positional arg ('plugin') from & calls,
+        # so $Args starts at index 0 with '--profile'. Uses mkdir (not New-Item) for PS5 compat.
+        $fakeDshContent = @'
+param($Args)
+if ($Args[0] -eq '--profile') { mkdir "$env:USERPROFILE\.dsh\.agent-presets\project-memory" -Force | Out-Null; "ok" }
+'@
+        $fakeDshPath = Join-Path $dshBinDir 'dsh.ps1'
+        Set-Content -Path $fakeDshPath -Value $fakeDshContent -Encoding UTF8
+
+        # Return a plain PSCustomObject mock; no Add-Type needed for Pester 3.4 compat
+        Mock Get-Command {
+            param($Name, $CommandType, $ErrorAction)
+            if ($Name -eq 'dsh') {
+                return [PSCustomObject]@{ Source = $fakeDshPath; CommandType = 'ExternalScript' }
+            }
+            return @()
+        }
+
+        $script:Installed = @(); $script:Failures = @()
+        Main
+
+        Assert-MockCalled Start-Process -Times 0 -Scope It
+        Remove-Item $fakeDshPath -Force -ErrorAction SilentlyContinue
     }
 
     It 'all target: installs all platforms + seeds DSH agent' {
