@@ -25,6 +25,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { homedir } from 'node:os'
 import { cbmApply } from './codebase-memory-bridge.mjs'
 
 const PLUGIN_ID = 'dsh-project-memory'
@@ -126,11 +127,10 @@ const KNOWN_SKILLS = [
 
 /** Get possible global skill directories (where install.ps1 installs skills). */
 function getGlobalSkillDirs() {
-  const homedir = require('os').homedir()
   return [
-    join(homedir, '.agents', 'skills'),       // Codex / universal
-    join(homedir, '.claude', 'skills'),       // Claude
-    join(homedir, '.config', 'opencode', 'skills'), // OpenCode
+    join(homedir(), '.agents', 'skills'),       // Codex / universal
+    join(homedir(), '.claude', 'skills'),       // Claude
+    join(homedir(), '.config', 'opencode', 'skills'), // OpenCode
   ].filter(d => existsSync(d))
 }
 
