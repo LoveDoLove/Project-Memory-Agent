@@ -37,38 +37,36 @@ Downloads the agent + its 8 skills into your chosen tool's global config. Pick a
 
 ### DeepSeek Harness (DSH)
 
-The project ships a **DSH bundle plugin** (`dsh-plugin/`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. The installer copies the plugin into `~/.dsh/profiles/project-memory/`.
+The project ships a **DSH bundle plugin** (dsh-plugin/) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry.
+
+The installer integrates the plugin into your **existing** DSH profile (auto-detects `web` first, falls back to creating `project-memory`). It writes the required `cordis.patch.yml` (skill-filesystem root), `pnpm-workspace.yaml`, and updates `package.json` — no separate profile is created unless you don't have one.
+
+`powershell
+# Interactive — picks your existing profile (or creates project-memory)
+.\install.ps1 -Target dsh
+
+# Explicitly target your web profile
+.\install.ps1 -Target dsh -DshProfile web
+`
 
 To start a session with the bundled skills:
 
-```powershell
-# Web GUI (recommended)
-dsh --profile project-memory
-
-# Headless â€” run one task and exit
-dsh --profile project-memory headless "audit my repo"
-
-# SDK
-dsh --profile project-memory sdk
-```
+`powershell
+# Use whatever profile you installed into (usually 'web')
+dsh --profile web                # Web GUI
+dsh --profile web headless "audit my repo"  # Headless
+dsh --profile web sdk            # SDK
+`
 
 The skills are discoverable from any workspace because the plugin's `cordis.patch.yml` registers the project's `skills/` directory as a custom skill root via `@deepseek-ai/dsh-skill-filesystem`.
 
-To install from npm instead of the offline copy (receives updates automatically):
+To install from npm (receives updates automatically):
 
-```powershell
-dsh plugin --profile project-memory install @lovedolove/dsh-project-memory
-```
+`powershell
+dsh plugin --profile web add @lovedolove/dsh-project-memory
+`
 
-This works because `@lovedolove/dsh-project-memory` is published to the public [npm registry](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via a GitHub Actions workflow. Anyone can install it with zero setup.
-
-To verify the profile is wired correctly:
-
-```powershell
-dsh --profile project-memory --dump-config | Select-String "project-memory-plugin|skill-filesystem"
-```
-
-## Use
+@lovedolove/dsh-project-memory is published to the public [npm registry](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via a GitHub Actions workflow. Anyone can install it with zero setup.## Use
 
 Invoke the orchestrator in your agent:
 

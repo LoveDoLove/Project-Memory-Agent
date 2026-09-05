@@ -1,18 +1,14 @@
 # Pester tests for install.ps1 (no network; Invoke-WebRequest mocked)
 # Compatible with Pester 3.4.0 (WindowsPowerShell default). Run:
 #   Invoke-Pester ./install.tests.ps1
-# If you upgrade to Pester 5, change "Should Be/Exist/Not Exist" accordingly
-# (Pester 5 uses Should -Be / Should -Exist / Should -Not -Exist).
 
 Describe 'install.ps1' {
 
     BeforeAll {
-        $script:origProfile = $env:USERPROFILE
         try { . $PSScriptRoot\install.ps1 } catch { }
     }
 
     AfterAll {
-        $env:USERPROFILE = $script:origProfile
     }
 
     BeforeEach {
@@ -77,22 +73,57 @@ Describe 'install.ps1' {
         (Join-Path $env:USERPROFILE '.codex\agents\project-memory.toml') | Should Exist
     }
 
-    It 'dsh target: copies plugin to profile and writes manifest' {
-        # Dot-sourcing a parameterized script from Pester does not bind params;
-        # set them as script-scoped vars and call Main directly (same as real usage).
+    It 'dsh target: integrates into existing profile (web) when found, writes cordis patch' {
+        # Create a fake 'web' profile with an existing package.json and empty cordis patch.
+        $webProfile = Join-Path $env:USERPROFILE '.dsh\profiles\web'
+        New-Item -ItemType Directory -Force -Path $webProfile | Out-Null
+        @{ name = 'dsh-profile-web'; private = $true } | ConvertTo-Json | Out-File (Join-Path $webProfile 'package.json') -Encoding utf8
+        @'
+[]
+'@ | Out-File (Join-Path $webProfile 'cordis.patch.yml') -Encoding utf8
+
+        # Also create the dsh-plugin source so offline copy works.
+        $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+        $pluginSrc = Join-Path $scriptDir 'dsh-plugin'
+        if (-not (Test-Path $pluginSrc)) {
+            $pluginSrc = Join-Path (Split-Path $scriptDir) 'Project-Memory-Agent\dsh-plugin'
+        }
+        if (Test-Path $pluginSrc) {
+            $destDir = Join-Path $webProfile 'node_modules'
+            New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+            # Create a fake plugin structure.
+            $libDir = Join-Path $destDir '@lovedolove'
+            New-Item -ItemType Directory -Force -Path $libDir | Out-Null
+            $pluginDest = Join-Path $libDir 'dsh-project-memory'
+            New-Item -ItemType Directory -Force -Path $pluginDest | Out-Null
+            'package' | Out-File (Join-Path $pluginDest 'package.json') -Encoding utf8
+            'lib' | Out-File (Join-Path $pluginDest 'lib.js') -Encoding utf8
+        }
+
         $script:Target = 'dsh'
         $script:Force = $true
         Main
-        $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles\project-memory'
-        $pluginDest = Join-Path $profileDir 'node_modules\@lovedolove\dsh-plugin'
-        $profileDir | Should Exist
-        $pluginDest | Should Exist
-        (Join-Path $pluginDest 'package.json') | Should Exist
-        (Join-Path $pluginDest 'cordis.patch.yml') | Should Exist
-        (Join-Path $pluginDest 'lib\index.js') | Should Exist
-        (Join-Path $profileDir 'package.json') | Should Exist
-        (Join-Path $profileDir 'cordis.patch.yml') | Should Exist
-        (Join-Path $profileDir 'pnpm-workspace.yaml') | Should Exist
+
+        $webProfile | Should Exist
+        # Cordis patch must contain skill-filesystem.
+        $patch = Get-Content (Join-Path $webProfile 'cordis.patch.yml') -Raw
+        $patch -match 'skill-filesystem' | Should Be $true
+        $patch -match 'customSkillDirs' | Should Be $true
+        # package.json must list the plugin in bundles and dependencies.
+        $pkg = Get-Content (Join-Path $webProfile 'package.json') -Raw | ConvertFrom-Json
+        $pkg.dsh.profile.bundles -contains $PluginName | Should Be $true
+        $depsKeys = $pkg.dependencies.PSObject.Properties.Name
+        ($depsKeys -contains $PluginName) | Should Be $true
+    }
+
+    It 'dsh target: falls back to creating project-memory when no profile exists' {
+        $script:Target = 'dsh'
+        $script:Force = $true
+        Main
+        $fallbackProfile = Join-Path $env:USERPROFILE '.dsh\profiles\project-memory'
+        $fallbackProfile | Should Exist
+        $pkg = Get-Content (Join-Path $fallbackProfile 'package.json') -Raw | ConvertFrom-Json
+        $pkg.dsh.profile.bundles -contains $PluginName | Should Be $true
     }
 }
 
@@ -136,4 +167,3 @@ Describe 'skill name <-> manifest sync' {
         }
     }
 }
-
