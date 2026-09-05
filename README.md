@@ -57,7 +57,7 @@ The skills are discoverable from any workspace because the plugin's `cordis.patc
 To install from npm instead of the offline copy (receives updates automatically):
 
 ```powershell
-dsh plugin --profile project-memory install @project-memory-agent/dsh-plugin
+dsh plugin --profile project-memory install @lovedolove/dsh-plugin
 ```
 
 To verify the profile is wired correctly:

@@ -1,5 +1,5 @@
-﻿{
-  "name": "@project-memory-agent/dsh-plugin",
+{
+  "name": "@lovedolove/dsh-plugin",
   "description": "DSH bundle plugin: mounts the project's skills into the DeepSeek Harness skill registry.",
   "version": "0.1.0",
   "type": "module",

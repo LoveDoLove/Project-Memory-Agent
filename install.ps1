@@ -120,7 +120,7 @@ function Main {
                     continue
                 }
                 New-Item -ItemType Directory -Force -Path $profilePath | Out-Null
-                $pluginDest = Join-Path $profilePath 'node_modules\@project-memory-agent\dsh-plugin'
+                $pluginDest = Join-Path $profilePath 'node_modules\@lovedolove\dsh-plugin'
                 if ((Test-Path $pluginDest) -and -not $Force) {
                     $ans = Read-Host "Overwrite DSH plugin at $pluginDest ? [Y/N]"
                     if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: DSH plugin"; continue }
@@ -134,11 +134,11 @@ function Main {
                     private = $true
                     dependencies = @{
                         "@deepseek-ai/dsh-base" = "*"
-                        "@project-memory-agent/dsh-plugin" = "file:./node_modules/@project-memory-agent/dsh-plugin"
+                        "@lovedolove/dsh-plugin" = "file:./node_modules/@lovedolove/dsh-plugin"
                     }
                     dsh = @{
                         profile = @{
-                            bundles = @('@deepseek-ai/dsh-base', "@project-memory-agent/dsh-plugin")
+                            bundles = @('@deepseek-ai/dsh-base', "@lovedolove/dsh-plugin")
                             patchReload = "live"
                         }
                     }
@@ -192,7 +192,7 @@ autoInstallPeers: false
                             Write-Host "  would install DSH profile: $dshProfilePath"
                         } else {
                             New-Item -ItemType Directory -Force -Path $dshProfilePath | Out-Null
-                            $dshPluginDest = Join-Path $dshProfilePath 'node_modules\@project-memory-agent\dsh-plugin'
+                            $dshPluginDest = Join-Path $dshProfilePath 'node_modules\@lovedolove\dsh-plugin'
                             Copy-Item -Recurse -Force $dshPluginSrc $dshPluginDest
                             $script:Installed += $dshPluginDest
                             $manifest = @{
@@ -200,11 +200,11 @@ autoInstallPeers: false
                                 private = $true
                                 dependencies = @{
                                     "@deepseek-ai/dsh-base" = "*"
-                                    "@project-memory-agent/dsh-plugin" = "file:./node_modules/@project-memory-agent/dsh-plugin"
+                                    "@lovedolove/dsh-plugin" = "file:./node_modules/@lovedolove/dsh-plugin"
                                 }
                                 dsh = @{
                                     profile = @{
-                                        bundles = @('@deepseek-ai/dsh-base', "@project-memory-agent/dsh-plugin")
+                                        bundles = @('@deepseek-ai/dsh-base', "@lovedolove/dsh-plugin")
                                         patchReload = "live"
                                     }
                                 }
@@ -254,9 +254,9 @@ autoInstallPeers: false
     Write-Host ''
     Write-Host 'DSH users: start the profile with `dsh --profile project-memory` (web GUI) or'
     Write-Host "  `dsh --profile project-memory headless "your task"`. Skills live in"
-    Write-Host "  `~/.dsh/profiles/project-memory/node_modules/@project-memory-agent/dsh-plugin`."
+    Write-Host "  `~/.dsh/profiles/project-memory/node_modules/@lovedolove/dsh-plugin`."
     Write-Host '  To use the online profile (recommends `dsh plugin` for updates):'
-    Write-Host '    dsh plugin --profile project-memory install @project-memory-agent/dsh-plugin'
+    Write-Host '    dsh plugin --profile project-memory install @lovedolove/dsh-plugin'
     if ($script:Failures.Count -gt 0) { exit 1 }
 }
 

@@ -84,7 +84,7 @@ Describe 'install.ps1' {
         $script:Force = $true
         Main
         $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles\project-memory'
-        $pluginDest = Join-Path $profileDir 'node_modules\@project-memory-agent\dsh-plugin'
+        $pluginDest = Join-Path $profileDir 'node_modules\@lovedolove\dsh-plugin'
         $profileDir | Should Exist
         $pluginDest | Should Exist
         (Join-Path $pluginDest 'package.json') | Should Exist
