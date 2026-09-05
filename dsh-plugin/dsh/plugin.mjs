@@ -1,29 +1,29 @@
 /**
- * @lovedolove/dsh-project-memory — DSH glue plugin.
+ * @lovedolove/dsh-project-memory -- DSH glue plugin.
  *
  * Patterns borrowed from:
  *   - graphflow/dsh/plugin.mjs  (Cordis event listeners, ctx.skills.register)
  *   - modlens/dsh/index.js       (same pattern, different feature surface)
  *
  * What this plugin does:
- *   1. Skill mount — reads the workspace root from the session payload and
- *      registers every skills/*/SKILL.md found there, relative to the active
+ *   1. Skill mount -- reads the workspace root from the session payload and
+ *      registers every skills\/\*\/SKILL.md found there, relative to the active
  *      workspace. This makes the 8 Project Memory skills available wherever
  *      the profile is used, not just from one hard-coded parent path.
  *
- *   2. First-time init — when AGENTS.md is absent from the workspace root,
+ *   2. First-time init -- when AGENTS.md is absent from the workspace root,
  *      this is a brand-new project. The plugin injects a short hint asking
  *      the agent to run the memory-architecture skill to bootstrap the
  *      Project Knowledge System (AGENTS.md + all skills + agents).
  *
- *   3. Post-task memory prompt — on turn/end, the plugin injects a compact
+ *   3. Post-task memory prompt -- on turn/end, the plugin injects a compact
  *      question into the next user message: "Want to compound memory now?"
  *      so the agent knows to run knowledge-compounding when the task is done.
  *
  * Events listened to (best-effort, never throws into the harness loop):
- *   - agent/pre-step    → inject first-time-init hint (once per agent)
- *   - session/event     → inject post-task prompt on turn/end
- *   - agent/inbox/inserted (future) → could auto-discover workspace on paste
+ *   - agent/pre-step    -> inject first-time-init hint (once per agent)
+ *   - session/event     -> inject post-task prompt on turn/end
+ *   - agent/inbox/inserted (future) -> could auto-discover workspace on paste
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url'
 
 const PLUGIN_ID = 'dsh-project-memory'
 
-/** Path to this plugin's own source — used to resolve skills/ relative to the repo. */
+/** Path to this plugin's own source -- used to resolve skills/ relative to the repo. */
 const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(PLUGIN_ROOT, '..', '..')
 
@@ -112,20 +112,20 @@ function registerWorkspaceSkills(ctx, workspaceRoot) {
       ctx.skills.register(skill)
       registered.push(skill.name)
     } catch {
-      // duplicate or missing registry — skip silently
+      // duplicate or missing registry -- skip silently
     }
   }
   return registered
 }
 
-/** Check whether AGENTS.md exists — absence means first-time init. */
+/** Check whether AGENTS.md exists -- absence means first-time init. */
 function needsInit(workspaceRoot) {
   return !existsSync(join(workspaceRoot, 'AGENTS.md'))
 }
 
 /** First-time-init hint text. */
 function buildInitHint(workspaceRoot) {
-  return `Project Memory: this workspace has no AGENTS.md yet — run the \`memory-architecture\` skill to bootstrap the Project Knowledge System. The 8 Project Memory skills are now available.`
+  return `Project Memory: this workspace has no AGENTS.md yet -- run the \`memory-architecture\` skill to bootstrap the Project Knowledge System. The 8 Project Memory skills are now available.`
 }
 
 /** Post-task memory-compound prompt. */
@@ -136,7 +136,7 @@ function buildPostTaskHint(workspaceRoot, taskId) {
 // ── Cordis apply ─────────────────────────────────────────────────────────────
 
 /**
- * Main entry point — called by Cordis when this plugin row is loaded.
+ * Main entry point -- called by Cordis when this plugin row is loaded.
  * @param {object} ctx  duck-typed Cordis context (skills, on, connection)
  * @param {object} [config]  optional plugin config
  * @returns {function?} disposer, called on unload
@@ -156,7 +156,7 @@ export function apply(ctx, config = {}) {
   const initHinted = new Set()
   const promptedTurns = new WeakSet()
 
-  // 2. Listen for session events → inject post-task prompt on turn/end.
+  // 2. Listen for session events -> inject post-task prompt on turn/end.
   if (typeof on === 'function') {
     try {
       on('session/event', (session, event) => {
@@ -215,7 +215,7 @@ export function apply(ctx, config = {}) {
             }
           }
 
-          // Post-task prompt — prepend to next user turn if queued.
+          // Post-task prompt -- prepend to next user turn if queued.
           // We scan all open sessions for queued hints.
           if (typeof ctx.get === 'function') {
             try {
@@ -235,7 +235,7 @@ export function apply(ctx, config = {}) {
                 }
               }
             } catch {
-              // sessions service unavailable — skip
+              // sessions service unavailable -- skip
             }
           }
         } catch {
@@ -245,11 +245,11 @@ export function apply(ctx, config = {}) {
         return undefined
       })
     } catch {
-      // event bus missing — plugin still works (skills are registered above)
+      // event bus missing -- plugin still works (skills are registered above)
     }
   }
 
-  // 4. Return disposer — Cordis calls this on unload.
+  // 4. Return disposer -- Cordis calls this on unload.
   return () => {
     initHinted.clear()
     promptedTurns.clear()
