@@ -182,10 +182,11 @@ export function cbmApply(ctx) {
 
   // Eagerly start the daemon/UI so port 9749 is ready on plugin load.
   if (EXE) {
-    client.start().catch((err) => {
+    client.start().then(() => {
+      console.log('[project-memory] codebase-memory UI: http://localhost:9749/')
+    }).catch((err) => {
       console.warn('[project-memory] codebase-memory-mcp failed to start:', err.message)
     })
-    console.log('[project-memory] codebase-memory UI: http://localhost:9749/')
   }
 
   const tool = (name, description, parameters, exec) => ctx.effect(() => ctx.tools.register(defineTool({
