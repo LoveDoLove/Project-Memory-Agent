@@ -8,7 +8,7 @@
 Project Memory gives every coding agent a single, trustworthy knowledge base for your repository — so it stops re-learning the same facts and writing conflicting "memory" files.
 
 ```text
-Discover → Verify → Classify → Compound → Reconstruct → Single Source of Truth
+Discover -> Verify -> Classify -> Compound -> Reconstruct -> Single Source of Truth
 ```
 
 Code tells agents **what exists**. Project Memory helps them remember **why** — and reconciles every place that already tried to write it down.
