@@ -33,7 +33,7 @@ const PLUGIN_ID = 'dsh-project-memory'
 const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(PLUGIN_ROOT, '..', '..')
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// - Helpers -
 
 /** Extract plain text from a user message ContentBlocks array. */
 function extractText(content) {
@@ -110,25 +110,62 @@ function parseFrontmatter(block) {
   return out
 }
 
-// â”€â”€ Core plugin logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// - Core plugin logic -
 
-/** Discover and register all skills relative to workspaceRoot. */
+/** Default skill names managed by this plugin. */
+const KNOWN_SKILLS = [
+  'knowledge-classification',
+  'knowledge-compounding',
+  'knowledge-discovery',
+  'memory-architecture',
+  'memory-edit',
+  'memory-verification',
+  'obsolete-knowledge',
+  'repository-audit',
+]
+
+/** Get possible global skill directories (where install.ps1 installs skills). */
+function getGlobalSkillDirs() {
+  const homedir = require('os').homedir()
+  return [
+    join(homedir, '.agents', 'skills'),       // Codex / universal
+    join(homedir, '.claude', 'skills'),       // Claude
+    join(homedir, '.config', 'opencode', 'skills'), // OpenCode
+  ].filter(d => existsSync(d))
+}
+
+/** Discover and register skills from multiple possible locations.
+ * Priority: workspace skills/ > global ~/.agents/skills/ > other globals. */
 function registerWorkspaceSkills(ctx, workspaceRoot) {
-  const skillsDir = join(workspaceRoot, 'skills')
-  if (!existsSync(skillsDir)) return []
-
   const registered = []
-  for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    const skill = readSkill(join(skillsDir, entry.name))
-    if (!skill) continue
-    try {
-      ctx.skills.register(skill)
-      registered.push(skill.name)
-    } catch {
-      // duplicate or missing registry -- skip silently
+  const seen = new Set()
+
+  /** Helper to register skills from a specific directory. */
+  function registerFromDir(skillsDir, label) {
+    if (!existsSync(skillsDir)) return
+    for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      const skill = readSkill(join(skillsDir, entry.name))
+      if (!skill) continue
+      if (seen.has(skill.name)) continue
+      try {
+        ctx.skills.register(skill)
+        registered.push(skill.name)
+        seen.add(skill.name)
+      } catch {
+        // duplicate or missing registry -- skip silently
+      }
     }
   }
+
+  // 1. Try workspace skills/ first (project-level skills take priority)
+  registerFromDir(join(workspaceRoot, 'skills'), 'workspace')
+
+  // 2. Fall back to global skill directories
+  for (const dir of getGlobalSkillDirs()) {
+    registerFromDir(dir, 'global')
+  }
+
   return registered
 }
 
@@ -142,7 +179,7 @@ function buildInitHint(workspaceRoot) {
   return `Project Memory: this workspace has no AGENTS.md yet -- run the \`memory-architecture\` skill to bootstrap the Project Knowledge System. The 8 Project Memory skills are now available.`
 }
 
-// â”€â”€ Cordis apply â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// - Cordis apply -
 
 /**
  * Main entry point -- called by Cordis when this plugin row is loaded.
@@ -168,7 +205,7 @@ export function apply(ctx, config = {}) {
       cbmApply(ctx)
       console.log('[project-memory] registered cbm_* codebase-memory tools')
     } catch {
-      // codebase-memory-mcp not available — skip silently
+      // codebase-memory-mcp not available -- skip silently
     }
   }
 
