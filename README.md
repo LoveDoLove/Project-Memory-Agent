@@ -22,17 +22,49 @@ With Project Memory, that knowledge is discovered, verified against the actual c
 irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
 ```
 
-Downloads the agent + its 8 skills into your chosen tool's global config. Pick a target from the menu (`1` OpenCode, `2` Codex, `3` Claude, `4` All). Via `irm | iex` it defaults to `all` non-interactively.
+Downloads the agent + its 8 skills into your chosen tool's global config. Pick a target from the menu (`1` OpenCode, `2` Codex, `3` Claude, `4` DSH, `5` All). Via `irm | iex` it defaults to `all` non-interactively.
 
 | Target | Skills | Agent |
 |--------|--------|-------|
 | OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
 | Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
 | Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
+| DSH | `~/.dsh/profiles/project-memory/node_modules/...` | `dsh --profile project-memory` |
 
-- `all` writes skills to `~/.claude/skills` + `~/.agents/skills` (no OpenCode double-load).
-- Local options: `-Target all`, `-Verify` (dry-run), `-Branch dev`.
+- `all` writes skills to `~/.claude/skills` + `~/.agents/skills` (no OpenCode double-load) and also sets up the DSH profile.
+- Local options: `-Target all`, `-Verify` (dry-run), `-Branch dev`, `-Target dsh`.
 - Codex: needs `[features] multi_agent = true` in `~/.codex/config.toml` (installer prints this; never edits your config).
+
+### DeepSeek Harness (DSH)
+
+The project ships a **DSH bundle plugin** (`dsh-plugin/`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. The installer copies the plugin into `~/.dsh/profiles/project-memory/`.
+
+To start a session with the bundled skills:
+
+```powershell
+# Web GUI (recommended)
+dsh --profile project-memory
+
+# Headless — run one task and exit
+dsh --profile project-memory headless "audit my repo"
+
+# SDK
+dsh --profile project-memory sdk
+```
+
+The skills are discoverable from any workspace because the plugin's `cordis.patch.yml` registers the project's `skills/` directory as a custom skill root via `@deepseek-ai/dsh-skill-filesystem`.
+
+To install from npm instead of the offline copy (receives updates automatically):
+
+```powershell
+dsh plugin --profile project-memory install @project-memory-agent/dsh-plugin
+```
+
+To verify the profile is wired correctly:
+
+```powershell
+dsh --profile project-memory --dump-config | Select-String "project-memory-plugin|skill-filesystem"
+```
 
 ## Use
 

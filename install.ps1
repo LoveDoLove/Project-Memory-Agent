@@ -68,12 +68,13 @@ function Main {
             $targets = @('all')
         } else {
             Write-Host "Select target:"
-            Write-Host "  1 OpenCode  2 Codex  3 Claude  4 All  Q Quit"
-            try { $choice = Read-Host "Choice" } catch { $choice = '4' }
+            Write-Host "  1 OpenCode  2 Codex  3 Claude  4 DSH  5 All  Q Quit"
+            try { $choice = Read-Host "Choice" } catch { $choice = '5' }
             if ($choice -eq 'Q' -or $choice -eq 'q') { return }
             if ($choice -eq '1') { $targets = @('opencode') }
             elseif ($choice -eq '2') { $targets = @('codex') }
             elseif ($choice -eq '3') { $targets = @('claude') }
+            elseif ($choice -eq '4') { $targets = @('dsh') }
             else { $targets = @('all') }
         }
     } else {
@@ -94,12 +95,148 @@ function Main {
                 Install-Skills "$env:USERPROFILE\.agents\skills"
                 Install-Agent $AgentToml "$env:USERPROFILE\.codex\agents\project-memory.toml"
             }
+            'dsh' {
+                $profileDir = Join-Path (Join-Path $env:USERPROFILE '.dsh') 'profiles'
+                $profileName = 'project-memory'
+                $profilePath = Join-Path $profileDir $profileName
+                if ((Test-Path $profilePath) -and -not $Force) {
+                    $ans = Read-Host "DSH profile already exists at $profilePath. Overwrite? [Y/N]"
+                    if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: dsh profile"; continue }
+                }
+                # Copy plugin files to the profile so they are available offline.
+                $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+                $pluginSrc = Join-Path $scriptDir 'dsh-plugin'
+                if (-not (Test-Path $pluginSrc)) {
+                    # Running from a subdirectory or extracted archive — walk up.
+                    $pluginSrc = Join-Path (Split-Path $scriptDir) 'Project-Memory-Agent\dsh-plugin'
+                }
+                if (-not (Test-Path (Join-Path $pluginSrc 'package.json'))) {
+                    Write-Warning "  dsh-plugin not found at $pluginSrc; skip DSH (requires running from repo root or extracting the zip)."
+                    continue
+                }
+                if ($Verify) {
+                    Write-Host "  would install DSH profile: $profilePath"
+                    $script:Installed += $profilePath
+                    continue
+                }
+                New-Item -ItemType Directory -Force -Path $profilePath | Out-Null
+                $pluginDest = Join-Path $profilePath 'node_modules\@project-memory-agent\dsh-plugin'
+                if ((Test-Path $pluginDest) -and -not $Force) {
+                    $ans = Read-Host "Overwrite DSH plugin at $pluginDest ? [Y/N]"
+                    if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: DSH plugin"; continue }
+                }
+                Copy-Item -Recurse -Force $pluginSrc $pluginDest
+                Write-Host "  installed DSH plugin: $pluginDest"
+                $script:Installed += $pluginDest
+                # Write profile manifest manually (mirrors `dsh plugin --profile ... install`).
+                $manifest = @{
+                    name = "dsh-profile-$profileName"
+                    private = $true
+                    dependencies = @{
+                        "@deepseek-ai/dsh-base" = "*"
+                        "@project-memory-agent/dsh-plugin" = "file:./node_modules/@project-memory-agent/dsh-plugin"
+                    }
+                    dsh = @{
+                        profile = @{
+                            bundles = @('@deepseek-ai/dsh-base', "@project-memory-agent/dsh-plugin")
+                            patchReload = "live"
+                        }
+                    }
+                }
+                $manifestPath = Join-Path $profilePath 'package.json'
+                if (-not (Test-Path $manifestPath) -or $Force) {
+                    $manifest | ConvertTo-Json -Depth 10 | Out-File -FilePath $manifestPath -Encoding utf8
+                    Write-Host "  wrote profile manifest: $manifestPath"
+                    $script:Installed += $manifestPath
+                }
+                $patchPath = Join-Path $profilePath 'cordis.patch.yml'
+                if (-not (Test-Path $patchPath)) {
+                    @"
+# Project Memory DSH profile — your patch layer.
+# Applied after every bundle layer. Customize here to override settings.
+[]
+"@ | Out-File -FilePath $patchPath -Encoding utf8
+                    Write-Host "  wrote profile patch: $patchPath"
+                    $script:Installed += $patchPath
+                }
+                $workspacePath = Join-Path $profilePath 'pnpm-workspace.yaml'
+                if (-not (Test-Path $workspacePath)) {
+                    @"
+packages:
+  - .
+
+nodeLinker: hoisted
+autoInstallPeers: false
+"@ | Out-File -FilePath $workspacePath -Encoding utf8
+                    Write-Host "  wrote pnpm-workspace: $workspacePath"
+                    $script:Installed += $workspacePath
+                }
+            }
             'all' {
                 Install-Skills "$env:USERPROFILE\.claude\skills"
                 Install-Skills "$env:USERPROFILE\.agents\skills"
                 Install-Agent $AgentMd "$env:USERPROFILE\.claude\agents\project-memory.md"
                 Install-Agent $AgentMd "$env:USERPROFILE\.config\opencode\agents\project-memory.md"
                 Install-Agent $AgentToml "$env:USERPROFILE\.codex\agents\project-memory.toml"
+                # DSH is also installed in 'all' mode.
+                $dshProfileDir = Join-Path (Join-Path $env:USERPROFILE '.dsh') 'profiles'
+                $dshProfileName = 'project-memory'
+                $dshProfilePath = Join-Path $dshProfileDir $dshProfileName
+                $dshPluginSrc = Join-Path $scriptDir 'dsh-plugin'
+                if (-not (Test-Path $dshPluginSrc)) {
+                    $dshPluginSrc = Join-Path (Split-Path $scriptDir) 'Project-Memory-Agent\dsh-plugin'
+                }
+                if (Test-Path (Join-Path $dshPluginSrc 'package.json')) {
+                    if (-not (Test-Path $dshProfilePath) -or $Force) {
+                        if ($Verify) {
+                            Write-Host "  would install DSH profile: $dshProfilePath"
+                        } else {
+                            New-Item -ItemType Directory -Force -Path $dshProfilePath | Out-Null
+                            $dshPluginDest = Join-Path $dshProfilePath 'node_modules\@project-memory-agent\dsh-plugin'
+                            Copy-Item -Recurse -Force $dshPluginSrc $dshPluginDest
+                            $script:Installed += $dshPluginDest
+                            $manifest = @{
+                                name = "dsh-profile-$dshProfileName"
+                                private = $true
+                                dependencies = @{
+                                    "@deepseek-ai/dsh-base" = "*"
+                                    "@project-memory-agent/dsh-plugin" = "file:./node_modules/@project-memory-agent/dsh-plugin"
+                                }
+                                dsh = @{
+                                    profile = @{
+                                        bundles = @('@deepseek-ai/dsh-base', "@project-memory-agent/dsh-plugin")
+                                        patchReload = "live"
+                                    }
+                                }
+                            }
+                            $manifestPath = Join-Path $dshProfilePath 'package.json'
+                            if (-not (Test-Path $manifestPath) -or $Force) {
+                                $manifest | ConvertTo-Json -Depth 10 | Out-File -FilePath $manifestPath -Encoding utf8
+                                $script:Installed += $manifestPath
+                            }
+                            $patchPath = Join-Path $dshProfilePath 'cordis.patch.yml'
+                            if (-not (Test-Path $patchPath)) {
+                                @"
+# Project Memory DSH profile — your patch layer.
+# Applied after every bundle layer. Customize here to override settings.
+[]
+"@ | Out-File -FilePath $patchPath -Encoding utf8
+                                $script:Installed += $patchPath
+                            }
+                            $workspacePath = Join-Path $dshProfilePath 'pnpm-workspace.yaml'
+                            if (-not (Test-Path $workspacePath)) {
+                                @"
+packages:
+  - .
+
+nodeLinker: hoisted
+autoInstallPeers: false
+"@ | Out-File -FilePath $workspacePath -Encoding utf8
+                                $script:Installed += $workspacePath
+                            }
+                        }
+                    }
+                }
             }
             default { Write-Warning "Unknown target: $t"; $script:Failures += "target:$t" }
         }
@@ -114,6 +251,12 @@ function Main {
     }
     Write-Host ""
     Write-Host 'Codex users: to spawn this agent you may need `[features] multi_agent = true` in `~/.codex/config.toml` (not auto-applied).'
+    Write-Host ''
+    Write-Host 'DSH users: start the profile with `dsh --profile project-memory` (web GUI) or'
+    Write-Host "  `dsh --profile project-memory headless "your task"`. Skills live in"
+    Write-Host "  `~/.dsh/profiles/project-memory/node_modules/@project-memory-agent/dsh-plugin`."
+    Write-Host '  To use the online profile (recommends `dsh plugin` for updates):'
+    Write-Host '    dsh plugin --profile project-memory install @project-memory-agent/dsh-plugin'
     if ($script:Failures.Count -gt 0) { exit 1 }
 }
 

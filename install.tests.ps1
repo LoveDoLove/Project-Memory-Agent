@@ -76,6 +76,24 @@ Describe 'install.ps1' {
         (Join-Path $env:USERPROFILE '.config\opencode\agents\project-memory.md') | Should Exist
         (Join-Path $env:USERPROFILE '.codex\agents\project-memory.toml') | Should Exist
     }
+
+    It 'dsh target: copies plugin to profile and writes manifest' {
+        # Dot-sourcing a parameterized script from Pester does not bind params;
+        # set them as script-scoped vars and call Main directly (same as real usage).
+        $script:Target = 'dsh'
+        $script:Force = $true
+        Main
+        $profileDir = Join-Path $env:USERPROFILE '.dsh\profiles\project-memory'
+        $pluginDest = Join-Path $profileDir 'node_modules\@project-memory-agent\dsh-plugin'
+        $profileDir | Should Exist
+        $pluginDest | Should Exist
+        (Join-Path $pluginDest 'package.json') | Should Exist
+        (Join-Path $pluginDest 'cordis.patch.yml') | Should Exist
+        (Join-Path $pluginDest 'lib\index.js') | Should Exist
+        (Join-Path $profileDir 'package.json') | Should Exist
+        (Join-Path $profileDir 'cordis.patch.yml') | Should Exist
+        (Join-Path $profileDir 'pnpm-workspace.yaml') | Should Exist
+    }
 }
 
 Describe 'skill name <-> manifest sync' {

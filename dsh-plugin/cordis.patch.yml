@@ -1,0 +1,11 @@
+﻿# dsh-plugin: adds the project'\''s skill directory to the DSH skill registry.
+# Applied after dsh-base (which already mounts skill-filesystem with defaults).
+# This overrides the default skill-filesystem config to include the project'\''s
+# skills/ directory as a custom root, so the 8 Project Memory skills are
+# discoverable in any DSH profile (web, headless, sdk, etc.).
+
+- id: skill-filesystem
+  config:
+    customSkillDirs:
+      - ../skills
+    includeDefaultRoots: true
