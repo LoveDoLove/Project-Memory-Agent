@@ -51,7 +51,8 @@ function extractText(content) {
 /** Resolve the workspace root from a Cordis payload or session event.
  * Tries candidates first, then walks up from each candidate looking for
  * AGENTS.md (so a payload cwd inside a subdirectory still resolves correctly).
- * Falls back to the plugin's own repo root. */
+ * Returns null when no workspace can be determined (e.g. DSH web GUI without
+ * an explicit project cwd), so the caller can skip init-hint injection. */
 function resolveWorkspace(payload) {
   const candidates = [
     payload?.cwd,
@@ -73,8 +74,9 @@ function resolveWorkspace(payload) {
       dir = parent
     }
   }
-  // Fallback to this plugin's repo root (where AGENTS.md is expected).
-  return REPO_ROOT
+  // No candidate resolved to a workspace with AGENTS.md.
+  // Return null so callers skip init-hint injection.
+  return null
 }
 
 /** Read a skill SKILL.md and return its {name, description, content}. */
@@ -220,8 +222,11 @@ export function apply(ctx, config = {}) {
           const workspace = resolveWorkspace(payload)
           const agent = payload?.agent ?? payload
 
-          // First-time init hint (once per agent).
-          if (needsInit(workspace) && agent && !initHinted.has(agent)) {
+          // Only inject init hint when we have a confirmed workspace
+          // (i.e. one that contains AGENTS.md) AND it doesn't have one yet.
+          // Skip entirely when workspace cannot be determined (null)
+          // to avoid noise in DSH web GUI sessions.
+          if (workspace && needsInit(workspace) && agent && !initHinted.has(agent)) {
             initHinted.add(agent)
             if (typeof agent?.inject === 'function') {
               agent.inject({
