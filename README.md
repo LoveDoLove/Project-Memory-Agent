@@ -83,11 +83,10 @@ dsh plugin --profile web add @lovedolove/dsh-project-memory
 
 Published to [npm](https://www.npmjs.com/package/@lovedolove/dsh-project-memory) via GitHub Actions — install with zero setup.
 
-After install, dispatch the orchestrator as a subagent:
-```
+After install, the registry is auto-added and you can dispatch the orchestrator as a subagent:
+```powershell
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
-The bundled subagent registry makes this available automatically.
 
 ---
 

@@ -28,7 +28,6 @@
     }
   },
   "dependencies": {
-    "@aiwayds/dsh-subagent-registry": "^0.8.1",
     "@deepseek-ai/dsh-skill-filesystem": "^0.1.2-rc.1"
   },
   "peerDependencies": {
