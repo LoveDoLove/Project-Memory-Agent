@@ -18,6 +18,9 @@
  *      the agent to run the memory-architecture skill to bootstrap the
  *      Project Knowledge System (AGENTS.md + all skills + agents).
  *
+ *   3. Slash command -- registers /project-memory so users can trigger the
+ *      automatic Project Memory workflow without selecting an Agent preset.
+ *
  * Events listened to (best-effort, never throws into the harness loop):
  *   - agent/pre-step    -> inject first-time-init hint (once per agent)
  */
@@ -27,6 +30,7 @@ import { join, relative, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { homedir } from 'node:os'
 import { cbmApply } from './codebase-memory-bridge.mjs'
+import { applySlashCommand } from './slash-project-memory.mjs'
 
 const PLUGIN_ID = 'dsh-project-memory'
 
@@ -206,6 +210,18 @@ export function apply(ctx, config = {}) {
       console.log('[project-memory] registered cbm_* codebase-memory tools')
     } catch {
       // codebase-memory-mcp not available -- skip silently
+    }
+  }
+
+  // 3. Register /project-memory slash command (requires ctx.commands).
+  if (ctx?.commands && typeof ctx.commands.register === 'function') {
+    try {
+      ctx.effect(() => {
+        applySlashCommand(ctx, initialWs)
+      }, 'project-memory: slash-command')
+      console.log('[project-memory] registered /project-memory slash command')
+    } catch {
+      // commands service unavailable -- skip silently
     }
   }
 

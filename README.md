@@ -68,7 +68,7 @@ The installer downloads the orchestrator agent and its 8 skills into your chosen
 
 ## DeepSeek Harness (DSH) Plugin
 
-The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. It also registers `cbm_*` tools (codebase-memory bridge) when the `codebase-memory-mcp` is available, and injects a first-time-init hint when no `AGENTS.md` is found.
+The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. It also registers `cbm_*` tools (codebase-memory bridge) when the `codebase-memory-mcp` is available, injects a first-time-init hint when no `AGENTS.md` is found, and registers the `/project-memory` slash command.
 
 ```powershell
 # Interactive — shows the commands for your profile
@@ -84,16 +84,40 @@ The installer will print the plugin add command. Run it manually:
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
 
-After install, dispatch the orchestrator as a subagent:
+### Using `/project-memory` (Recommended)
+
+After install, the one-click command is available in any DSH session:
+
+```
+/project-memory
+```
+
+This automatically detects the repository's Project Memory state and runs the
+appropriate workflow — no Agent selection, no skill picking, no mode arguments.
+
+### Advanced: Direct Agent Invocation
+
+For full control, dispatch the orchestrator as a subagent:
 ```powershell
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a two-row Cordis patch — one row registers the workspace's `skills/` directory as a custom skill root, the other loads the runtime glue (`dsh/plugin.mjs`) which re-registers skills dynamically and injects post-task memory prompts.
+**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a two-row Cordis patch — one row registers the workspace's `skills/` directory as a custom skill root, the other loads the runtime glue (`dsh/plugin.mjs`) which re-registers skills dynamically, registers the `/project-memory` slash command, and injects post-task memory prompts.
 
 ---
 
 ## How to Use
+
+### One-Click (DSH only)
+
+```
+/project-memory
+```
+
+Automatic state detection → appropriate operations → verification. Works in any
+DSH session after the plugin is installed. No preset selection required.
+
+### Advanced: Direct Agent Invocation
 
 Invoke the orchestrator in any supported agent:
 

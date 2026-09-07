@@ -63,6 +63,40 @@ For progressive loading levels (what each docs/ tier contains), see
 
 ---
 
+## How to Run Project Memory
+
+### One-Click Command (Recommended)
+
+```
+/project-memory
+```
+
+This is the primary user-facing entry point. It automatically:
+
+1. Detects whether Project Memory exists in the repository
+2. Determines what operations are required (initialize, audit, update, verify)
+3. Delegates to the appropriate skills without requiring manual selection
+4. Verifies the final result
+
+No Agent preset selection. No `@project-memory`. No manual Skill selection.
+
+**When memory is missing:** auto-initializes AGENTS.md and the memory architecture.
+**When memory exists:** audits for staleness, updates only what changed, verifies.
+**When memory is current:** runs verification and reports no changes needed.
+
+### Advanced: Direct Agent Invocation
+
+For full control, invoke the orchestrator agent directly:
+
+```
+@project-memory
+```
+
+This loads the full `project-memory` Agent with access to all 8 skills and
+the complete routing table. See [`agents/project-memory.md`](./agents/project-memory.md).
+
+---
+
 ## When to Use `@project-memory`
 
 Invoke the orchestrator (defined in [`agents/project-memory.md`](./agents/project-memory.md))
