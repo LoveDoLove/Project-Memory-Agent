@@ -1,6 +1,6 @@
 # Project Memory
 
-[![npm](https://img.shields.io/npm/v/@lovedolove/dsh-project-memory?label=DSH%20plugin&style=flat-square)](https://www.npmjs.com/package/@lovedolove/dsh-project-memory)
+[![npm](https://img.shields.io/npm/v/@lovedolove/dsh-project-memory?label=npm&style=flat-square)](https://www.npmjs.com/package/@lovedolove/dsh-project-memory)
 [![GitHub Stars][stars-shield]][stars-url] [![License][license-shield]][license-url] [![Platform][platform-shield]][platform-url]
 
 > **Durable, evidence-backed memory for coding agents.**
@@ -8,10 +8,27 @@
 Project Memory gives every coding agent a single, trustworthy knowledge base for your repository — so it stops re-learning the same facts and writing conflicting "memory" files.
 
 ```text
-Discover -> Verify -> Classify -> Compound -> Reconstruct -> Single Source of Truth
+Discover → Verify → Classify → Compound → Reconstruct → Single Source of Truth
 ```
 
 Code tells agents **what exists**. Project Memory helps them remember **why** — and reconciles every place that already tried to write it down.
+
+[🇨🇳 简体中文](./README.zh-CN.md)
+
+---
+
+## Table of Contents
+
+- [Why it matters](#why-it-matters)
+- [Quick Start](#quick-start)
+- [Supported Platforms](#supported-platforms)
+- [DeepSeek Harness (DSH) Plugin](#deepseek-harness-dsh-plugin)
+- [How to Use](#how-to-use)
+- [What It Does](#what-it-does)
+- [Skills](#skills)
+- [Knowledge Architecture](#knowledge-architecture)
+- [Testing](#testing)
+- [License](#license)
 
 ---
 
@@ -26,11 +43,11 @@ With Project Memory, that knowledge is discovered, verified against actual code,
 ## Quick Start
 
 ```powershell
-# Install to all supported platforms (OpenCode, Codex, Claude, DSH)
+# Install to all supported platforms (OpenCode, Codex, Claude, DSH, Global)
 irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
 ```
 
-The installer downloads the agent and its 8 skills into your chosen tool's global config. Pick a target from the interactive menu (`1` OpenCode · `2` Codex · `3` Claude · `4` DSH · `5` All). Via `irm | iex` it defaults to `all` non-interactively.
+The installer downloads the orchestrator agent and its 8 skills into your chosen tool's global config. Pick a target from the interactive menu (`1` OpenCode · `2` Codex · `3` Claude · `4` DSH · `5` Global · `6` All). Via `irm | iex` it defaults to `all` non-interactively.
 
 ### Supported Platforms
 
@@ -39,7 +56,8 @@ The installer downloads the agent and its 8 skills into your chosen tool's globa
 | OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
 | Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
 | Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
-| DSH | CLI: `dsh plugin add ...` | `dsh --profile <name>` |
+| DSH | CLI: `dsh plugin add …` | `~/.dsh/.agent-presets/project-memory/` |
+| Global | `~/.agents/skills/` | `~/.agents/agents/project-memory.md` |
 
 > `all` writes skills to both `~/.claude/skills` and `~/.agents/skills` (no OpenCode double-load), seeds agent files for all platforms, and prints DSH plugin commands.
 
@@ -50,7 +68,7 @@ The installer downloads the agent and its 8 skills into your chosen tool's globa
 
 ## DeepSeek Harness (DSH) Plugin
 
-The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry.
+The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. It also registers `cbm_*` tools (codebase-memory bridge) when the `codebase-memory-mcp` is available, and injects a first-time-init hint when no `AGENTS.md` is found.
 
 ```powershell
 # Interactive — shows the commands for your profile
@@ -70,6 +88,8 @@ After install, dispatch the orchestrator as a subagent:
 ```powershell
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
+
+**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a two-row Cordis patch — one row registers the workspace's `skills/` directory as a custom skill root, the other loads the runtime glue (`dsh/plugin.mjs`) which re-registers skills dynamically and injects post-task memory prompts.
 
 ---
 
@@ -173,8 +193,6 @@ MIT — see [LICENSE](LICENSE).
 
 [stars-shield]: https://img.shields.io/github/stars/LoveDoLove/Project-Memory-Agent.svg
 [stars-url]: https://github.com/LoveDoLove/Project-Memory-Agent/stargazers
-[issues-shield]: https://img.shields.io/github/issues/LoveDoLove/Project-Memory-Agent.svg
-[issues-url]: https://github.com/LoveDoLove/Project-Memory-Agent/issues
 [license-shield]: https://img.shields.io/github/license/LoveDoLove/Project-Memory-Agent.svg
 [license-url]: https://github.com/LoveDoLove/Project-Memory-Agent/blob/main/LICENSE
 [platform-shield]: https://img.shields.io/badge/platforms-OpenCode%20%7C%20Codex%20%7C%20Claude%20%7C%20DSH-blue?style=flat-square
