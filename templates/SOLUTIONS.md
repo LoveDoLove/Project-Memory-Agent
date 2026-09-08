@@ -18,17 +18,17 @@ document. Use it to:
 
 # Bug Track Solutions
 
-| Title | Category | Module | Status | Last Verified | Path |
-|-------|----------|--------|--------|---------------|------|
-| Example Bug Fix | build_error | core | active | 2025-01-15 | `solutions/example-bug-fix.md` |
+| Title | Category | Module | Status | Confidence | Last Verified | Path |
+|-------|----------|--------|--------|------------|---------------|------|
+| Example Bug Fix | build_error | core | current | high | 2025-01-15 | `solutions/example-bug-fix.md` |
 
 ---
 
 # Knowledge Track Solutions
 
-| Title | Category | Module | Status | Last Verified | Path |
-|-------|----------|--------|--------|---------------|------|
-| Example Best Practice | best_practice | utils | active | 2025-01-15 | `solutions/example-best-practice.md` |
+| Title | Category | Module | Status | Confidence | Last Verified | Path |
+|-------|----------|--------|--------|------------|---------------|------|
+| Example Best Practice | best_practice | utils | current | high | 2025-01-15 | `solutions/example-best-practice.md` |
 
 ---
 
@@ -60,10 +60,10 @@ document. Use it to:
 
 # Status Values
 
-- `active` — current and applicable
-- `superseded` — replaced by newer knowledge
-- `deprecated` — no longer recommended
-- `historical` — preserved for reference
+- `current` — actively used and verified
+- `superseded` — replaced by newer knowledge (check `superseded_by`)
+- `deprecated` — still works but no longer recommended
+- `historical` — preserved for understanding past decisions
 
 ---
 
@@ -80,7 +80,7 @@ Update this index when:
 
 # References
 
-- `templates/TEMPLATE.md` — Solution document template
+- `templates/TEMPLATE.md` — knowledge document template (all types)
 - `templates/schema.yaml` — canonical frontmatter contract
 - `knowledge-compounding` — extraction workflow
 - `memory-edit` — how to update this index

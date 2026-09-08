@@ -1,174 +1,270 @@
-# Solution Document Template
+# Knowledge Document Template
 
-Use this template when creating new Solution documents in `docs/solutions/`.
+Use this template when creating new knowledge documents in `docs/`.
+Applies to all knowledge types: architecture, decision, solution, lesson,
+constraint, workflow, reference, and history.
 
 ---
 
 # YAML Frontmatter
 
-Every Solution document requires YAML frontmatter. The schema supports two
-tracks: **Bug track** for diagnosed defects and **Knowledge track** for
-practice gaps.
+Every knowledge document requires YAML frontmatter. Use the fields below;
+omitted fields are optional unless marked required for the document type.
 
-## Bug Track
-
-Use when the problem is a diagnosed defect.
+## Minimal Required Fields (All Types)
 
 ```yaml
 ---
 title: "Short descriptive title"
-problem_type: bug
-category: "bug | test_failure | runtime_error | performance_issue | integration_issue | security_issue | ui_bug | logic_error | build_error"
-module: "affected module or subsystem"
-status: "active | superseded | deprecated | historical"
+type: architecture | decision | solution | lesson | constraint | workflow | reference | history
+status: current | deprecated | superseded | historical
+confidence: high | medium | low
 created: "YYYY-MM-DD"
 last_verified: "YYYY-MM-DD"
-applies_when: "conditions where this applies (optional for bug track)"
-symptoms:
-  - "observable failure or symptom 1"
-  - "observable failure or symptom 2"
-root_cause: "verified mechanism that caused the defect"
-resolution_type: "code_fix | migration | config_change | test_fix | dependency_update | refactor"
-tags:
-  - "tag1"
-  - "tag2"
-related:
-  - "path/to/related/document.md"
-severity: "critical | high | medium | low"
 ---
 ```
 
-## Knowledge Track
-
-Use when the problem is a gap in practice.
+## Optional Enhancement Fields
 
 ```yaml
 ---
-title: "Short descriptive title"
-problem_type: knowledge
-category: "best_practice | convention | tooling_decision | workflow_issue | developer_experience | architecture_pattern | documentation_gap"
-module: "affected module or subsystem (optional)"
-status: "active | superseded | deprecated | historical"
-created: "YYYY-MM-DD"
-last_verified: "YYYY-MM-DD"
-applies_when: "conditions where this guidance applies"
-symptoms:
-  - "observable failure or symptom 1 (optional)"
-root_cause: "verified mechanism (optional)"
-resolution_type: "guidance"
-tags:
-  - "tag1"
-  - "tag2"
+# Evidence backing this claim (file paths with optional line numbers)
+evidence:
+  - path: src/auth/token.ts:42
+    type: source
+  - path: tests/auth/token.test.ts
+    type: test
+
+# Semantic relationships to other knowledge units
 related:
-  - "path/to/related/document.md"
-severity: "critical | high | medium | low"
+  - docs/decisions/authentication.md              # plain path (backward compatible)
+  - path: docs/architecture/security.md
+    type: belongs_to          # I belong to this parent concept
+  - path: docs/solutions/login-failure.md
+    type: caused_by           # This was caused by the target issue
+  - path: docs/decisions/auth-v1.md
+    type: evolved_from        # This replaced the old version
+
+# What supersedes this knowledge (required when status = superseded)
+superseded_by: "docs/decisions/new-authentication.md"
+
+# Origin paths merged during multi-source reconstruction
+consolidated_from:
+  - "CLAUDE.md § Authentication"
+  - ".cursor/rules/auth.md"
+
+# Searchable tags (corpus-first vocabulary — sample existing tags first)
+tags:
+  - authentication
+  - security
+
+# Breadth of applicability
+scope: project | domain | component
+
+# Domain README only — freshness indicators
+# last_indexed: "2026-09-08"
+# pending_updates: 0
 ---
 ```
 
 ---
 
-# Content Sections
+# Per-Type Field Requirements
 
-## 1. Problem
+| Type | Required Extra Fields |
+|------|----------------------|
+| **solution** | `problem_type`, `severity` (+ bug track: `category`, `module`, `symptoms`, `root_cause`, `resolution_type`; + knowledge track: `applies_when`, `category`) |
+| **decision** | `rationale` (recommended), `alternatives` (recommended) |
+| **lesson** | `generalizable_from` (recommended) |
+| **constraint** | `enforced_by` (recommended), `violation_impact` (recommended) |
+| **workflow** | `steps` (recommended) |
+| **architecture** | `invariants` (recommended) |
+| **reference**, **history**, **fact** | None beyond core fields |
 
-Describe the problem clearly and concisely. What was the issue? What was the
-impact?
+---
 
-## 2. Root Cause
+# Content Structure by Type
 
-Explain the verified root cause. What mechanism caused the problem? How was
-it verified?
-
-## 3. Solution
-
-Describe the solution that was applied. What approach was taken? Why was it
-chosen over alternatives?
-
-## 4. Failed / Rejected Approaches
-
-Document approaches that were tried and failed, or considered and rejected.
-This prevents future Agents from repeating expensive mistakes.
+## Architecture
 
 ```markdown
-### Approach A — Rejected
+# <Title>
 
-**Why tried:** <reason>
-**Why failed:** <reason>
-**Evidence:** <tests, logs, or other evidence>
-**Replacement:** <what was used instead>
+> Status: current · Confidence: high · Last verified: YYYY-MM-DD
+
+## Overview
+
+What this architecture describes and why it matters.
+
+## Structure
+
+Module boundaries, component relationships, data flow.
+
+## Invariants
+
+What must always hold true.
+
+## Evidence
+
+- Source: `src/module/...`
+- Tests: `tests/module/...`
 ```
 
-## 5. Verification
-
-How was the solution verified? What evidence confirms it works?
+## Decision
 
 ```markdown
-- [ ] Tests pass: <test names>
-- [ ] Build succeeds: <build command>
-- [ ] Manual verification: <steps>
-- [ ] Evidence: <links to logs, screenshots, etc.>
+# <Title>
+
+> Status: current · Confidence: high · Last verified: YYYY-MM-DD
+
+## Context
+
+The situation that required a decision.
+
+## Decision
+
+The choice that was made.
+
+## Rationale
+
+Why this choice over alternatives.
+
+## Alternatives Considered
+
+- **Option A** — Rejected because: <reason>
+- **Option B** — Rejected because: <reason>
+
+## Consequences
+
+What follows from this decision.
+
+## Evidence
+
+- Configuration: `config/...`
+- Git history: `<commit>`
 ```
 
-## 6. Evidence
-
-List the evidence that supports this document's claims.
+## Solution
 
 ```markdown
-- Source: <file path and line numbers>
-- Test: <test file and function>
-- Config: <config file and setting>
-- Build: <build log or CI output>
-- Git: <commit hash or branch>
+# <Title>
+
+> Status: current · Confidence: high · Last verified: YYYY-MM-DD
+> Problem type: bug | knowledge · Category: <category>
+
+## Problem
+
+What was the issue? What was the impact?
+
+## Root Cause
+
+Verified mechanism (not assumed).
+
+## Solution
+
+What was done and why.
+
+## Failed / Rejected Approaches
+
+- **Approach A** — Why it failed: <evidence>
+
+## Verification
+
+- [ ] Tests pass: `<test names>`
+- [ ] Build succeeds: `<command>`
+- [ ] Evidence: `<file:line>`
+
+## Future Guidance
+
+Actionable guidance for future Agents.
 ```
 
-## 7. Why It Matters
+## Lesson
 
-Explain the future engineering value. Why would a future Agent need this
-knowledge? What would they rediscover or repeat without it?
+```markdown
+# <Title>
 
-## 8. Future Guidance
+> Status: current · Confidence: medium · Last verified: YYYY-MM-DD
 
-Provide actionable guidance for future Agents. What should they do or avoid
-doing?
+## Problem
 
-## 9. Constraints
+What general situation does this apply to?
 
-Document any constraints, limitations, or conditions that apply.
+## Root Cause
 
-## 10. References
+What mechanism causes this pattern?
 
-Link to related knowledge, documentation, or code.
+## Incorrect Approach
+
+What do Agents tend to try first (and why it fails)?
+
+## Correct Approach
+
+What should they do instead?
+
+## Why It Matters
+
+Future engineering value.
+
+## Evidence
+
+- Incident: `<date or commit>`
+- Source: `<file>`
+```
+
+---
+
+# Domain README Template
+
+For `docs/<domain>/README.md`:
+
+```yaml
+---
+title: "<Domain> Domain"
+last_indexed: "2026-09-08"
+pending_updates: 0
+summary: "One-line description for AGENTS.md cross-reference"
+---
+```
+
+```markdown
+# <Domain>
+
+This domain covers <scope>.
+
+## Read When
+
+- <task A> → `<topic-a.md>`
+- <task B> → `<topic-b.md>`
+
+## Knowledge Units
+
+- [`<topic-a.md>`](./topic-a.md) — <one-line description>
+- [`<topic-b.md>`](./topic-b.md) — <one-line description>
+```
 
 ---
 
 # Quality Checklist
 
-Before publishing a Solution document:
+Before publishing any knowledge document:
 
-- [ ] YAML frontmatter is complete and accurate
-- [ ] Problem is clearly described
-- [ ] Root cause is verified (not guessed)
-- [ ] Solution is evidence-backed
-- [ ] Failed approaches are documented
-- [ ] Verification steps are provided
-- [ ] Evidence is listed with specific references
-- [ ] Future guidance is actionable
-- [ ] Document passes the durable bar test:
-  > If this document disappeared, would a future Agent reading the final
-  > implementation, tests, and existing docs still repeat the mistake or
-  > redo substantial investigation?
-
----
-
-# Examples
-
-See `docs/solutions/` for real examples in this repository.
+- [ ] Frontmatter is complete (all required fields present)
+- [ ] `status` matches repository reality
+- [ ] `confidence` reflects actual evidence strength
+- [ ] `last_verified` is current (within 30 days for current knowledge)
+- [ ] Every factual claim has at least one `evidence` entry
+- [ ] `related:` links point to existing documents (verified by memory-verification)
+- [ ] `superseded_by` is set when status is `superseded`
+- [ ] Tags use existing corpus vocabulary (corpus-first rule)
+- [ ] Document passes the Durable Bar counterfactual (for solutions/lessons)
+- [ ] One canonical home — no duplicate knowledge across origin tools
 
 ---
 
 # References
 
-- `references/schema.yaml` — canonical frontmatter contract
-- `references/concepts-vocabulary.md` — vocabulary rules
-- `knowledge-classification` — knowledge type definitions
-- `knowledge-compounding` — extraction workflow
+- `templates/schema.yaml` — canonical frontmatter contract
+- `knowledge-classification` — knowledge type and lifecycle definitions
+- `knowledge-compounding` — extraction and Durable Bar criteria
+- `memory-verification` — verification acceptance criteria

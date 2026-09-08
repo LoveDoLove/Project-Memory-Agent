@@ -1,201 +1,318 @@
-# Schema for Solution Document Frontmatter
-# This is the canonical contract for YAML frontmatter in docs/solutions/
+# Canonical Frontmatter Schema for Project Memory Knowledge Documents
+#
+# This schema applies to ALL knowledge document types, not just Solutions.
+# It replaces the previous solution-only schema. Each knowledge type uses
+# the same core fields; track-specific fields are noted below.
+#
+# Usage: copy the fields you need into your document's YAML frontmatter.
+# Unknown fields are silently ignored; required fields must be present.
 
-# Bug Track Schema
-bug_track:
+# ── Core Fields (all knowledge types) ────────────────────────────────────────
+
+core:
   title:
     type: string
     required: true
-    description: "Short descriptive title"
-  
-  problem_type:
-    type: enum
-    required: true
-    values: [bug]
-    description: "Must be 'bug' for bug track"
-  
-  category:
+    description: "Human-readable title of the knowledge unit"
+
+  type:
     type: enum
     required: true
     values:
-      - bug
-      - test_failure
-      - runtime_error
-      - performance_issue
-      - integration_issue
-      - security_issue
-      - ui_bug
-      - logic_error
-      - build_error
-    description: "Type of defect"
-  
-  module:
-    type: string
-    required: true
-    description: "Affected module or subsystem"
-  
+      - fact        # Current operational fact
+      - architecture # How the system is structured
+      - decision    # Why an engineering direction was chosen
+      - solution    # How a concrete problem was solved
+      - lesson      # Generalizable engineering principle
+      - constraint  # Boundary future work must respect
+      - workflow    # Repeatable procedure
+      - reference   # On-demand lookup material
+      - history     # Old state explaining current system
+      - obsolete    # Invalid with no remaining value
+    description: "Primary knowledge type (one per document)"
+
   status:
     type: enum
     required: true
-    values: [active, superseded, deprecated, historical]
+    values:
+      - current       # Implementation exists, no replacement
+      - in_progress   # Active implementation or migration
+      - partial       # Some behavior exists, full claim unsupported
+      - experimental  # Proof of concept, unstable dev
+      - deprecated    # Still present but should no longer be used
+      - superseded    # Replaced by newer implementation
+      - abandoned     # Started, no longer pursued
+      - historical    # No longer current but explains something important
+      - unknown       # Evidence insufficient (internal only)
     description: "Current lifecycle state"
-  
+
+  confidence:
+    type: enum
+    required: true
+    values: [high, medium, low]
+    description: >
+      How strongly repository evidence supports this claim.
+      high = multiple independent sources agree (source + tests + config).
+      medium = one strong direct source.
+      low = indirect, incomplete, or historical evidence.
+
+  evidence:
+    type: array
+    required: false
+    items:
+      type: object
+      properties:
+        path:
+          type: string
+          description: "File path with optional line number (src/file.ts:42)"
+        type:
+          type: enum
+          values: [source, test, config, ci, git]
+          description: "Kind of evidence"
+      required: [path]
+    description: "Repository evidence backing this claim"
+
+  scope:
+    type: enum
+    values: [project, domain, component, subsystem]
+    required: false
+    description: "Breadth of applicability"
+
+  tags:
+    type: array
+    required: false
+    items:
+      type: string
+    description: "Searchable tags (corpus-first vocabulary rule applies)"
+
   created:
     type: date
     required: true
     format: "YYYY-MM-DD"
-    description: "When the document was created"
-  
+    description: "When the knowledge unit was created"
+
   last_verified:
     type: date
     required: true
     format: "YYYY-MM-DD"
-    description: "When the document was last verified against code"
-  
-  applies_when:
-    type: string
-    required: false
-    description: "Conditions where this applies (optional for bug track)"
-  
-  symptoms:
-    type: array
-    required: true
-    items: string
-    description: "Observable failures or symptoms"
-  
-  root_cause:
-    type: string
-    required: true
-    description: "Verified mechanism that caused the defect"
-  
-  resolution_type:
-    type: enum
-    required: true
-    values:
-      - code_fix
-      - migration
-      - config_change
-      - test_fix
-      - dependency_update
-      - refactor
-    description: "How the defect was resolved"
-  
-  tags:
-    type: array
-    required: false
-    items: string
-    description: "Searchable tags"
-  
+    description: "When last checked against current repository evidence"
+
+  # ── Relationship Fields ─────────────────────────────────────────────────────
+  #
+  # related: supports both plain strings (backward compatible) and typed objects.
+  # Typed links enable semantic navigation (evolved_from, caused_by, etc.).
+
   related:
     type: array
     required: false
-    items: string
-    description: "Paths to related documents"
-  
-  severity:
-    type: enum
-    required: true
-    values: [critical, high, medium, low]
-    description: "Impact severity"
+    items:
+      oneOf:
+        - type: string         # Plain path (backward compatible)
+        - type: object
+          properties:
+            path:
+              type: string
+              description: "Path to related knowledge document"
+            type:
+              type: enum
+              values:
+                - belongs_to     # "I belong to this parent concept"
+                - caused_by      # "This was caused by the target"
+                - evolved_from   # "This evolved from the target (old version)"
+                - contradicts    # "This contradicts the target"
+                - derived_from   # "This was derived from the target"
+              description: "Semantic relationship type"
+          required: [path]
+    description: >
+      Related knowledge units. Plain strings are backward-compatible.
+      Typed links enable semantic retrieval (e.g. following evolved_from
+      to find the current version of a superseded decision).
 
-# Knowledge Track Schema
-knowledge_track:
+  superseded_by:
+    type: [string, null]
+    required: false
+    description: >
+      Path to the knowledge unit that replaces this one. Required when
+      status is 'superseded'. Must point to an existing document.
+
+  consolidated_from:
+    type: array
+    required: false
+    items:
+      type: string
+    description: >
+      Origins merged into this unit during multi-source reconstruction.
+
+  # ── Track-Specific Fields ───────────────────────────────────────────────────
+  #
+  # These fields are only required for specific knowledge types.
+  # See track_specific below for per-type requirements.
+
+track_specific:
+  # Solution track (type: solution)
+  solution_track:
+    problem_type:
+      type: enum
+      required: true
+      values: [bug, knowledge]
+      description: "Bug track (defect) or knowledge track (practice gap)"
+
+    # Bug track fields
+    category:
+      type: enum
+      required: false
+      when: "problem_type == bug"
+      values:
+        - bug
+        - test_failure
+        - runtime_error
+        - performance_issue
+        - integration_issue
+        - security_issue
+        - ui_bug
+        - logic_error
+        - build_error
+
+    module:
+      type: string
+      required: false
+      description: "Affected module or subsystem"
+
+    symptoms:
+      type: array
+      required: false
+      when: "problem_type == bug"
+      items: string
+      description: "Observable failures (required for bug track)"
+
+    root_cause:
+      type: string
+      required: false
+      when: "problem_type == bug"
+      description: "Verified mechanism (required for bug track)"
+
+    resolution_type:
+      type: enum
+      required: false
+      when: "problem_type == bug"
+      values:
+        - code_fix
+        - migration
+        - config_change
+        - test_fix
+        - dependency_update
+        - refactor
+
+    # Knowledge track fields
+    applies_when:
+      type: string
+      required: false
+      when: "problem_type == knowledge"
+      description: "Conditions where this guidance applies (required for knowledge track)"
+
+    category_k:
+      type: enum
+      required: false
+      when: "problem_type == knowledge"
+      values:
+        - best_practice
+        - convention
+        - tooling_decision
+        - workflow_issue
+        - developer_experience
+        - architecture_pattern
+        - documentation_gap
+
+    severity:
+      type: enum
+      required: true
+      values: [critical, high, medium, low]
+      description: "Impact severity (required for all solutions)"
+
+  # Decision track (type: decision)
+  decision_fields:
+    rationale:
+      type: string
+      required: false
+      description: "Why this direction was chosen over alternatives"
+    alternatives:
+      type: array
+      required: false
+      items: string
+      description: "Rejected or considered alternatives"
+    consequences:
+      type: string
+      required: false
+      description: "What follows from this decision"
+
+  # Lesson track (type: lesson)
+  lesson_fields:
+    generalizable_from:
+      type: string
+      required: false
+      description: "What experience or incident this was distilled from"
+
+  # Constraint track (type: constraint)
+  constraint_fields:
+    enforced_by:
+      type: string
+      required: false
+      description: "What enforces this constraint (tool, platform, policy)"
+    violation_impact:
+      type: string
+      required: false
+      description: "What happens if this constraint is violated"
+
+  # Workflow track (type: workflow)
+  workflow_fields:
+    steps:
+      type: array
+      required: false
+      items: string
+      description: "High-level steps in the workflow"
+
+  # Architecture track (type: architecture)
+  architecture_fields:
+    invariants:
+      type: array
+      required: false
+      items: string
+      description: "Important invariants that must hold"
+
+# ── Domain README Frontmatter (special case) ──────────────────────────────────
+#
+# Domain README files (docs/<domain>/README.md) use a simplified schema:
+
+domain_readme:
   title:
     type: string
     required: true
-    description: "Short descriptive title"
-  
-  problem_type:
-    type: enum
-    required: true
-    values: [knowledge]
-    description: "Must be 'knowledge' for knowledge track"
-  
-  category:
-    type: enum
-    required: true
-    values:
-      - best_practice
-      - convention
-      - tooling_decision
-      - workflow_issue
-      - developer_experience
-      - architecture_pattern
-      - documentation_gap
-    description: "Type of knowledge gap"
-  
-  module:
-    type: string
-    required: false
-    description: "Affected module or subsystem (optional)"
-  
-  status:
-    type: enum
-    required: true
-    values: [active, superseded, deprecated, historical]
-    description: "Current lifecycle state"
-  
-  created:
+  last_indexed:
     type: date
-    required: true
+    required: false
     format: "YYYY-MM-DD"
-    description: "When the document was created"
-  
-  last_verified:
-    type: date
-    required: true
-    format: "YYYY-MM-DD"
-    description: "When the document was last verified against code"
-  
-  applies_when:
-    type: string
-    required: true
-    description: "Conditions where this guidance applies"
-  
-  symptoms:
-    type: array
+    description: "Date when this domain index was last refreshed"
+  pending_updates:
+    type: integer
     required: false
-    items: string
-    description: "Observable failures or symptoms (optional)"
-  
-  root_cause:
+    default: 0
+    description: >
+      Number of child knowledge units that have been updated since
+      last_indexed. Incremented by repository-audit when children change.
+      Reset to 0 after domain index is refreshed.
+  summary:
     type: string
     required: false
-    description: "Verified mechanism (optional)"
-  
-  resolution_type:
-    type: string
-    required: true
-    value: guidance
-    description: "Always 'guidance' for knowledge track"
-  
-  tags:
-    type: array
-    required: false
-    items: string
-    description: "Searchable tags"
-  
-  related:
-    type: array
-    required: false
-    items: string
-    description: "Paths to related documents"
-  
-  severity:
-    type: enum
-    required: true
-    values: [critical, high, medium, low]
-    description: "Impact severity"
+    description: "One-line L0 summary of this domain (for AGENTS.md cross-reference)"
 
-# Validation Rules
+# ── Validation Rules ──────────────────────────────────────────────────────────
+
 validation:
-  - "title must be unique within the repository"
-  - "problem_type determines which track schema applies"
-  - "category must match the track (bug categories for bug track, knowledge categories for knowledge track)"
-  - "status must be one of: active, superseded, deprecated, historical"
-  - "created and last_verified must be valid dates"
-  - "symptoms is required for bug track, optional for knowledge track"
-  - "root_cause is required for bug track, optional for knowledge track"
-  - "applies_when is required for knowledge track, optional for bug track"
-  - "resolution_type must be 'guidance' for knowledge track"
-  - "related paths must be valid file paths"
+  rules:
+    - "type and status determine which track-specific fields are required"
+    - "confidence must be high, medium, or low (never 'unknown' in published docs)"
+    - "related paths must resolve to existing files (checked by memory-verification)"
+    - "superseded_by must point to an existing document when status is 'superseded'"
+    - "created and last_verified must be valid YYYY-MM-DD dates"
+    - "tags follow corpus-first vocabulary rule — sample existing corpus before choosing"
+    - "title must be unique within the repository"
