@@ -136,10 +136,40 @@ Result: all 8 Project Memory skills become available in the session.
 
 | Level | What's Read | Purpose |
 |---|---|---|
-| 0 | `AGENTS.md` | Project identity, critical rules, navigation |
-| 1 | `docs/<domain>/README.md` | Domain orientation |
-| 2 | `docs/<domain>/<topic>.md` | Focused knowledge unit |
+| 0 | `AGENTS.md` | Project identity, critical rules, **L0 domain summaries** for quick scanning |
+| 1 | `docs/<domain>/README.md` | Domain orientation, when to read each unit |
+| 2 | `docs/<domain>/<topic>.md` | Focused knowledge unit with evidence |
 | 3 | `skills/<name>/SKILL.md` | Skill instructions (on demand) |
+
+### L0 Domain Summaries (Level 0 Enhancement)
+
+`AGENTS.md` now includes an `l0_domains` frontmatter section and a navigation
+table with one-line summaries for each knowledge domain. Agents scan this table
+**before** loading any domain README to decide which domain is relevant.
+
+```yaml
+l0_domains:
+  architecture: "System design, DSH plugin internals, progressive loading model"
+  solutions: "Diagnosed fix patterns for recurring issues and bugs"
+  lessons: "Reusable engineering principles distilled from completed work"
+```
+
+This is a lightweight version of OpenViking's L0 abstract sidecar — human-maintained,
+not auto-generated, preserving evidence discipline.
+
+### Retrieval Trace Mode
+
+Run `/project-memory --trace` to enable ephemeral retrieval tracing. The agent
+records each knowledge lookup step (query → route → unit → evidence → confidence)
+and prints the trace at the end of the session. Traces are **never persisted**
+to repository files — they are session-ephemeral debug output only.
+
+### Knowledge Change Audit Log
+
+All edits are appended to [`docs/CHANGELOG-MEMORY.md`](../CHANGELOG-MEMORY.md).
+This file records what changed, why, confidence level, and evidence source.
+It enables rollbacks, drift detection, and transparent review of system
+modifications. See [`skills/memory-edit/SKILL.md`](../../skills/memory-edit/SKILL.md#knowledge-change-audit-log).
 
 ---
 
@@ -147,9 +177,10 @@ Result: all 8 Project Memory skills become available in the session.
 
 | Path | Role | Owner |
 |---|---|---|
-| `AGENTS.md` | Agent entry point | `@project-memory` agent |
+| `AGENTS.md` | Agent entry point with L0 domain summaries | `@project-memory` agent |
 | `README.md` | Human introduction | `@project-memory` agent |
-| `docs/architecture.md` | System design | this document |
+| `docs/CHANGELOG-MEMORY.md` | Knowledge change audit log (append-only) | `memory-edit` |
+| `docs/architecture.md` | System design, DSH plugin internals, progressive loading levels | this document |
 | `skills/*/SKILL.md` | Skill instructions | individual skill authors |
 | `agents/project-memory.md` | DSH/Claude orchestrator | `@project-memory` |
 | `agents/project-memory.toml` | Codex orchestrator | `@project-memory` |
