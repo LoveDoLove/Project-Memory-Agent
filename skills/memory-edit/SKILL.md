@@ -8,7 +8,8 @@ description: >
   CLAUDE.md, .cursor/rules/, .claude/) into one canonical location while
   preserving canonical ownership, historical boundaries, and reference
   integrity. Delegates bounded mechanical edits to cavecrew-builder;
-  never performs blind bulk rewrites.
+  never performs blind bulk rewrites. Appends each change to
+  docs/CHANGELOG-MEMORY.md for audit traceability.
 ---
 
 # Memory Edit
@@ -629,6 +630,54 @@ Repository-wide verification remains the responsibility of
 The receipt must describe what actually happened. Do not claim "all links
 valid", "repository consistent", "memory fully migrated", or "architecture
 correct" unless a separate verification phase established those facts.
+
+---
+
+# Knowledge Change Audit Log
+
+After every `memory-edit` operation, append an entry to
+`docs/CHANGELOG-MEMORY.md`. This file is the immutable audit trail for all
+Project Memory changes — it records what changed, why, and with what
+confidence.
+
+## Format
+
+```markdown
+### YYYY-MM-DD — <Operation Type>
+
+- **Path:** `<file path changed>`
+- **Operation:** Create | Update | Consolidate | Supersede | Delete | Thin-Pointer
+- **Reason:** <one-line explanation of why the change was made>
+- **Confidence:** High | Medium | Low
+- **Evidence Source:** <brief reference, e.g. "PR #123", "package.json", "git log abc123">
+- **Verified By:** repository-audit | knowledge-classification | memory-verification
+```
+
+## Rules
+
+- **Append only.** Never edit or rewrite previous entries.
+- **One entry per logical change set.** Multiple related files changed in one
+  operation = one entry listing all affected paths.
+- **Include confidence.** Always assess how certain the evidence is.
+- **Include source reference.** Point to the commit, PR, or evidence file that
+  justified the change.
+- **Create the file if absent.** First edit creates `docs/CHANGELOG-MEMORY.md`.
+- **Keep entries concise.** One block per change; no narrative logs.
+
+## Purpose
+
+This log serves three purposes:
+
+1. **Audit trail** — anyone can see what changed and why, without reading every
+   knowledge document.
+2. **Rollback support** — `obsolete-knowledge` can scan this log to detect
+   drift between knowledge claims and actual evidence over time.
+3. **Transparency** — users can review what the system has modified in their
+   repository.
+
+## Preceding Section
+
+Place this section immediately after the Edit Receipt section.
 
 ---
 

@@ -137,6 +137,15 @@ notes.
 
 Documentation is evidence. It is not automatically current.
 
+### Domain README Freshness
+
+For each `docs/<domain>/README.md`, check:
+- Does `last_indexed` frontmatter exist? If so, compare against the newest
+  modification time of any child knowledge unit in that domain.
+- If a child unit was modified after `last_indexed`, increment `pending_updates`
+  in the README frontmatter and record the delta in the evidence inventory.
+- If `last_indexed` is absent, note it as a gap (domain index never refreshed).
+
 ## 7. Existing Agent / Skill Instructions
 
 Check: AGENTS.md, CLAUDE.md, agent definitions, SKILL.md files,
@@ -605,7 +614,9 @@ Documentation compared and mismatches recorded
 Git history and existing memory investigated where relevant
 Existing Knowledge Inventory verified where supplied
 Coverage limitations recorded and evidence inventory produced
-No repository changes made
+Domain README freshness checked: pending_updates incremented when child
+    documents changed since last_indexed; gaps (missing last_indexed) noted
+No repository files modified
 ```
 
 Do not claim a criterion was completed if it was not performed. If a

@@ -960,6 +960,26 @@ Critical evidence limitation hidden
    evidence limitations explicitly.
 10. Do not treat edit receipts as final verification.
 
+## Retrieval Trace (when --trace flag is active)
+
+When `/project-memory --trace` was used, append a `## Retrieval Trace` section
+to the verification report. Record each knowledge lookup step:
+
+```json
+{
+  "query": "Why does this project use pnpm?",
+  "steps": [
+    {"step": "agentic_navigation", "from": "AGENTS.md", "to": "docs/decisions/package-manager.md", "reason": "L0 summary matched query intent"},
+    {"step": "knowledge_retrieval", "unit": "docs/decisions/package-manager.md", "type": "decision", "confidence": "high"},
+    {"step": "evidence_verification", "evidence": ["package.json", ".github/workflows/ci.yml"], "result": "confirmed"}
+  ],
+  "result": {"unit": "docs/decisions/package-manager.md", "confidence": "high", "limitations": []}
+}
+```
+
+Print the trace as JSON at the end of the report. Do not persist this trace to
+any repository file — it is session-ephemeral debug output only.
+
 ---
 
 # Completion Criteria
@@ -975,4 +995,5 @@ Failures and warnings classified; limitations recorded
 Final result assigned from the four-value vocabulary
 Verification receipt produced
 Final gate blocker list clear
+Retrieval trace captured (when --trace flag is active): query → route → unit → evidence → confidence
 ```

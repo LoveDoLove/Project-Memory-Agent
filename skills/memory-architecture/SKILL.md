@@ -285,7 +285,26 @@ Critical constraints
 Minimal architecture orientation
 Verification expectations
 Memory navigation
+L0 domain summaries (l0_domains frontmatter)
 ```
+
+### L0 Domain Summaries
+
+Write an `l0_domains` frontmatter map in `AGENTS.md`. Each entry is a one-line
+summary of the domain's content — sufficient for an Agent to decide whether to
+load that domain's README without reading it. Format:
+
+```yaml
+l0_domains:
+  architecture: "System structure, module boundaries, integration points"
+  decisions: "Key engineering choices and their rationale"
+  solutions: "Diagnosed fix patterns for recurring issues and bugs"
+  lessons: "Reusable engineering principles distilled from completed work"
+```
+
+Keep each value to one sentence (~60 chars). Omit domains that have no durable
+knowledge yet. This is the L0 layer of progressive loading — scan here first,
+load domain READMEs only for relevant domains.
 
 ## Level 1 - Domain Orientation
 
@@ -296,7 +315,22 @@ What this domain covers
 Important knowledge units
 When to read each unit
 Relationships
+Optional: last_indexed date, pending_updates count
 ```
+
+### Freshness Fields
+
+Domain READMEs may include optional freshness metadata:
+
+```yaml
+last_indexed: "2026-09-08"    # date when this index was last refreshed
+pending_updates: 0            # child docs changed since last_indexed
+```
+
+The `repository-audit` skill increments `pending_updates` when it detects child
+document changes since `last_indexed`. The DSH plugin warns at session start
+when any domain has `pending_updates > 0`. Reset to 0 after refreshing the
+index with new child entries.
 
 It must not reproduce the underlying documents.
 
@@ -849,6 +883,8 @@ Recommended Changes:
 - **Stability** - paths based on stable concepts, not temporary states?
 - **Scalability** - can the structure grow without becoming a giant tree?
 - **Retrieval cost** - common tasks reach relevant knowledge with minimal context?
+- **Typed links** - do `related:` entries use typed objects when semantic
+  relationship matters (evolved_from, caused_by, contradicts)?
 
 ---
 
@@ -879,19 +915,25 @@ The architecture task is complete when:
 
 ```text
 Knowledge inputs understood; structure inspected across all origin tools
-        ✓
+         ✓
 Canonical ownership assigned; cross-tool duplication identified
-        ✓
+         ✓
 Competing entry points reconciled (Option A default)
-        ✓
+         ✓
 Boundaries, progressive loading, current/history separation designed
-        ✓
+         ✓
 Existing source disposition mapped; retrieval scenarios tested
-        ✓
+         ✓
 No unnecessary scaffolding proposed
-        ✓
+         ✓
+l0_domains frontmatter populated in AGENTS.md (one line per domain)
+         ✓
+Related: typed link types recommended in design proposal
+         ✓
+Domain README freshness fields (last_indexed, pending_updates) documented
+         ✓
 No repository files modified
-        ✓
+         ✓
 Architecture proposal returned
-        ✓
+         ✓
 ```
