@@ -99,7 +99,7 @@ dsh plugin --profile web add @lovedolove/dsh-project-memory
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH 插件内部说明：** npm 包（位于 `dsh-plugin/`）使用两行 Cordis patch——第一行将工作区的 `skills/` 目录注册为自定义技能根路径，第二行加载运行时胶水（`dsh/plugin.mjs`），动态重新注册技能、注册 `/project-memory` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
+**DSH 插件内部说明：** npm 包（位于 `dsh-plugin/`）使用单行 Cordis patch 加载运行时胶水（`dsh/plugin.mjs`），由其在运行时相对活跃工作区动态注册技能、注册 `/project-memory` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
 
 ---
 
@@ -189,9 +189,7 @@ AGENTS.md
 
 详细指导位于各技能的参考目录中：
 
-- `skills/knowledge-compounding/references/` —— 接地验证、持久性基准、质量约束
-- `skills/memory-edit/references/` —— 编辑操作、迁移流程
-- `skills/memory-verification/references/` —— 声明验证、证据置信度
+- `skills/knowledge-compounding/references/` —— 接地验证、持久性基准、质量约束、会话历史、自动记忆
 
 ---
 

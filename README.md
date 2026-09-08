@@ -102,7 +102,7 @@ For full control, dispatch the orchestrator as a subagent:
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a two-row Cordis patch — one row registers the workspace's `skills/` directory as a custom skill root, the other loads the runtime glue (`dsh/plugin.mjs`) which re-registers skills dynamically, registers the `/project-memory` slash command, and injects a first-time-init hint when no `AGENTS.md` is found.
+**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a single-row Cordis patch that loads the runtime glue (`dsh/plugin.mjs`), which dynamically registers skills relative to the active workspace, registers the `/project-memory` slash command, and injects a first-time-init hint when no `AGENTS.md` is found.
 
 ---
 
@@ -193,9 +193,7 @@ Templates provide starting points for new knowledge documents:
 
 Detailed guidance lives in each skill:
 
-- `skills/knowledge-compounding/references/` — Grounding validation, durable bar, quality constraints
-- `skills/memory-edit/references/` — Edit operations, migration procedures
-- `skills/memory-verification/references/` — Claim verification, evidence confidence
+- `skills/knowledge-compounding/references/` — Grounding validation, durable bar, quality constraints, session history, auto-memory
 
 ---
 
