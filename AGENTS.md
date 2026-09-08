@@ -1,6 +1,14 @@
 ---
 # AGENTS.md — Project Memory Agent
 # Primary Agent-facing entry point. Level 0 progressive loading.
+#
+# L0_DOMAINS: One-line summaries of each knowledge domain for quick relevance
+# scanning without loading domain READMEs. Set to empty map when no domains
+# exist yet (memory-architecture populates this during initialization).
+l0_domains:
+  architecture: "System design, DSH plugin internals, progressive loading model"
+  solutions: "Diagnosed fix patterns for recurring issues and bugs"
+  lessons: "Reusable engineering principles distilled from completed work"
 ---
 
 # Project Memory
@@ -46,16 +54,25 @@ See [docs/architecture.md](./docs/architecture.md) for system design details.
 
 ## Memory Navigation
 
+### L0 Domain Summaries (scan here before loading domains)
+
+| Domain | L0 Summary | When to Read |
+|--------|-----------|--------------|
+| `docs/architecture/` | System design, DSH plugin internals, progressive loading model | Understanding system internals or debugging DSH issues |
+| `docs/solutions/` | Diagnosed fix patterns for recurring issues and bugs | Debugging, error investigation, fixing known problems |
+| `docs/lessons/` | Reusable engineering principles distilled from completed work | Learning from past work, avoiding repeated mistakes |
+
+For full domain details, see each domain's `README.md` (Level 1).
+
+### Navigation Path
+
 ```
-AGENTS.md (you are here)
+AGENTS.md (you are here, Level 0)
     ↓
-docs/architecture.md        ← system design, DSH plugin internals, progressive loading levels
-docs/solutions/             ← diagnosed fix patterns (read when debugging)
-docs/lessons/               ← reusable engineering principles
-    ↓
-skills/<name>/SKILL.md      ← detailed skill instructions (loaded on demand)
-    ↓
-templates/                  ← document templates for new knowledge
+docs/<domain>/README.md        ← Level 1: domain orientation, read-when guidance
+docs/<domain>/<topic>.md       ← Level 2: focused knowledge unit
+skills/<name>/SKILL.md         ← Level 3: skill instructions (on demand)
+templates/                     ← document templates for new knowledge
 ```
 
 For progressive loading levels (what each docs/ tier contains), see

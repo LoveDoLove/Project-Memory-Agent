@@ -415,3 +415,59 @@ Solution claims verified; remaining limitations; final verification result.
 # Final Objective
 
 Same objective as the opening pipeline: one trustworthy memory system, not competing ones.
+
+---
+
+# New Features (Phase 1-3 Evolution)
+
+## L0 Domain Summaries
+
+`AGENTS.md` includes an `l0_domains` frontmatter section and a navigation table
+with one-line summaries for each knowledge domain. When loading a repository,
+scan this table **before** reading any domain README to decide which domain is
+relevant. This is the Project Memory equivalent of OpenViking's L0 abstract
+sidecar — manually maintained, evidence-backed, not auto-generated.
+
+## Retrieval Trace Mode
+
+Run `/project-memory --trace` to enable ephemeral retrieval tracing. The agent
+records each knowledge lookup step (query → route → unit → evidence → confidence)
+and prints the trace at the end of the session under `## Retrieval Trace`.
+Traces are **never persisted** to repository files — session-ephemeral debug
+output only.
+
+## Knowledge Change Audit Log
+
+All edits are appended to `docs/CHANGELOG-MEMORY.md`.
+This file records what changed, why, confidence level, and evidence source.
+It enables rollbacks, drift detection, and transparent review of system
+modifications. See `skills/memory-edit/SKILL.md` (Knowledge Change Audit Log section).
+
+## Typed Relationship Links
+
+The `related:` frontmatter field now supports typed links:
+
+```yaml
+related:
+  - docs/decisions/auth.md              # plain path (backward compatible)
+  - path: docs/architecture/security.md
+    type: belongs_to
+  - path: docs/decisions/auth-v1.md
+    type: evolved_from
+```
+
+Supported types: `belongs_to`, `caused_by`, `evolved_from`, `contradicts`,
+`derived_from`. Use typed links to enable semantic navigation (e.g. following
+`evolved_from` to find the current version of a superseded decision).
+
+## Freshness Indicators
+
+Domain `README.md` files support optional `last_indexed` and `pending_updates`
+frontmatter fields. The DSH plugin warns at session start when any domain has
+`pending_updates > 0`, indicating the index may be stale.
+
+## Post-Task Compounding Prompt
+
+After substantial tasks, the DSH plugin automatically asks whether the work
+produced durable learning worth compounding. Disable with
+`COMPOUNDING_ENABLED=0` in your environment.
