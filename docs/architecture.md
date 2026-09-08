@@ -111,8 +111,9 @@ boot time.
 
 The glue plugin exports:
 - `name`: plugin identifier
-- `inject`: `['skills']` - tells Cordis to wait until `ctx.skills` is
-  available before calling `apply()`
+- `inject`: `['skills', 'tools', 'commands']` - tells Cordis to wait until
+  `ctx.skills`, `ctx.tools`, and `ctx.commands` are available before calling
+  `apply()`
 - `apply(ctx)`: registers workspace skills, listens for session events,
   injects prompts
 

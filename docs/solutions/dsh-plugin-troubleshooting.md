@@ -89,12 +89,15 @@ Also update `lib/index.js` if it's used as a secondary entry point.
 
 ---
 
-## Verification
+## Verification (Historical — v0.4.2当时)
 
 - `node --check dsh-plugin/dsh/plugin.mjs` --> exit 0
 - `Invoke-Pester install.tests.ps1` --> 10/10 passed
 - `dsh --profile web --dump-config` --> loads `project-memory-dsh` correctly
-- `npm view @lovedolove/dsh-project-memory version` --> 0.4.2
+- `npm view @lovedolove/dsh-project-memory version` --> 0.4.2 (当时)
+
+> Note: The current published version is `0.4.26`. These verification results
+> are historical records from the v0.4.2 debugging session.
 
 ---
 
@@ -104,7 +107,7 @@ Also update `lib/index.js` if it's used as a secondary entry point.
 - Source: `dsh-plugin/lib/index.js` (missing inject)
 - Source: `install.ps1` lines 85-108 (old patch-writing logic)
 - Test: `dsh --profile web --dump-config` outputs `- id: project-memory-dsh`
-- Test: npm registry shows v0.4.2 published
+- Test: npm registry (historical — v0.4.2当时); current published version is 0.4.26
 - Git: commits `d7e7e73`, `c0cdc9e`, `332a704`
 
 ---
