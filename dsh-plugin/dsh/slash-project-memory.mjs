@@ -71,7 +71,7 @@ This workspace already has Project Memory (AGENTS.md present). Run the automatic
    - If only minor updates needed: \`obsolete-knowledge\` + \`memory-edit\` + \`memory-verification\`
    - If architecture changed: \`memory-architecture\` + \`memory-edit\` + \`memory-verification\`
    - If obsolete knowledge detected: \`obsolete-knowledge\` + \`memory-edit\` + \`memory-verification\`
-   - If new durable learning identified: `knowledge-compounding` + `knowledge-classification` + `memory-edit` + `memory-verification`
+   - If new durable learning identified: \`knowledge-compounding\` + \`knowledge-classification\` + \`memory-edit\` + \`memory-verification\`
    - If no meaningful changes: skip editing, run \`memory-verification\` only
 5. Load the \`memory-verification\` skill as the final gate.
 

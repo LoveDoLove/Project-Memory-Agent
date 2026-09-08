@@ -49,4 +49,11 @@ what changed, why, and with what confidence.
 - **Confidence:** High
 - **Evidence Source:** npm publish workflow failure (exit code 1); Node 20 deprecation warning
 - **Verified By:** repository-audit
+### 2026-09-09 — DSH Plugin Syntax Fix (v0.4.29)
 
+- **Path:** `dsh-plugin/dsh/slash-project-memory.mjs`
+- **Operation:** Fix
+- **Reason:** Unescaped backtick in template literal string caused SyntaxError on dsh boot ("Unexpected identifier 'knowledge'"). The `knowledge-compounding` routing line used bare ` backticks instead of escaped `. Fixed by escaping all backticks in the compounding branch.
+- **Confidence:** High
+- **Evidence Source:** dsh web startup failure, node --check
+- **Verified By:** syntax check
