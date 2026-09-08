@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.27] — 2026-09-08
+
+### Fixed
+- **DSH boot crash**: removed broken `pma-skill-dir` insert row from
+  `cordis.patch.yml`. It used `name: cordis:plugin` which is NOT a registered
+  Cordis builtin (only `cordis:include` and `cordis:group` exist), causing
+  `builtins['plugin']` to resolve to `undefined` and the loader to throw
+  "invalid plugin, expect function or object with an "apply" method, received undefined".
+- Skill directory registration is now handled entirely by `dsh/plugin.mjs`
+  at runtime via `registerWorkspaceSkills()` (workspace `skills/` + global dirs).
+- Added `@deepseek-ai/dsh-tools` to peerDependencies so the module resolves
+  correctly when installed in a DSH profile.
+
 ## [0.4.26] — 2026-09-08
 
 ### Fixed
