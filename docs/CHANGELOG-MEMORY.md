@@ -41,3 +41,12 @@ what changed, why, and with what confidence.
 - **Evidence Source:** docs/research/openviking-evolution-research.md
 - **Verified By:** memory-verification
 
+### 2026-09-08 — DSH Plugin Version Bump (0.4.28)
+
+- **Path:** `dsh-plugin/package.json`
+- **Operation:** Update
+- **Reason:** Bump version 0.4.27 → 0.4.28; update nodeVersions compatibility (<25.0.0) for GitHub Actions Node 24 fallback; add dsh 0.1.5-alpha.1 to compatible releases
+- **Confidence:** High
+- **Evidence Source:** npm publish workflow failure (exit code 1); Node 20 deprecation warning
+- **Verified By:** repository-audit
+
