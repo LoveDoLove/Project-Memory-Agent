@@ -49,8 +49,8 @@ any DSH profile via Cordis. install.ps1 also seeds `project-memory.md` into
 
 ```
 dsh-plugin/
-  package.json              -> declares @deepseek-ai/dsh-skill-filesystem dep
-  cordis.patch.yml          -> two-row Cordis patch (skill-filesystem + project-memory-dsh)
+  package.json              -> declares @deepseek-ai/dsh-llm dep; peerDep on @deepseek-ai/cordis
+  cordis.patch.yml          -> two-row Cordis patch (pma-skill-dir insert + project-memory-dsh)
   dsh/plugin.mjs            -> real logic: skill mount, lifecycle hooks, cbm_* tools
   lib/index.js              -> deliberate no-op stub (empty inject array). All behavior
                               is in dsh/plugin.mjs loaded via cordis.patch.yml insert row.
@@ -91,10 +91,10 @@ profile/cordis.patch.yml (user customizations, kept empty by default)
 
 The plugin's `cordis.patch.yml` adds two rows:
 
-1. **`skill-filesystem`** - registers the workspace's `skills/` directory
-   as a custom skill root so the 8 Project Memory skills are discoverable
-   via the skill registry.
-2. **`project-memory-dsh`** - loads `dsh/plugin.mjs`, the runtime glue
+1. **`pma-skill-dir`** (insert) — registers the workspace's `skills/` directory
+   as a custom skill root (avoids colliding with the official `skill-filesystem`
+   entry owned by `@deepseek-ai/dsh-skill-filesystem` / `dsh-skills-manager`).
+2. **`project-memory-dsh`** (insert) — loads `dsh/plugin.mjs`, the runtime glue
    that re-registers skills dynamically, injects first-time-init hints,
    and posts-task memory prompts.
 
@@ -121,7 +121,7 @@ The glue plugin exports:
 ## Skill Registration Flow
 
 1. DSH loads bundles -> applies plugin's `cordis.patch.yml`
-2. `skill-filesystem` configures `customSkillDirs: [skills]`
+2. `pma-skill-dir` inserts a custom skill directory config row
 3. `project-memory-dsh` runs `apply(ctx)` -> calls
    `registerWorkspaceSkills(ctx, workspaceRoot)`
 4. Plugin discovers all `skills/*/SKILL.md` files in the workspace

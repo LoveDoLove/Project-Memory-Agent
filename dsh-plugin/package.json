@@ -1,7 +1,7 @@
 {
   "name": "@lovedolove/dsh-project-memory",
   "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, registers the /project-memory slash command, and prompts for memory compounding after tasks.",
-  "version": "0.4.25",
+  "version": "0.4.26",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -21,16 +21,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LoveDoLove/Project-Memory-Agent.git"
+    "url": "https://github.com/LoveDoLove/Project-Memory-Agent.git",
+    "directory": "dsh-plugin"
   },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.2-rc.1": "compatible",
+        "0.1.3-alpha.1": "compatible",
+        "0.1.3-alpha.2": "compatible"
+      },
+      "nodeVersions": ">=18.0.0 <23.0.0",
+      "dshVersions": ">=0.1.2-rc.1 <0.2.0-0"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-llm": "^0.1.2-rc.1",
-    "@deepseek-ai/dsh-skill-filesystem": "^0.1.2-rc.1"
+    "@deepseek-ai/dsh-llm": "^0.1.2-rc.1"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": ">=4.0.1-rc.1 <5.0.0-0"

@@ -1,18 +1,21 @@
 # dsh-project-memory: Cordis bundle patch.
 #
 # Two rows:
-#   1. skill-filesystem — register the workspace's skills/ as a custom root
-#      (so the 8 Project Memory skills are discoverable via the skill registry).
+#   1. pma-skill-dir — add workspace skills/ as a custom skill root via
+#      an insert row (avoids colliding with the official skill-filesystem
+#      entry owned by @deepseek-ai/dsh-skill-filesystem / dsh-skills-manager).
 #   2. project-memory-dsh — load the DSH glue plugin (dsh/plugin.mjs) which:
 #      a) re-registers skills dynamically relative to the active workspace,
 #      b) injects a first-time-init hint when AGENTS.md is absent,
 #      c) registers cbm_* tools (codebase-memory-mcp bridge) when ctx.tools is present.
 
-- id: skill-filesystem
-  config:
-    customSkillDirs:
-      - skills
-    includeDefaultRoots: true
+- insert:
+    - id: pma-skill-dir
+      name: cordis:plugin
+      config:
+        customSkillDirs:
+          - skills
+        includeDefaultRoots: true
 
 - insert:
     - id: project-memory-dsh

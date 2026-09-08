@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.20] — 2026-09-06
+## [0.4.26] — 2026-09-08
+
+### Fixed
+- **DSH Store contract**: replaced colliding `skill-filesystem` entry ID with
+  unique `pma-skill-dir` insert row in `cordis.patch.yml`; removed
+  `@deepseek-ai/dsh-skill-filesystem` from dependencies.
+- Added `dsh.compatibility` block with per-release DSH version declarations
+  (`0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2` all `compatible`),
+  Node.js range (`>=18.0.0 <23.0.0`), and DSH version range.
+- Added `lifecycle-evidence.md` for DSH Store validation.
+- Updated `docs/architecture.md` to reflect new patch structure.
+
+## [0.4.25] — 2026-09-07
 
 ### Added
 - **DSH subagent dispatch**: `install.ps1` seeds `agents/project-memory.md` into `~/.dsh/agents/` for both `-Target dsh` and `-Target all`. After the user runs `dsh plugin add @lovedolove/dsh-project-memory`, they can dispatch via `use_agent(agent: "project-memory")`.
