@@ -820,6 +820,8 @@ Primary knowledge type + current state assigned
 Durability + evidence confidence + provenance evaluated
 Duplicates checked and cross-source conflicts resolved with evidence
 Recommended action + primary ownership + limitations recorded
+Typed related: links recommended where semantic relationship matters
+  (use: belongs_to, caused_by, evolved_from, contradicts, derived_from)
 No repository changes made
 ```
 
@@ -831,3 +833,22 @@ the correct type, state, owner, evidence, and future action - regardless of
 how many tools, Agents, or people originally wrote it down. The best
 classification answers: "What is this, is it still true, why does it
 matter, and where should I look for the authoritative knowledge?"
+
+## Typed Link Recommendation
+
+When a classified finding has a clear semantic relationship to another
+knowledge unit, recommend a typed `related:` entry in the knowledge-edit
+plan. Use the five relationship types from the schema:
+
+| Type | When to recommend |
+|------|------------------|
+| `evolved_from` | This knowledge replaced an older version of the same topic |
+| `caused_by` | This knowledge explains a consequence of another document |
+| `belongs_to` | This is a sub-topic or detail of a parent knowledge unit |
+| `contradicts` | This conflicts with another documented claim (requires conflict resolution) |
+| `derived_from` | This was inferred or distilled from another knowledge unit |
+
+Do not add typed links merely for connectivity. Only recommend when the
+relationship is specific and reduces retrieval ambiguity. Plain paths are
+sufficient for loose associations; use typed links when the semantics matter
+for navigation.

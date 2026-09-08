@@ -99,7 +99,13 @@ Recent Git History
 Explicit Migration / Decision
 Current Documentation
 Historical Documentation
+docs/CHANGELOG-MEMORY.md — audit log of all knowledge changes with confidence levels
 ```
+
+The audit log (`docs/CHANGELOG-MEMORY.md`) is the primary source for detecting
+knowledge drift: each entry records what changed, why, and with what confidence.
+When a knowledge unit's `last_verified` date is older than the most recent
+audit entry referencing it, flag that unit for re-validation.
 
 Use the repository evidence supplied by the parent Agent or
 `repository-audit`.
@@ -782,6 +788,7 @@ Replacement identified where applicable
 Action selected per Decision Tree
 High-priority stale guidance and reference cleanup identified
 Low-confidence candidates isolated
+CHANGELOG-MEMORY.md consulted for drift detection (entries within 30 days of last_verified)
 No repository files modified; parent handoff produced
 ```
 

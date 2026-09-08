@@ -301,6 +301,15 @@ Unknown
 
 - <limitation>
 
+### L0 Domain Summaries (when AGENTS.md l0_domains present)
+
+| Domain | L0 Summary |
+|--------|-----------|
+| <domain> | <one-line summary> |
+
+These summaries are used by `memory-architecture` to populate the `l0_domains`
+frontmatter in AGENTS.md for Level 0 progressive loading.
+
 ### Handoff
 
 - To `repository-audit` / `codebase-memory`: claims requiring evidence
@@ -373,5 +382,6 @@ Atomic claims extracted, provenance tagged per claim
 Claims clustered by subject, status + durability assigned
 Dual/competing entry points flagged
 Coverage, limitations (incl. unreadable locations) recorded
+L0 domain summaries extracted from AGENTS.md l0_domains frontmatter (when present)
 No repository files modified; inventory returned to parent Agent
 ```
