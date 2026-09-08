@@ -23,6 +23,8 @@
  *
  * Events listened to (best-effort, never throws into the harness loop):
  *   - agent/pre-step    -> inject first-time-init hint (once per agent)
+ *   - agent/post-step   -> inject post-task compounding prompt (opt-in)
+ *   - session/start     -> inject freshness warning if pending_updates > 0
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -183,6 +185,74 @@ function buildInitHint(workspaceRoot) {
   return `Project Memory: this workspace has no AGENTS.md yet -- run the \`memory-architecture\` skill to bootstrap the Project Knowledge System. The 8 Project Memory skills are now available.`
 }
 
+// ── Post-Task Compounding ─────────────────────────────────────────────────────
+
+/** Check whether post-task compounding is enabled. */
+function isCompoundingEnabled() {
+  const env = process.env.COMPOUNDING_ENABLED
+  if (env === undefined) return true  // default on
+  return env !== '0' && env !== 'false' && env !== 'off'
+}
+
+/** Build the post-task compounding prompt. */
+function buildCompoundingPrompt(workspaceRoot, lastTaskText) {
+  const taskHint = lastTaskText
+    ? `\n\nThe last task was: "${lastTaskText.slice(0, 200)}${lastTaskText.length > 200 ? '…' : ''}"`
+    : ''
+
+  return `Project Memory: Post-Task Compounding Check${taskHint}
+
+Before ending this session, consider whether the completed work produced durable
+engineering learning worth preserving.
+
+Ask yourself:
+1. Did this task solve a non-obvious problem?
+2. Would another Agent plausibly rediscover the same issue or make the same mistake?
+3. Is there a rejected approach worth recording to prevent repetition?
+4. Does the knowledge survive the Durable Bar test
+   (if this disappeared, would a future Agent still repeat the mistake)?
+
+If YES to any of these, run the \`knowledge-compounding\` skill to extract
+durable learning. If NO, skip compounding — not every task produces memory.
+
+Do NOT compound: routine commands, temporary thoughts, terminal transcripts,
+generic programming advice, or information already obvious from nearby code.
+
+Decide now: compound or skip. If skipping, say "No durable knowledge identified."`
+}
+
+// ── Freshness Warning ─────────────────────────────────────────────────────────
+
+/** Check domain READMEs for pending_updates > 0 and return warning text. */
+function buildFreshnessWarning(workspaceRoot) {
+  try {
+    const docsDir = join(workspaceRoot, 'docs')
+    if (!existsSync(docsDir)) return null
+
+    const warnings = []
+    for (const entry of readdirSync(docsDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      const readme = join(docsDir, entry.name, 'README.md')
+      if (!existsSync(readme)) continue
+      const content = readFileSync(readme, 'utf8')
+      const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*/m)
+      if (!fmMatch) continue
+      const fm = parseFrontmatter(fmMatch[1])
+      const pending = parseInt(fm.pending_updates, 10)
+      if (!isNaN(pending) && pending > 0) {
+        warnings.push(
+          `- \`${entry.name}/README.md\`: ${pending} child document(s) updated since last index (${fm.last_indexed ?? 'unknown'})`
+        )
+      }
+    }
+    return warnings.length > 0
+      ? `Project Memory: Domain freshness check\n\nThe following domain indexes may be stale — child documents have been updated\nsince the index was last refreshed:\n\n${warnings.join('\n')}\n\nConsider running \`/project-memory\` to refresh domain indexes.`
+      : null
+  } catch {
+    return null
+  }
+}
+
 // - Cordis apply -
 
 /**
@@ -226,6 +296,7 @@ export function apply(ctx, config = {}) {
   }
 
   const initHinted = new Set()
+  const compoundHinted = new Set()  // track agents that already got compounding prompt
 
   // Listen for agent/pre-step to inject first-time-init hint when needed.
   if (typeof on === 'function') {
@@ -235,10 +306,21 @@ export function apply(ctx, config = {}) {
           const workspace = resolveWorkspace(payload)
           const agent = payload?.agent ?? payload
 
-          // Only inject init hint when we have a confirmed workspace
-          // (i.e. one that contains AGENTS.md) AND it doesn't have one yet.
-          // Skip entirely when workspace cannot be determined (null)
-          // to avoid noise in DSH web GUI sessions.
+          // 1. Freshness warning: check domain READMEs for pending updates
+          if (workspace) {
+            const freshnessWarning = buildFreshnessWarning(workspace)
+            if (freshnessWarning && typeof agent?.inject === 'function') {
+              agent.inject({
+                id: crypto.randomUUID(),
+                role: 'user',
+                content: [{ type: 'text', text: freshnessWarning }],
+                source: { kind: 'plugin', plugin: PLUGIN_ID, form: 'instructions' },
+              })
+              console.log(`[project-memory] injected freshness warning for ${workspace}`)
+            }
+          }
+
+          // 2. First-time-init hint
           if (workspace && needsInit(workspace) && agent && !initHinted.has(agent)) {
             initHinted.add(agent)
             if (typeof agent?.inject === 'function') {
@@ -260,11 +342,54 @@ export function apply(ctx, config = {}) {
     } catch {
       // event bus missing -- plugin still works (skills are registered above)
     }
+
+    // Listen for agent/post-step to inject post-task compounding prompt.
+    if (isCompoundingEnabled()) {
+      try {
+        on('agent/post-step', (payload, next) => {
+          try {
+            const workspace = resolveWorkspace(payload)
+            const agent = payload?.agent ?? payload
+
+            // Only inject once per agent per session
+            if (!workspace || !agent || compoundHinted.has(agent)) return
+
+            // Check if the last user message suggests substantial work was done
+            const lastMsg = payload?.lastMessage ?? payload?.message
+            const lastText = extractText(lastMsg?.content ?? lastMsg)
+            const isSubstantialTask =
+              lastText.length > 50 &&
+              !lastText.startsWith('/project-memory') &&
+              !lastText.startsWith('Project Memory')
+
+            if (isSubstantialTask) {
+              compoundHinted.add(agent)
+              if (typeof agent?.inject === 'function') {
+                agent.inject({
+                  id: crypto.randomUUID(),
+                  role: 'user',
+                  content: [{ type: 'text', text: buildCompoundingPrompt(workspace, lastText) }],
+                  source: { kind: 'plugin', plugin: PLUGIN_ID, form: 'instructions' },
+                })
+                console.log(`[project-memory] injected post-task compounding prompt for ${workspace}`)
+              }
+            }
+          } catch {
+            // best-effort
+          }
+          if (typeof next === 'function') return next()
+          return undefined
+        })
+      } catch {
+        // event bus missing post-step -- plugin still works
+      }
+    }
   }
 
   // 4. Return disposer -- Cordis calls this on unload.
   return () => {
     initHinted.clear()
+    compoundHinted.clear()
   }
 }
 

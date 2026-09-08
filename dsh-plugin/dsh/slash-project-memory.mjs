@@ -36,9 +36,13 @@ function resolveWorkspace(cwd) {
 }
 
 /** Build the automatic workflow prompt injected into the agent inbox. */
-function buildWorkflowPrompt(workspaceRoot, hasMemory) {
+function buildWorkflowPrompt(workspaceRoot, hasMemory, traceEnabled = false) {
+  const traceNote = traceEnabled
+    ? `\n\n**Retrieval Trace Mode:** Record every knowledge retrieval step in a trace object.\nLog each step as it happens. Include query, route taken, confidence, and final unit.\nPrint the trace at the end of the report under "## Retrieval Trace". Do not persist this trace to any file.`
+    : ''
+
   if (!hasMemory) {
-    return `Project Memory: Automatic initialization detected.
+    return `Project Memory: Automatic initialization detected.${traceNote}
 
 This workspace has no AGENTS.md yet. Run the full initialization workflow automatically:
 
@@ -52,7 +56,7 @@ This workspace has no AGENTS.md yet. Run the full initialization workflow automa
 Follow the routing table in agents/project-memory.md for skill selection. Produce a concise final report. Do not ask the user for mode selection — this is fully automatic.`
   }
 
-  return `Project Memory: Automatic state detection and orchestration.
+  return `Project Memory: Automatic state detection and orchestration.${traceNote}
 
 This workspace already has Project Memory (AGENTS.md present). Run the automatic workflow:
 
@@ -67,6 +71,7 @@ This workspace already has Project Memory (AGENTS.md present). Run the automatic
    - If only minor updates needed: \`obsolete-knowledge\` + \`memory-edit\` + \`memory-verification\`
    - If architecture changed: \`memory-architecture\` + \`memory-edit\` + \`memory-verification\`
    - If obsolete knowledge detected: \`obsolete-knowledge\` + \`memory-edit\` + \`memory-verification\`
+   - If new durable learning identified: `knowledge-compounding` + `knowledge-classification` + `memory-edit` + `memory-verification`
    - If no meaningful changes: skip editing, run \`memory-verification\` only
 5. Load the \`memory-verification\` skill as the final gate.
 
@@ -92,7 +97,12 @@ export function applySlashCommand(ctx, workspaceRoot) {
       const resolvedWorkspace = resolveWorkspace(sessionCwd ?? workspaceRoot)
       const hasMemory = resolvedWorkspace !== null && existsSync(join(resolvedWorkspace, 'AGENTS.md'))
 
-      const prompt = buildWorkflowPrompt(resolvedWorkspace ?? '', hasMemory)
+      // Parse flags from invocation text (e.g. "/project-memory --trace")
+      const rawText = typeof invocation.text === 'string' ? invocation.text : ''
+      const hasTraceFlag = /\b--trace\b/.test(rawText)
+      const traceFlag = hasTraceFlag ? ' (retrieval trace enabled)' : ''
+
+      const prompt = buildWorkflowPrompt(resolvedWorkspace ?? '', hasMemory, hasTraceFlag)
 
       invocation.agent.followup(createUserMessage({
         content: [{ type: 'text', text: prompt }],
@@ -102,7 +112,7 @@ export function applySlashCommand(ctx, workspaceRoot) {
       const status = hasMemory ? 'audit & update' : 'initialize'
       return {
         kind: 'success',
-        text: `Project Memory: running ${status}… The agent will now analyze the repository and update Project Memory automatically.`,
+        text: `Project Memory: running ${status}${traceFlag}… The agent will now analyze the repository and update Project Memory automatically.${hasTraceFlag ? ' Retrieval traces will be logged to session output.' : ''}`,
       }
     },
   })
