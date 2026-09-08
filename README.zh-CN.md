@@ -99,7 +99,7 @@ dsh plugin --profile web add @lovedolove/dsh-project-memory
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH 插件内部说明：** npm 包（位于 `dsh-plugin/`）使用两行 Cordis patch——第一行将工作区的 `skills/` 目录注册为自定义技能根路径，第二行加载运行时胶水（`dsh/plugin.mjs`），动态重新注册技能、注册 `/project-memory` 斜杠命令，并在任务完成后注入记忆提炼提示。
+**DSH 插件内部说明：** npm 包（位于 `dsh-plugin/`）使用两行 Cordis patch——第一行将工作区的 `skills/` 目录注册为自定义技能根路径，第二行加载运行时胶水（`dsh/plugin.mjs`），动态重新注册技能、注册 `/project-memory` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
 
 ---
 
@@ -201,7 +201,7 @@ AGENTS.md
 Invoke-Pester ./install.tests.ps1
 ```
 
-10 项测试覆盖各安装目标、无重复加载规则，以及确保 8 个技能、其清单与两份代理文件保持一致的防护机制。
+12 项测试覆盖各安装目标、无重复加载规则，以及确保 8 个技能、其清单与两份代理文件保持一致的防护机制。
 
 ---
 

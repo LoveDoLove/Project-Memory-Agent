@@ -102,7 +102,7 @@ For full control, dispatch the orchestrator as a subagent:
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a two-row Cordis patch — one row registers the workspace's `skills/` directory as a custom skill root, the other loads the runtime glue (`dsh/plugin.mjs`) which re-registers skills dynamically, registers the `/project-memory` slash command, and injects post-task memory prompts.
+**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a two-row Cordis patch — one row registers the workspace's `skills/` directory as a custom skill root, the other loads the runtime glue (`dsh/plugin.mjs`) which re-registers skills dynamically, registers the `/project-memory` slash command, and injects a first-time-init hint when no `AGENTS.md` is found.
 
 ---
 
@@ -205,7 +205,7 @@ Detailed guidance lives in each skill:
 Invoke-Pester ./install.tests.ps1
 ```
 
-10 tests cover installer targets, the no-double-load rule, and a guardrail keeping the 8 skills, their manifest, and both agent files in sync.
+12 tests cover installer targets, the no-double-load rule, and a guardrail keeping the 8 skills, their manifest, and both agent files in sync.
 
 ---
 
