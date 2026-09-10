@@ -70,6 +70,10 @@ irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/insta
 
 本项目提供了一个 **DSH bundle 插件**（`@lovedolove/dsh-project-memory`），可通过 Cordis 技能注册表将全部 8 个 Project Memory 技能挂载到任意 DSH 配置文件中。插件还会在 `codebase-memory-mcp` 可用时注册 `cbm_*` 工具，注入首次初始化提示，并注册 `/project-memory` 斜杠命令。
 
+详见 [dsh-plugin/README.md](./dsh-plugin/README.md)。
+
+### 安装
+
 ```powershell
 # 交互式 —— 显示适用于你配置文件的命令
 .\install.ps1 -Target dsh
@@ -84,7 +88,9 @@ irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/insta
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
 
-### 使用 `/project-memory`（推荐）
+### 使用
+
+#### 一键命令（推荐）
 
 安装后，在任何 DSH 会话中可直接使用一键命令：
 
@@ -94,28 +100,37 @@ dsh plugin --profile web add @lovedolove/dsh-project-memory
 
 自动检测仓库的 Project Memory 状态并执行相应工作流——无需选择 Agent、无需挑选技能、无需指定模式参数。
 
-### 高级：直接调度编排器代理
+可选 `--trace` 参数可启用检索追踪，用于调试：
+
+```
+/project-memory --trace
+```
+
+#### 高级：直接调度编排器代理
+
+如需完全控制，可将编排器作为子代理调度：
+
 ```powershell
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH 插件内部说明：** npm 包（位于 `dsh-plugin/`）使用单行 Cordis patch 加载运行时胶水（`dsh/plugin.mjs`），由其在运行时相对活跃工作区动态注册技能、注册 `/project-memory` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
+**插件内部说明：** npm 包（位于 `dsh-plugin/`）使用单行 Cordis patch 加载运行时胶水（`dsh/plugin.mjs`），由其在运行时相对活跃工作区动态注册技能、注册 `/project-memory` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
 
 ---
 
 ## 使用方法
 
-### 一键命令（DSH 专用）
+### 斜杠命令（仅 DSH）
 
 ```
 /project-memory
 ```
 
-自动状态检测 → 执行相应操作 → 验证。安装插件后在任何 DSH 会话中可用，无需选择 Agent 预设。
+详见 [DSH 插件](#deepseek-harnessdsh插件) 章节了解完整安装和使用说明。
 
-### 高级：直接调用编排器
+### 代理预设（全平台）
 
-在任何支持的代理中调用编排器：
+在任何支持的代理中直接调用编排器：
 
 ```
 @project-memory

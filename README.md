@@ -70,6 +70,10 @@ The installer downloads the orchestrator agent and its 8 skills into your chosen
 
 The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. It also registers `cbm_*` tools (codebase-memory bridge) when the `codebase-memory-mcp` is available, injects a first-time-init hint when no `AGENTS.md` is found, and registers the `/project-memory` slash command.
 
+See [dsh-plugin/README.md](./dsh-plugin/README.md) for plugin-specific details.
+
+### Install
+
 ```powershell
 # Interactive — shows the commands for your profile
 .\install.ps1 -Target dsh
@@ -84,7 +88,9 @@ The installer will print the plugin add command. Run it manually:
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
 
-### Using `/project-memory` (Recommended)
+### Usage
+
+#### One-Click Command (Recommended)
 
 After install, the one-click command is available in any DSH session:
 
@@ -95,31 +101,37 @@ After install, the one-click command is available in any DSH session:
 This automatically detects the repository's Project Memory state and runs the
 appropriate workflow — no Agent selection, no skill picking, no mode arguments.
 
-### Advanced: Direct Agent Invocation
+Optional `--trace` flag enables retrieval tracing for debugging:
+
+```
+/project-memory --trace
+```
+
+#### Advanced: Direct Agent Invocation
 
 For full control, dispatch the orchestrator as a subagent:
+
 ```powershell
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**DSH plugin internals:** the npm package (`dsh-plugin/`) uses a single-row Cordis patch that loads the runtime glue (`dsh/plugin.mjs`), which dynamically registers skills relative to the active workspace, registers the `/project-memory` slash command, and injects a first-time-init hint when no `AGENTS.md` is found.
+**Plugin internals:** the npm package (`dsh-plugin/`) uses a single-row Cordis patch that loads the runtime glue (`dsh/plugin.mjs`), which dynamically registers skills relative to the active workspace, registers the `/project-memory` slash command, and injects a first-time-init hint when no `AGENTS.md` is found.
 
 ---
 
 ## How to Use
 
-### One-Click (DSH only)
+### Slash Command (DSH only)
 
 ```
 /project-memory
 ```
 
-Automatic state detection → appropriate operations → verification. Works in any
-DSH session after the plugin is installed. No preset selection required.
+See the [DSH Plugin](#deepseek-harness-dsh-plugin) section for installation and full usage.
 
-### Advanced: Direct Agent Invocation
+### Agent Preset (All platforms)
 
-Invoke the orchestrator in any supported agent:
+Invoke the orchestrator agent directly in any supported agent:
 
 ```
 @project-memory
