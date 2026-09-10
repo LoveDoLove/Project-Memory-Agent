@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.30] — 2026-09-XX
+
+### Added
+- **dsh-plugin/README.md**: plugin-specific documentation with feature overview,
+  slash command usage, integration points, environment variables, and compatibility matrix.
+- **Root README optimization**: restructured DSH Plugin section with Install/Usage
+  subsections, added `--trace` flag documentation, removed redundancy with How to Use.
+- **README.zh-CN.md sync**: updated Chinese README to match English version changes.
+
 ## [0.4.27] — 2026-09-08
 
 ### Fixed
