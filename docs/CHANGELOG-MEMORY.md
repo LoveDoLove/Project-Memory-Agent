@@ -57,3 +57,16 @@ what changed, why, and with what confidence.
 - **Confidence:** High
 - **Evidence Source:** dsh web startup failure, node --check
 - **Verified By:** syntax check
+
+### 2026-09-14 — WSL/Linux support for DSH plugin (memory update)
+
+- **Path:** `dsh-plugin/README.md` (updated with the feature), no `docs/` rewrite
+- **Operation:** Update (record of repository change, not memory change)
+- **Reason:** dsh-plugin 0.4.31 made `codebase-memory-bridge.mjs` platform-aware (POSIX
+  `codebase-memory-mcp` on Linux/WSL, .exe on Windows; platform-specific project slugs).
+  Existing Project Memory contains no platform-specific claims about the CBM bridge,
+  so no stale/obsolete knowledge detected; memory stays current via README.
+- **Confidence:** High
+- **Evidence Source:** commit 61ee45514; `dsh-plugin/test/codebase-memory-bridge.test.mjs`
+  (3/3 passing)
+- **Verified By:** memory-verification
