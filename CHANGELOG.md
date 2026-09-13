@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.31] — 2026-09-14
+
+### Added
+
+- **WSL/Linux support for dsh-plugin**: codebase-memory-bridge.mjs now detects
+  the platform and uses the POSIX codebase-memory-mcp binary on Linux/WSL
+  instead of the Windows .exe. Project slugs are derived without a drive-letter
+  prefix on Linux paths (e.g. /home/u/proj → home-u-proj).
+
+- **dsh-plugin/test/**: added codebase-memory-bridge.test.mjs with node:test
+  covering Windows slug behavior (pinned), Linux/WSL slug behavior, and a
+  createClient round-trip with a fake POSIX MCP executable.
+
 ## [0.4.30] — 2026-09-XX
 
 ### Added

@@ -2,8 +2,9 @@
  * dsh-codebase-memory bridge — embedded from https://github.com/jiayan-xu/dsh-codebase-memory
  *
  * Provides cbm_* tools (semantic code search, snippets, architecture, trace)
- * by spawning codebase-memory-mcp.exe as a persistent stdio MCP child process.
- * Requires codebase-memory-mcp installed or CBM_EXE env var pointing to the exe.
+ * by spawning codebase-memory-mcp as a persistent stdio MCP child process.
+ * Works on Windows, WSL, and Linux. Requires codebase-memory-mcp installed
+ * or CBM_EXE env var pointing to the executable.
  */
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { spawn } from 'node:child_process';
@@ -11,12 +12,19 @@ import path from 'node:path';
 import os from 'node:os';
 import { existsSync } from 'node:fs';
 
-/** C:/Users/user/agent-core → C-Users-user-agent-core；点号保留（.qclaw → -.qclaw） */
+/** Derive the codebase-memory project slug from a repo path.
+ * Matches what codebase-memory-mcp generates: separators become '-',
+ * Windows paths keep the drive letter as the prefix.
+ *   C:/Users/user/agent-core → C-Users-user-agent-core
+ *   /home/u/agent-core       → home-u-agent-core
+ * 点号保留（.qclaw → -.qclaw）
+ */
 export function projectNameFromPath(p) {
   const norm = p.replace(/[\\/]+/g, '/');
+  const isWindows = /^[A-Za-z]:/.test(norm);
   const body = norm.replace(/^[A-Za-z]:/, '');
   const slug = body.replace(/^\/+/, '').replace(/\//g, '-');
-  return 'C-' + slug;
+  return isWindows ? 'C-' + slug : slug;
 }
 
 /** 常驻 MCP 客户端：延迟启动 + 自动重连 + id 匹配并发。 */
@@ -144,20 +152,29 @@ export function createClient(exePath) {
   return { rpc, call, dispose, start };
 }
 
-/** Find codebase-memory-mcp.exe. Tries env var, then common install locations,
- * then PATH (so any user installation works regardless of where it's placed). */
+/** Find codebase-memory-mcp. Tries env var, then platform-specific install
+ * locations, then PATH (so any user installation works wherever it's placed). */
 function findExe() {
   // 1. Explicit override
   if (process.env.CBM_EXE && existsSync(process.env.CBM_EXE)) return process.env.CBM_EXE
+  const exeName = process.platform === 'win32' ? 'codebase-memory-mcp.exe' : 'codebase-memory-mcp'
   const homedir = os.homedir()
-  const candidates = [
-    // Official installer path
-    path.join(homedir, 'AppData', 'Local', 'Programs', 'codebase-memory-mcp', 'codebase-memory-mcp.exe'),
-    // ~/.local/bin (common manual install)
-    path.join(homedir, '.local', 'bin', 'codebase-memory-mcp.exe'),
-    // Current working directory
-    path.join(process.cwd(), 'codebase-memory-mcp.exe'),
-  ]
+  const candidates = process.platform === 'win32'
+    ? [
+        // Official installer path
+        path.join(homedir, 'AppData', 'Local', 'Programs', 'codebase-memory-mcp', exeName),
+        // Current working directory
+        path.join(process.cwd(), exeName),
+      ]
+    : [
+        // ~/.local/bin (common manual install)
+        path.join(homedir, '.local', 'bin', exeName),
+        // /usr/local/bin and /usr/bin (package managers)
+        path.join('/usr/local/bin', exeName),
+        path.join('/usr/bin', exeName),
+        // Current working directory
+        path.join(process.cwd(), exeName),
+      ]
   for (const c of candidates) {
     if (existsSync(c)) return c
   }
@@ -165,7 +182,7 @@ function findExe() {
   const pathEnv = (process.env.PATH || '').split(path.delimiter)
   for (const dir of pathEnv) {
     if (!dir) continue
-    const exe = path.join(dir, 'codebase-memory-mcp.exe')
+    const exe = path.join(dir, exeName)
     if (existsSync(exe)) return exe
   }
   return null

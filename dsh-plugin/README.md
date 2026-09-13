@@ -71,7 +71,7 @@ When the `codebase-memory-mcp` executable is found (via `CBM_EXE` env var, commo
 | `cbm_trace` | Call-chain, data-flow, and cross-service path tracing |
 | `cbm_search_code` | Grep-like text search enriched with graph context |
 
-> **Note:** `codebase-memory-mcp` must be installed separately. See the [codebase-memory](https://github.com/jiayan-xu/dsh-codebase-memory) project.
+> **Note:** `codebase-memory-mcp` must be installed separately. See the [codebase-memory](https://github.com/jiayan-xu/dsh-codebase-memory) project. On WSL/Linux, the `codebase-memory-mcp` POSIX binary (e.g. from `~/.local/bin/`) is used; project slugs derive from the repo path without a drive-letter prefix (e.g. `/home/u/proj` → `home-u-proj`).
 
 ### First-Time Init Hint
 
@@ -88,7 +88,7 @@ This only fires once per agent per session and can be dismissed.
 | Variable | Default | Description |
 |---|---|---|
 | `COMPOUNDING_ENABLED` | `true` | Set to `0`, `false`, or `off` to disable post-task compounding prompts |
-| `CBM_EXE` | *(auto-detect)* | Override the `codebase-memory-mcp.exe` path |
+| `CBM_EXE` | *(auto-detect)* | Override the `codebase-memory-mcp` executable path (`codebase-memory-mcp.exe` on Windows, `codebase-memory-mcp` on Linux/WSL) |
 
 ---
 
