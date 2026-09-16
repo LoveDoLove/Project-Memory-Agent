@@ -99,8 +99,25 @@ core:
 
   # ── Relationship Fields ─────────────────────────────────────────────────────
   #
-  # related: supports both plain strings (backward compatible) and typed objects.
-  # Typed links enable semantic navigation (evolved_from, caused_by, etc.).
+  # related: supports both plain strings (backward compatible) and typed
+  # objects. Typed links are directional: the current document is the source
+  # and the referenced path is the target. Use a typed link only when the
+  # relationship reduces retrieval ambiguity; plain paths remain valid for
+  # loose associations.
+  #
+  # Relationship semantics (source -> target):
+  #   supersedes    - current source replaces target; use with target in
+  #                   superseded/historical status.
+  #   evolved_from  - source is a newer version of target.
+  #   resolves      - source is the fix/decision/solution for target's
+  #                   problem, bug, or symptom.
+  #   caused_by     - source's problem/impact/constraint is caused by
+  #                   target.
+  #   affects       - source changes, constrains, or impacts target.
+  #   belongs_to    - source is a sub-topic, detail, or component of target.
+  #   contradicts   - source conflicts with target; resolution is required.
+  #   derived_from  - source was distilled, inferred, or generalized from
+  #                   target.
 
   related:
     type: array
@@ -116,9 +133,12 @@ core:
             type:
               type: enum
               values:
-                - belongs_to     # "I belong to this parent concept"
-                - caused_by      # "This was caused by the target"
+                - supersedes     # "This replaces the target"
                 - evolved_from   # "This evolved from the target (old version)"
+                - resolves       # "This solves or addresses the target"
+                - caused_by      # "This was caused by the target"
+                - affects        # "This changes, constrains, or impacts the target"
+                - belongs_to     # "I belong to this parent concept"
                 - contradicts    # "This contradicts the target"
                 - derived_from   # "This was derived from the target"
               description: "Semantic relationship type"
@@ -126,14 +146,19 @@ core:
     description: >
       Related knowledge units. Plain strings are backward-compatible.
       Typed links enable semantic retrieval (e.g. following evolved_from
-      to find the current version of a superseded decision).
+      to find the current version of a superseded decision). Typed
+      relationships are directional and must not present superseded or
+      obsolete targets as current authoritative knowledge.
 
   superseded_by:
     type: [string, null]
     required: false
     description: >
       Path to the knowledge unit that replaces this one. Required when
-      status is 'superseded'. Must point to an existing document.
+      status is 'superseded'. Must point to an existing document. The
+      replacing unit may also include a `related` link of type
+      `supersedes` back to this unit, but `superseded_by` remains the
+      canonical lifecycle field.
 
   consolidated_from:
     type: array
@@ -314,5 +339,9 @@ validation:
     - "related paths must resolve to existing files (checked by memory-verification)"
     - "superseded_by must point to an existing document when status is 'superseded'"
     - "created and last_verified must be valid YYYY-MM-DD dates"
+    - "typed related links must use one of the eight relationship types"
+    - "typed related links must not present superseded or obsolete targets as current authoritative knowledge"
+    - "typed related links are checked by the Typed Relationship Verification Gate in memory-verification (syntactic, semantic/direction, lifecycle, and evidence tiers)"
+    - "plain-string related: entries are legacy/untyped and remain valid; only target existence is checked"
     - "tags follow corpus-first vocabulary rule — sample existing corpus before choosing"
     - "title must be unique within the repository"

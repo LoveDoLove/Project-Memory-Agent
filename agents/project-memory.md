@@ -218,6 +218,10 @@ evidence:
   - <repository path or evidence reference>
 related:
   - <relative path>
+  # or typed (directional source -> target):
+  # - path: <relative path>
+  #   type: supersedes | evolved_from | resolves | caused_by | affects
+  #         | belongs_to | contradicts | derived_from
 superseded_by: <relative path or null>
 consolidated_from:
   - <origin path of a pre-existing source merged into this unit, if any>
@@ -453,12 +457,25 @@ related:
   - path: docs/architecture/security.md
     type: belongs_to
   - path: docs/decisions/auth-v1.md
-    type: evolved_from
+    type: supersedes
+  - path: docs/solutions/build-symptom.md
+    type: resolves
 ```
 
-Supported types: `belongs_to`, `caused_by`, `evolved_from`, `contradicts`,
-`derived_from`. Use typed links to enable semantic navigation (e.g. following
-`evolved_from` to find the current version of a superseded decision).
+Supported types (directional, source → target): `supersedes`, `evolved_from`,
+`resolves`, `caused_by`, `affects`, `belongs_to`, `contradicts`,
+`derived_from`. Use typed links only when the relationship reduces
+retrieval ambiguity. A typed link does not override the target's lifecycle
+status: a link to a superseded or obsolete unit does not make that unit
+current.
+
+Typed relationships are checked by the **Typed Relationship Verification
+Gate** in `memory-verification`: a link is not trusted just because its
+syntax is valid. A typed link is `Verified` only when its syntax,
+direction, lifecycle, and — for high-impact types — evidence checks all
+pass; otherwise it is `Needs Review`, `Invalid`, or (for plain-path
+entries) `Untyped/Legacy`. The gate reports; it never rewrites or infers
+relationships.
 
 ## Freshness Indicators
 

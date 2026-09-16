@@ -884,7 +884,8 @@ Recommended Changes:
 - **Scalability** - can the structure grow without becoming a giant tree?
 - **Retrieval cost** - common tasks reach relevant knowledge with minimal context?
 - **Typed links** - do `related:` entries use typed objects when semantic
-  relationship matters (evolved_from, caused_by, contradicts)?
+  relationship matters (supersedes, evolved_from, resolves, caused_by,
+  affects, belongs_to, contradicts, derived_from)?
 
 ---
 

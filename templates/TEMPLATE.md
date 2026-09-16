@@ -36,6 +36,8 @@ evidence:
     type: test
 
 # Semantic relationships to other knowledge units
+# Plain paths are backward-compatible. Typed links are directional:
+# the current document is the source, the target path is the referenced unit.
 related:
   - docs/decisions/authentication.md              # plain path (backward compatible)
   - path: docs/architecture/security.md
@@ -43,7 +45,27 @@ related:
   - path: docs/solutions/login-failure.md
     type: caused_by           # This was caused by the target issue
   - path: docs/decisions/auth-v1.md
-    type: evolved_from        # This replaced the old version
+    type: evolved_from        # This is a newer version that evolved from the target
+  - path: docs/decisions/auth-v1.md
+    type: supersedes          # This current version replaces the old version
+  - path: docs/solutions/build-failure-symptom.md
+    type: resolves            # This fix/decision addresses the target problem
+  - path: docs/architecture/build/generated-sources.md
+    type: affects             # This change constrains or impacts the target
+
+# Relationship vocabulary (source -> target):
+#   supersedes    - source is the current replacement for target
+#   evolved_from  - source is a newer version of target
+#   resolves      - source is the fix/decision/solution for target's problem
+#   caused_by     - source's problem/impact/constraint is caused by target
+#   affects       - source changes, constrains, or impacts target
+#   belongs_to    - source is a sub-topic, detail, or component of target
+#   contradicts   - source conflicts with target; resolution is required
+#   derived_from  - source was distilled, inferred, or generalized from target
+
+# Use typed links only when the relationship reduces retrieval ambiguity.
+# A typed link must not present a superseded or obsolete target as current
+# authoritative knowledge; lifecycle status remains the source of truth.
 
 # What supersedes this knowledge (required when status = superseded)
 superseded_by: "docs/decisions/new-authentication.md"
@@ -255,6 +277,10 @@ Before publishing any knowledge document:
 - [ ] `last_verified` is current (within 30 days for current knowledge)
 - [ ] Every factual claim has at least one `evidence` entry
 - [ ] `related:` links point to existing documents (verified by memory-verification)
+- [ ] Typed `related:` links use one of the eight relationship types and respect source → target direction
+- [ ] Typed `related:` links do not present superseded or obsolete targets as current authoritative knowledge
+- [ ] High-impact typed links (`supersedes`, `resolves`, `caused_by`, `contradicts`) have supporting evidence or are marked Needs Review in the verification receipt
+- [ ] Typed `related:` links pass the Typed Relationship Verification Gate in `memory-verification`
 - [ ] `superseded_by` is set when status is `superseded`
 - [ ] Tags use existing corpus vocabulary (corpus-first rule)
 - [ ] Document passes the Durable Bar counterfactual (for solutions/lessons)

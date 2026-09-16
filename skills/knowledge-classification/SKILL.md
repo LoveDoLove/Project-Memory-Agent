@@ -821,7 +821,8 @@ Durability + evidence confidence + provenance evaluated
 Duplicates checked and cross-source conflicts resolved with evidence
 Recommended action + primary ownership + limitations recorded
 Typed related: links recommended where semantic relationship matters
-  (use: belongs_to, caused_by, evolved_from, contradicts, derived_from)
+  (use: supersedes, evolved_from, resolves, caused_by, affects, belongs_to,
+  contradicts, derived_from)
 No repository changes made
 ```
 
@@ -838,17 +839,27 @@ matter, and where should I look for the authoritative knowledge?"
 
 When a classified finding has a clear semantic relationship to another
 knowledge unit, recommend a typed `related:` entry in the knowledge-edit
-plan. Use the five relationship types from the schema:
+plan. Use the eight relationship types from the schema. All relationships are
+directional: the current document is the source and the referenced path is
+the target.
 
-| Type | When to recommend |
-|------|------------------|
-| `evolved_from` | This knowledge replaced an older version of the same topic |
-| `caused_by` | This knowledge explains a consequence of another document |
-| `belongs_to` | This is a sub-topic or detail of a parent knowledge unit |
-| `contradicts` | This conflicts with another documented claim (requires conflict resolution) |
-| `derived_from` | This was inferred or distilled from another knowledge unit |
+| Type | Direction | When to recommend | Inappropriate when |
+|------|-----------|------------------|--------------------|
+| `supersedes` | current replacement → superseded/historical target | This knowledge replaces an older version of the same topic; target status is `superseded` or `historical` | Target is still current; the claim is just "related to" rather than a replacement |
+| `evolved_from` | newer version → older version | This knowledge is a newer version of the same topic; target was once current | Target is obsolete with no useful history; the relationship is merely topical |
+| `resolves` | fix/decision/solution → problem/bug/symptom knowledge | This unit is the verified answer to the target's problem | The fix has not been verified; the link is just "same subsystem" |
+| `caused_by` | knowledge whose problem/impact is caused → cause knowledge | This knowledge's problem, impact, or constraint was caused by the target | Cause is unverified; the link is only temporal proximity |
+| `affects` | source → target it changes/constrains/impacts | This decision, constraint, or architecture change has a real impact on the target | Impact is speculative; the target does not exist |
+| `belongs_to` | sub-topic/detail/component → broader parent | This is a sub-topic, detail, or component of the target | Two independent topics that merely share a domain |
+| `contradicts` | source → conflicting target | This conflicts with another documented claim and requires conflict resolution | Different scope, conditional behaviour, or historical context; use classification before recommending |
+| `derived_from` | distilled/inferred/generalized unit → source unit | This was inferred or distilled from another knowledge unit | The target is not the actual source; derivation is weak |
 
 Do not add typed links merely for connectivity. Only recommend when the
 relationship is specific and reduces retrieval ambiguity. Plain paths are
 sufficient for loose associations; use typed links when the semantics matter
 for navigation.
+
+Lifecycle rule: a typed relationship pointing to a superseded or obsolete
+unit does not make that unit current. The target's `status` remains the
+authoritative source; `superseded_by` remains the canonical lifecycle field
+for replacement.
