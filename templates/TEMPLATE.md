@@ -280,6 +280,7 @@ Before publishing any knowledge document:
 - [ ] Typed `related:` links use one of the eight relationship types and respect source → target direction
 - [ ] Typed `related:` links do not present superseded or obsolete targets as current authoritative knowledge
 - [ ] High-impact typed links (`supersedes`, `resolves`, `caused_by`, `contradicts`) have supporting evidence or are marked Needs Review in the verification receipt
+- [ ] High-impact typed links are recency-tracked in the verification receipt (Tier 5); a Stale link is flagged, never silently trusted
 - [ ] Typed `related:` links pass the Typed Relationship Verification Gate in `memory-verification`
 - [ ] `superseded_by` is set when status is `superseded`
 - [ ] Tags use existing corpus vocabulary (corpus-first rule)

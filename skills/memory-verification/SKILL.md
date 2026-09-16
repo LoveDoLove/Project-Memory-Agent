@@ -581,10 +581,13 @@ These are different failures with different fixes. Report them separately.
 
 ## Typed Relationship Verification Gate
 
-This is the Phase 2 gate for the Minimal Typed Relationship Model. It
-strengthens this skill's link verification. It does not add a parallel
-verification system, a graph engine, retrieval, confidence scoring, or a
-persistent relationship status field.
+This is the Phase 2 gate (extended by Phase 3 with Tier 5) for the
+Minimal Typed Relationship Model. It strengthens this skill's link
+verification. It does not add a parallel verification system, a graph
+engine, retrieval, confidence scoring, or a persistent relationship status
+field. Tier 5 (Drift/Recency) adds a `Stale` state for the four
+high-impact types; it is derived from the existing audit log and receipt,
+never stored on the edge.
 
 Apply the gate to every typed `related:` entry. Plain string `related:`
 entries are legacy/untyped and remain valid; check only target existence.
@@ -602,7 +605,7 @@ evidence justifies it.
 
 ### Trust Levels
 
-Every typed relationship has exactly one of four states. Do not store these
+Every typed relationship has exactly one of five states. Do not store these
 states in the frontmatter. Derive them from the checks below and report them
 in the verification receipt.
 
@@ -611,6 +614,9 @@ Verified       all syntactic, semantic, lifecycle, and evidence checks pass
 Needs Review   syntactically valid but a semantic, evidence, or
                contradiction check cannot be completed with available evidence
 Invalid        a hard check fails; report it, do not silently fix it
+Stale          a previously Verified high-impact edge is no longer current
+                because relevant knowledge changed after its last
+                verification (Phase 3 Tier 5); never treated as Verified
 Untyped/Legacy plain string entry; only target existence is checked
 ```
 
@@ -679,6 +685,76 @@ Contradictions` and mark the relationship Needs Review until resolution.
 Lower-impact types (`belongs_to`, `affects`, `evolved_from`, `derived_from`)
 stop at Tiers 1–3.
 
+### Tier 5 — Drift / Recency Check (high-impact types only)
+
+For the same four high-impact types (`supersedes`, `resolves`, `caused_by`,
+`contradicts`), determine whether a previously established relationship
+verification is still current.
+
+This is a **read-time downgrade only**: it turns a relationship into
+`Stale` when relevant knowledge has changed since the edge was last
+verified. It never restores `Verified`, never auto-reverifies, and never
+rewrites knowledge.
+
+```text
+Stale = edge last_verified is older than the newest CHANGELOG-MEMORY.md
+       audit entry that touches the source, the target, their evidence,
+       or the target's superseded_by.
+```
+
+- Read the edge's `last_verified` date and audit-entry reference from the
+  verification receipt (recorded by a prior gate run; see "What the Gate
+  Reports" below).
+- Compare it to the newest `CHANGELOG-MEMORY.md` entry whose affected
+  paths include the source, target, their evidence paths, or the target's
+  `superseded_by`.
+- `**Affected typed relationships:**` is the preferred signal. For
+  `CHANGELOG-MEMORY.md` entries that predate that field, fall back to the
+  entry's existing `**Path:**` lines: match the edge's source and target
+  document paths against `**Path:**`. No hash or fingerprint is used.
+- If that audit entry is newer than the edge's `last_verified`, mark the
+  edge **`Stale`**. The edge must not be reported `Verified` until the
+  whole gate (Tiers 1–4) is re-run and the receipt records a fresh
+  `last_verified` + audit-entry reference.
+- If the edge has no recorded `last_verified` (no prior receipt entry),
+  treat it as unverified: default to the current Phase 2 gate result and
+  do not claim `Verified`.
+- Drift downgrades trust only. A `Stale` edge becomes `Verified`,
+  `Needs Review`, or `Invalid` **only** after explicit re-verification of
+  Tiers 1–4. The gate is the only thing that can set `Verified`.
+
+Lower-impact types are not recency-tracked; they keep Tiers 1–3 behavior
+unchanged.
+
+### `Stale` — Phase 3 State Semantics
+
+`Stale` is a Phase 3 extension of the Phase 2 trust states. It is not the
+same as `Invalid` and is never treated as `Verified`:
+
+```text
+Stale        a previously established relationship verification is no
+             longer current because relevant knowledge changed after the
+             last verification; the edge is not known to be false
+             and is not automatically re-verified
+Needs Review (after re-run) Tiers 1-3 pass but Tier 4 evidence cannot be
+             established with available evidence
+Invalid      (after re-run) a Tier 1-3 check fails
+Verified     (after re-run) all Tiers 1-5 pass and the receipt records a
+             fresh last_verified
+```
+
+Transitions:
+
+- `Verified → Stale` — automatic when a newer audit entry touches an
+  endpoint; no human action, no rewrite.
+- `Stale → Verified | Needs Review | Invalid` — only after the gate
+  re-runs Tiers 1–4 and the receipt records the new `last_verified` and
+  audit-entry reference.
+
+Lifecycle guard: a `Stale` edge never restores a superseded or obsolete
+target to authoritative status. Lifecycle state is still read from the
+target document and `superseded_by`.
+
 ### Legacy and Malformed Compatibility
 
 - Plain string `related:` entries: Untyped/Legacy. Check target existence
@@ -698,10 +774,21 @@ For each typed relationship, the receipt records:
 ```text
 path -> target
 type
-tier results: syntactic / semantic / lifecycle / evidence
-state: Verified | Needs Review | Invalid | Untyped
+tier results: syntactic / semantic / lifecycle / evidence / recency
+state: Verified | Needs Review | Invalid | Stale | Untyped
 reason (for anything other than Verified)
 ```
+
+For each **high-impact** relationship (`supersedes`, `resolves`, `caused_by`,
+`contradicts`), the receipt additionally records:
+
+```text
+last_verified: YYYY-MM-DD        # date of the last full gate pass for this edge
+audit_entry: <heading>           # CHANGELOG-MEMORY.md entry id that verified it
+```
+
+These are Markdown receipt fields only. They are **never** written into
+`related:` frontmatter; the schema stays `{ path, type }`.
 
 Do not infer new relationships. Do not rewrite knowledge to make a check
 pass. A failed check is reported and left to `memory-edit` to fix.
@@ -991,6 +1078,16 @@ PASS | PASS WITH WARNINGS | FAIL | BLOCKED
 - Superseded:
 - Historical:
 - Unknown:
+
+## Relationship Recency (Tier 5)
+
+High-impact edges (`supersedes`, `resolves`, `caused_by`, `contradicts`):
+
+- Stale edges:
+  (edges whose `last_verified` is older than the newest audit entry touching
+  an endpoint; must be re-run through the gate before reporting Verified)
+- Edges re-verified this run:
+- Per-edge receipt fields: `last_verified` + `audit_entry`
 
 ## Ownership
 

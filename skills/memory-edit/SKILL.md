@@ -651,6 +651,11 @@ confidence.
 - **Confidence:** High | Medium | Low
 - **Evidence Source:** <brief reference, e.g. "PR #123", "package.json", "git log abc123">
 - **Verified By:** repository-audit | knowledge-classification | memory-verification
+- **Affected typed relationships:** `<source path> <type> <target path>`
+  (one line per typed `related:` edge whose source, target, evidence, or
+  target's `superseded_by` this edit touched; `none` if none. Phase 3
+  relationship-maintenance uses this to make a previously verified high-impact
+  edge `Stale`.)
 ```
 
 ## Rules

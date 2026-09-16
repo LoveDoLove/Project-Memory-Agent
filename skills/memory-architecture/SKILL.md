@@ -886,6 +886,10 @@ Recommended Changes:
 - **Typed links** - do `related:` entries use typed objects when semantic
   relationship matters (supersedes, evolved_from, resolves, caused_by,
   affects, belongs_to, contradicts, derived_from)?
+- **Relationship recency** - do high-impact typed edges (supersedes,
+  resolves, caused_by, contradicts) carry a recency record in the
+  verification receipt, and are Stale edges flagged rather than silently
+  trusted (Phase 3 Tier 5)?
 
 ---
 
