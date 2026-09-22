@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] — 2026-09-22
+
+### Added
+
+- **Auto-Start Standalone EMA UI Server on Port 3888**:
+  - Automatically launches the standalone UI server on port 3888 on plugin load (alongside `/ema` mount on DSH web server).
+  - Both `http://127.0.0.1:3080/ema` and `http://127.0.0.1:3888` are directly accessible without requiring manual `ema ui` command.
+  - Gracefully handles `EADDRINUSE` if port 3888 is already bound, and properly closes on plugin unload.
+
 ## [0.5.3] — 2026-09-22
 
 ### Added

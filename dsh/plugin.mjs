@@ -35,7 +35,7 @@ import { homedir } from 'node:os'
 import { cbmApply, getOrCreateClient } from './codebase-memory-bridge.mjs'
 import { applySlashCommand } from './slash-project-memory.mjs'
 import { applyEmaSlashCommand } from './slash-ema.mjs'
-import { handleUIRequest } from '../src/ui/server.mjs'
+import { handleUIRequest, startUIServer } from '../src/ui/server.mjs'
 
 const PLUGIN_ID = 'dsh-project-memory'
 
@@ -478,14 +478,27 @@ export function apply(ctx, config = {}) {
      });
    }
 
-   // 5. Auto-start codebase-memory-mcp (if available) and log UI URLs prominently.
+   // 5. Auto-start standalone EMA UI on port 3888 and codebase-memory-mcp (if available), and log UI URLs prominently.
+   let standaloneServer = null;
    if (process.env.NODE_ENV !== 'test' && !process.execArgv.includes('--test')) {
+     try {
+       startUIServer({ port: 3888, repoRoot: initialWs }).then((inst) => {
+         standaloneServer = inst;
+       }).catch((err) => {
+         if (err.code !== 'EADDRINUSE') {
+           console.warn('[project-memory] standalone EMA UI server warning:', err.message);
+         }
+       });
+     } catch {
+       // best-effort
+     }
+
      const cbmClient = getOrCreateClient();
      if (cbmClient) {
        cbmClient.start().then(() => {
          console.log('\n[project-memory] 🚀 Engineering Memory Agent is ready!');
          console.log('  📊 EMA Visual Memory Graph (mounted): http://127.0.0.1:3080/ema');
-         console.log('  🌐 Standalone EMA UI (optional):     http://127.0.0.1:3888 (run ema ui)');
+         console.log('  🌐 Standalone EMA UI:                http://127.0.0.1:3888');
          console.log('  🔍 Codebase Memory UI:               http://localhost:9749/');
          console.log('');
        }).catch((err) => {
@@ -493,14 +506,14 @@ export function apply(ctx, config = {}) {
          // Still show the EMA UI banner even if codebase-memory fails
          console.log('\n[project-memory] 🚀 Engineering Memory Agent is ready!');
          console.log('  📊 EMA Visual Memory Graph (mounted): http://127.0.0.1:3080/ema');
-         console.log('  🌐 Standalone EMA UI (optional):     http://127.0.0.1:3888 (run ema ui)');
+         console.log('  🌐 Standalone EMA UI:                http://127.0.0.1:3888');
          console.log('');
        });
      } else {
        // codebase-memory-mcp not found, still show EMA UI banner
        console.log('\n[project-memory] 🚀 Engineering Memory Agent is ready!');
        console.log('  📊 EMA Visual Memory Graph (mounted): http://127.0.0.1:3080/ema');
-       console.log('  🌐 Standalone EMA UI (optional):     http://127.0.0.1:3888 (run ema ui)');
+       console.log('  🌐 Standalone EMA UI:                http://127.0.0.1:3888');
        console.log('  ⚠️  codebase-memory-mcp not installed (optional for advanced code search)');
        console.log('');
      }
@@ -617,6 +630,9 @@ export function apply(ctx, config = {}) {
   return () => {
     initHinted.clear()
     compoundHinted.clear()
+    if (standaloneServer && typeof standaloneServer.close === 'function') {
+      try { standaloneServer.close() } catch { /* ignore */ }
+    }
   }
 }
 
