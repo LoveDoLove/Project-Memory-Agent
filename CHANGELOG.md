@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-09-22
+
+### Added
+
+- **Built-in 384-d Vector Model & Hybrid RRF Search**:
+  - Deterministic local feature-hash and subword n-gram embedder with zero dependencies and offline execution.
+  - Active `sqlite-vec` KNN vector storage in derived `.ema/index.db`.
+  - Stage 2 retrieval upgraded to Reciprocal Rank Fusion (RRF) combining FTS5 lexical matching with vector cosine distance.
+- **Interactive Visual Memory Graph Web UI (`ema ui`)**:
+  - Full-screen dark-theme force-directed physics knowledge graph on `http://127.0.0.1:3888`.
+  - Dynamic 4-D lifecycle node coloring (Canonical, Candidate, Contradiction, Historical).
+  - Explicit contradiction edge highlighting with animated glowing rings.
+  - Interactive slide-over inspection drawer with grounded code evidence anchors, Markdown preview, and one-click promotion.
+- **Autonomous Distillation & Ingestion Engine (`ema ingest`, MCP `ema_distill`)**:
+  - Automated knowledge capture from Git diffs, patches, and task text.
+  - Generates immutable evidence anchors (`ema://evidence/...#sym:...`, `#line:...`).
+  - Quarantined candidate isolation invariant enforced in `.ema/candidates/`.
+- **One-Line Universal Installer & DeepSeek Harness Integration**:
+  - One-line installer script for Linux/macOS (`install.sh` via `curl | bash`) and Windows (`install.ps1` via `irm | iex`).
+  - Auto-detection and auto-mounting to active DeepSeek Harness profile.
+  - Slash commands `/ema ui` and `/ema ingest` supported in DeepSeek Harness chat.
+  - Global `ema` launcher in `~/.local/bin/ema` and `%USERPROFILE%\.local\bin\ema.cmd`.
+
 ## [0.4.31] — 2026-09-14
 
 ### Added
