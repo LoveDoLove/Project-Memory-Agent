@@ -9,7 +9,7 @@
     "ema-mcp": "./bin/ema-mcp.mjs"
   },
   "scripts": {
-    "test": "node --test 'test/**/*.test.mjs' 'test/*.test.mjs'"
+    "test": "node test/run-all.mjs"
   },
   "exports": {
     ".": "./dsh/plugin.mjs",
