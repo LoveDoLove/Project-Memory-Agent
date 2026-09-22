@@ -76,12 +76,12 @@ function Install-EmaCmd {
 
     $cmdContent = @"
 @echo off
-if exist "%CD%\dsh-plugin\bin\ema-cli.mjs" (
-  node "%CD%\dsh-plugin\bin\ema-cli.mjs" %*
-  exit /b %ERRORLEVEL%
-)
 if exist "%CD%\bin\ema-cli.mjs" (
   node "%CD%\bin\ema-cli.mjs" %*
+  exit /b %ERRORLEVEL%
+)
+if exist "%CD%\dsh-plugin\bin\ema-cli.mjs" (
+  node "%CD%\dsh-plugin\bin\ema-cli.mjs" %*
   exit /b %ERRORLEVEL%
 )
 if exist "%USERPROFILE%\.dsh\profiles\web\node_modules\@lovedolove\dsh-project-memory\bin\ema-cli.mjs" (

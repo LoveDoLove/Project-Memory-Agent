@@ -1,12 +1,15 @@
 {
   "name": "@lovedolove/dsh-project-memory",
   "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, registers the /project-memory slash command, and prompts for memory compounding after tasks.",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "main": "dsh/plugin.mjs",
   "bin": {
     "ema": "./bin/ema-cli.mjs",
     "ema-mcp": "./bin/ema-mcp.mjs"
+  },
+  "scripts": {
+    "test": "node --test 'test/**/*.test.mjs' 'test/*.test.mjs'"
   },
   "exports": {
     ".": "./dsh/plugin.mjs",
@@ -27,8 +30,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LoveDoLove/Project-Memory-Agent.git",
-    "directory": "dsh-plugin"
+    "url": "https://github.com/LoveDoLove/Project-Memory-Agent.git"
   },
   "dsh": {
     "bundle": {

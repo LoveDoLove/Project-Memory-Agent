@@ -40,7 +40,7 @@ const PLUGIN_ID = 'dsh-project-memory'
 
 /** Path to this plugin's own source -- used to resolve skills/ relative to the repo. */
 const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
-const REPO_ROOT = join(PLUGIN_ROOT, '..', '..')
+const REPO_ROOT = join(PLUGIN_ROOT, '..')
 
 // ── Native DSH System Bundled Skills Provider ─────────────────────────────────
 

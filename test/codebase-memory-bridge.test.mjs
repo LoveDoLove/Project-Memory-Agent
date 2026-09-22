@@ -1,7 +1,7 @@
 /**
  * codebase-memory-bridge cross-platform tests (node:test, no framework).
  *
- * Run: cd dsh-plugin && node --test "test/*.test.mjs"
+ * Run: npm test
  *
  * Windows behavior is pinned: projectNameFromPath keeps the drive-letter
  * prefix ('C-...') for drive-lettered paths. Linux/WSL paths slug without

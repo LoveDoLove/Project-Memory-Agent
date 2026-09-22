@@ -99,11 +99,9 @@ dsh plugin --profile web add @lovedolove/dsh-project-memory
 
 ---
 
-## DeepSeek Harness（DSH）插件
+## DeepSeek Harness（DSH）原生插件
 
-本项目提供了一个 **DSH bundle 插件**（`@lovedolove/dsh-project-memory`），可通过 Cordis 技能注册表将全部 8 个 Project Memory 技能挂载到任意 DSH 配置文件中。插件还会在 `codebase-memory-mcp` 可用时注册 `cbm_*` 工具，注入首次初始化提示，并注册 `/project-memory` 斜杠命令。
-
-详见 [dsh-plugin/README.md](./dsh-plugin/README.md)。
+本项目原生作为 **DSH bundle 插件**（`@lovedolove/dsh-project-memory`）发布，直接将全部 8 个 Project Memory 技能作为原生系统打包技能（System Bundled Skills）挂载到任意 DSH 配置文件中。插件还会在 `codebase-memory-mcp` 可用时注册 `cbm_*` 工具，注入首次初始化提示，并注册 `/project-memory` 与 `/ema` 斜杠命令。
 
 ### 安装
 
@@ -147,7 +145,7 @@ dsh plugin --profile web add @lovedolove/dsh-project-memory
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**插件内部说明：** npm 包（位于 `dsh-plugin/`）使用单行 Cordis patch 加载运行时胶水（`dsh/plugin.mjs`），由其在运行时相对活跃工作区动态注册技能、注册 `/project-memory` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
+**插件内部说明：** npm 包使用单行 Cordis patch 加载运行时胶水（`dsh/plugin.mjs`），由其在运行时直接以系统打包技能规范注册 8 项技能、注册 `/project-memory` 与 `/ema` 斜杠命令，并在没有 `AGENTS.md` 时注入首次初始化提示。
 
 ---
 

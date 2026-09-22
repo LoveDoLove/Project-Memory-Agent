@@ -88,7 +88,7 @@ Please validate and promote knowledge unit '${id}' to '${targetScope}' scope:
     case 'ui': {
       return `Engineering Memory Agent: Launch Visual Memory Graph
 Please provide instructions or start the EMA Visual Memory Graph UI:
-1. Explain that the user can run 'ema ui' or 'node dsh-plugin/bin/ema-cli.mjs ui --port 3888'.
+1. Explain that the user can run 'ema ui' or 'node bin/ema-cli.mjs ui --port 3888'.
 2. The UI is available at http://127.0.0.1:3888 featuring interactive canvas force graph, node coloring, and slide-over drawer.`;
     }
 

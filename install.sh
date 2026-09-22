@@ -51,11 +51,11 @@ cat << 'EOF' > "${EMA_EXE}"
 #!/usr/bin/env bash
 # EMA CLI Launcher — Engineering Memory Agent
 
-# 1. If running inside or near repository with dsh-plugin
-if [ -f "$(pwd)/dsh-plugin/bin/ema-cli.mjs" ]; then
-  exec node "$(pwd)/dsh-plugin/bin/ema-cli.mjs" "$@"
-elif [ -f "$(pwd)/bin/ema-cli.mjs" ]; then
+# 1. If running inside or near repository with bin/ema-cli.mjs
+if [ -f "$(pwd)/bin/ema-cli.mjs" ]; then
   exec node "$(pwd)/bin/ema-cli.mjs" "$@"
+elif [ -f "$(pwd)/dsh-plugin/bin/ema-cli.mjs" ]; then
+  exec node "$(pwd)/dsh-plugin/bin/ema-cli.mjs" "$@"
 fi
 
 # 2. Check DSH profile installations

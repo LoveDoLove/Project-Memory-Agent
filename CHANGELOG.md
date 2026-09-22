@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] — 2026-09-22
+
+### Changed
+
+- **Root-Level Package Architecture (Parity with Official DSH Plugins)**:
+  - Flattened repository layout: eliminated intermediate `dsh-plugin/` directory and established `@lovedolove/dsh-project-memory` as the root-level npm package directly matching the layout of official DSH plugins (such as `dsh-univer-office`).
+  - Unified `skills/` directory at the repository root, removing redundancy and making the root directory the single source of truth.
+  - Simplified CLI and testing commands: `npm test` runs the complete 185-test suite from repo root.
+  - Updated GitHub Actions workflow (`.github/workflows/publish-npm.yml`) to build, test, and publish directly from repository root.
+  - Updated `install.sh`, `install.ps1`, `AGENTS.md`, and documentation to reference root-level paths (`bin/ema-cli.mjs`).
+
 ## [0.5.1] — 2026-09-22
 
 ### Added

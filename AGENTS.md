@@ -32,8 +32,9 @@ DeepSeek Harness) a persistent memory system for your software projects.
 Two parts:
 
 - **Skills + Agents** (`skills/`, `agents/`) — the core memory pipeline
-- **DSH Plugin** (`dsh-plugin/`) — npm package that mounts skills into any
-  DeepSeek Harness profile via the built-in skill registry
+- **DeepSeek Harness Integration** (`dsh/`, `src/`, `bin/`) — root-level npm package
+  `@lovedolove/dsh-project-memory` providing native system bundled skills, MCP tools,
+  offline 384-d vector hybrid search, and interactive Memory Graph UI
 
 See [README.md](./README.md) for project introduction and installation.
 See [docs/architecture.md](./docs/architecture.md) for system design details.

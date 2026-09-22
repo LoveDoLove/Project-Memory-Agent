@@ -140,38 +140,38 @@ Engineering Memory Agent (EMA) extends Project Memory with a formal four-dimensi
 
 ### CLI Tooling
 
-The EMA CLI is available directly via Node.js in `dsh-plugin/bin/ema-cli.mjs` (or via `npx ema` / `npm link`):
+The EMA CLI is available directly via Node.js in `bin/ema-cli.mjs` (or globally via `ema` / `npx ema`):
 
 ```bash
 # Launch the interactive Visual Memory Graph Web UI
-node dsh-plugin/bin/ema-cli.mjs ui --port 3888
+node bin/ema-cli.mjs ui --port 3888
 
 # Auto-distill and capture knowledge from working tree git changes into candidate queue
-node dsh-plugin/bin/ema-cli.mjs ingest --git
+node bin/ema-cli.mjs ingest --git
 
 # Auto-distill from a specific patch or diff file
-node dsh-plugin/bin/ema-cli.mjs ingest --diff ./fix.patch
+node bin/ema-cli.mjs ingest --diff ./fix.patch
 
 # Distill engineering knowledge from an explanation or incident text
-node dsh-plugin/bin/ema-cli.mjs ingest --text "Fixed race condition in token refresh by using mutex"
+node bin/ema-cli.mjs ingest --text "Fixed race condition in token refresh by using mutex"
 
 # Review and promote an approved candidate to project canonical storage
-node dsh-plugin/bin/ema-cli.mjs promote <candidate_id> project
+node bin/ema-cli.mjs promote <candidate_id> project
 
 # Check database health, schema version, unit counts, and candidate queue
-node dsh-plugin/bin/ema-cli.mjs status
+node bin/ema-cli.mjs status
 
 # Validate all repository knowledge documents against EKU Schema v2
-node dsh-plugin/bin/ema-cli.mjs verify docs
+node bin/ema-cli.mjs verify docs
 
 # Execute authoritative 6-stage hybrid memory recall (FTS5 + sqlite-vec RRF)
-node dsh-plugin/bin/ema-cli.mjs recall "cordis plugin injection"
+node bin/ema-cli.mjs recall "cordis plugin injection"
 
 # Rebuild the derived SQLite + sqlite-vec vector index from canonical Markdown
-node dsh-plugin/bin/ema-cli.mjs index docs
+node bin/ema-cli.mjs index docs
 
 # View CLI help and usage options
-node dsh-plugin/bin/ema-cli.mjs help
+node bin/ema-cli.mjs help
 ```
 
 ### Model Context Protocol (MCP) Server
@@ -180,7 +180,7 @@ EMA includes a standalone stdio JSON-RPC 2.0 MCP server:
 
 ```bash
 # Start the MCP server over stdio
-node dsh-plugin/bin/ema-mcp.mjs
+node bin/ema-mcp.mjs
 ```
 
 Available tools registered by the MCP server:
@@ -207,9 +207,7 @@ When mounted in DeepSeek Harness, the plugin registers both `/project-memory` an
 
 ## DeepSeek Harness (DSH) Plugin
 
-The project ships a **DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile via the built-in skill registry. It also registers `cbm_*` tools (codebase-memory bridge) when the `codebase-memory-mcp` is available, injects a first-time-init hint when no `AGENTS.md` is found, and registers the `/project-memory` slash command.
-
-See [dsh-plugin/README.md](./dsh-plugin/README.md) for plugin-specific details.
+The project ships as a **native DSH bundle plugin** (`@lovedolove/dsh-project-memory`) that mounts all 8 Project Memory skills into any DSH profile as native system bundled skills. It also registers `cbm_*` tools (codebase-memory bridge) when `codebase-memory-mcp` is available, injects a first-time-init hint when no `AGENTS.md` is found, registers the `/project-memory` and `/ema` slash commands, and provides full MCP tooling and Visual Graph UI.
 
 ### Install
 
@@ -254,7 +252,7 @@ For full control, dispatch the orchestrator as a subagent:
 use_agent(agent: "project-memory", prompt: "compound my last task")
 ```
 
-**Plugin internals:** the npm package (`dsh-plugin/`) uses a single-row Cordis patch that loads the runtime glue (`dsh/plugin.mjs`), which dynamically registers skills relative to the active workspace, registers the `/project-memory` slash command, and injects a first-time-init hint when no `AGENTS.md` is found.
+**Plugin internals:** the npm package (`@lovedolove/dsh-project-memory`) uses a single-row Cordis patch that loads the runtime glue (`dsh/plugin.mjs`), which dynamically registers skills as native system bundled skills, registers the `/project-memory` and `/ema` slash commands, and injects a first-time-init hint when no `AGENTS.md` is found.
 
 ---
 
@@ -351,18 +349,17 @@ Detailed guidance lives in each skill:
 ## Prerequisites & Limitations
 
 - **Prerequisites**: Node.js `>= 18.0.0` (Node.js 20+ or 24 recommended).
-- **Runtime Dependencies**: `better-sqlite3` and `sqlite-vec` in `dsh-plugin/`.
+- **Runtime Dependencies**: `better-sqlite3` and `sqlite-vec` in root `package.json`.
 - **Disposable Cache**: The derived database `.ema/index.db` is purely a local cache; deleting it does not destroy any canonical knowledge.
-- **Current Vector Status**: `sqlite-vec` foundation and schema are implemented; semantic vector embeddings are staged for future embedding provider integrations, while lexical FTS5 search is fully active.
+- **Current Vector Status**: Offline 384-d feature-hash embedder and `sqlite-vec` KNN hybrid RRF retrieval are fully active.
 
 ---
 
 ## Testing
 
 ```bash
-# Run the complete EMA unit, integration, and security test suite (172 tests)
-cd dsh-plugin
-node --test "test/**/*.test.mjs" "test/*.test.mjs"
+# Run the complete EMA unit, integration, and security test suite (185 tests)
+npm test
 
 # Run installer test suite
 Invoke-Pester ./install.tests.ps1
