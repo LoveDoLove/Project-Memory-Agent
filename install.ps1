@@ -3,7 +3,8 @@ param(
     [switch]$Force,
     [switch]$Verify,
     [string]$Branch = 'main',
-    [string]$DshProfile = ''
+    [string]$DshProfile = '',
+    [switch]$Interactive
 )
 
 $Repo = 'LoveDoLove/Project-Memory-Agent'
@@ -15,6 +16,19 @@ $PluginName = '@lovedolove/dsh-project-memory'
 $AgentCordisYml = 'agent.cordis.yml'
 $PresetYml = 'preset.yml'
 
+function Print-Banner {
+    Write-Host ""
+    Write-Host "  ____            _           _     __  __                                " -ForegroundColor Cyan
+    Write-Host " |  _ \ _ __ ___ (_) ___  ___| |_  |  \/  | ___ _ __ ___   ___  _ __ _   _ " -ForegroundColor Cyan
+    Write-Host " | |_) | '__/ _ \| |/ _ \/ __| __| | |\/| |/ _ \ '_ \` _ \ / _ \| '__| | | |" -ForegroundColor Cyan
+    Write-Host " |  __/| | | (_) | |  __/ (__| |_  | |  | |  __/ | | | | | (_) | |  | |_| |" -ForegroundColor Cyan
+    Write-Host " |_|   |_|  \___// |\___|\___|\__| |_|  |_|\___|_| |_| |_|\___/|_|   \__, |" -ForegroundColor Cyan
+    Write-Host "               |__/                                                  |___/ " -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Engineering Memory Agent (EMA) Installer — DeepSeek Harness Ready" -ForegroundColor White
+    Write-Host ""
+}
+
 function Install-Skills($skillsDir) {
     New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
     foreach ($s in $Skills) {
@@ -25,11 +39,8 @@ function Install-Skills($skillsDir) {
             $script:Installed += $d
             continue
         }
-        if ((Test-Path $d) -and -not $Force) {
-            $ans = Read-Host "Overwrite $d ? [Y/N]"
-            if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: $d"; continue }
-        }
         try {
+            New-Item -ItemType Directory -Force -Path (Split-Path $d) | Out-Null
             Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $d
             Write-Host "  installed: $d"
             $script:Installed += $d
@@ -47,10 +58,6 @@ function Install-Agent($srcRel, $agentDest) {
         $script:Installed += $agentDest
         return
     }
-    if ((Test-Path $agentDest) -and -not $Force) {
-        $ans = Read-Host "Overwrite $agentDest ? [Y/N]"
-        if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: $agentDest"; return }
-    }
     try {
         New-Item -ItemType Directory -Force -Path (Split-Path $agentDest) | Out-Null
         Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $agentDest
@@ -59,6 +66,39 @@ function Install-Agent($srcRel, $agentDest) {
     } catch {
         Write-Warning "  failed: $u ($_)"
         $script:Failures += $u
+    }
+}
+
+function Install-EmaCmd {
+    $binDir = Join-Path $env:USERPROFILE '.local\bin'
+    New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+    $cmdPath = Join-Path $binDir 'ema.cmd'
+
+    $cmdContent = @"
+@echo off
+if exist "%CD%\dsh-plugin\bin\ema-cli.mjs" (
+  node "%CD%\dsh-plugin\bin\ema-cli.mjs" %*
+  exit /b %ERRORLEVEL%
+)
+if exist "%CD%\bin\ema-cli.mjs" (
+  node "%CD%\bin\ema-cli.mjs" %*
+  exit /b %ERRORLEVEL%
+)
+if exist "%USERPROFILE%\.dsh\profiles\web\node_modules\@lovedolove\dsh-project-memory\bin\ema-cli.mjs" (
+  node "%USERPROFILE%\.dsh\profiles\web\node_modules\@lovedolove\dsh-project-memory\bin\ema-cli.mjs" %*
+  exit /b %ERRORLEVEL%
+)
+npx -y @lovedolove/dsh-project-memory ema %*
+"@
+
+    Set-Content -Path $cmdPath -Value $cmdContent -Encoding ASCII
+    Write-Host "  ✓ EMA CLI installed: $cmdPath" -ForegroundColor Cyan
+
+    # Ensure in User PATH
+    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($userPath -notlike "*$binDir*") {
+        [Environment]::SetEnvironmentVariable("Path", "$binDir;$userPath", "User")
+        $env:Path = "$binDir;$env:Path"
     }
 }
 
@@ -74,17 +114,19 @@ function Get-DshProfileName {
 }
 
 function Main {
+    Print-Banner
     $script:Installed = @()
     $script:Failures = @()
 
+    # 1. Install CLI
+    Install-EmaCmd
+
     $targets = @()
     if (-not $Target) {
-        if ([Console]::IsInputRedirected) {
-            $targets = @('all')
-        } else {
+        if ($Interactive) {
             Write-Host "Select target:"
             Write-Host "  1 OpenCode  2 Codex  3 Claude  4 DSH  5 Global  6 All  Q Quit"
-            try { $choice = Read-Host "Choice" } catch { $choice = '6' }
+            try { $choice = Read-Host "Choice" } catch { $choice = '4' }
             if ($choice -eq 'Q' -or $choice -eq 'q') { return }
             if ($choice -eq '1') { $targets = @('opencode') }
             elseif ($choice -eq '2') { $targets = @('codex') }
@@ -92,6 +134,9 @@ function Main {
             elseif ($choice -eq '4') { $targets = @('dsh') }
             elseif ($choice -eq '5') { $targets = @('global') }
             else { $targets = @('all') }
+        } else {
+            # Default to DSH + All tools for seamless one-line curl/irm install
+            $targets = @('all')
         }
     } else {
         $targets = @($Target)
@@ -112,7 +157,6 @@ function Main {
                 Install-Agent $AgentToml "$env:USERPROFILE\.codex\agents\project-memory.toml"
             }
             'global' {
-                # Cross-tool: skills to ~/.agents/skills/, agent to ~/.agents/agents/
                 Install-Skills "$env:USERPROFILE\.agents\skills"
                 Install-Agent $AgentMd "$env:USERPROFILE\.agents\agents\project-memory.md"
             }
@@ -122,7 +166,6 @@ function Main {
                 New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
                 Write-Host "  DSH profile: $profileName"
                 Write-Host ""
-                # Download cordis preset files from GitHub
                 foreach ($f in @($AgentCordisYml, $PresetYml)) {
                     $u = "$Base/$f"
                     $d = Join-Path $presetDir $f
@@ -130,10 +173,6 @@ function Main {
                         Write-Host "  would install: $d"
                         $script:Installed += $d
                         continue
-                    }
-                    if ((Test-Path $d) -and -not $Force) {
-                        $ans = Read-Host "Overwrite $d ? [Y/N]"
-                        if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: $d"; continue }
                     }
                     try {
                         Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $d
@@ -145,13 +184,11 @@ function Main {
                     }
                 }
                 Write-Host ""
-                # Install plugin hint for DSH (auto-run if dsh is available, else print command)
                 if (-not $Verify) {
                     $dshCmd = Get-Command 'dsh' -ErrorAction SilentlyContinue
                     if ($dshCmd) {
                         try {
                             if ($dshCmd.CommandType -eq 'ExternalScript') {
-                                # .ps1 scripts can't be started directly via Start-Process; invoke through this session
                                 & $dshCmd.Source plugin --profile $profileName add $PluginName
                             } else {
                                 $proc = Start-Process -FilePath "dsh" -ArgumentList "plugin --profile $profileName add $PluginName" -NoNewWindow -Wait -PassThru -ErrorAction Stop
@@ -182,7 +219,6 @@ function Main {
                 $presetDir = Join-Path (Join-Path (Join-Path $env:USERPROFILE '.dsh') '.agent-presets') 'project-memory'
                 New-Item -ItemType Directory -Force -Path $presetDir | Out-Null
                 Write-Host ""
-                # Download cordis preset files from GitHub
                 foreach ($f in @($AgentCordisYml, $PresetYml)) {
                     $u = "$Base/$f"
                     $d = Join-Path $presetDir $f
@@ -190,10 +226,6 @@ function Main {
                         Write-Host "  would install: $d"
                         $script:Installed += $d
                         continue
-                    }
-                    if ((Test-Path $d) -and -not $Force) {
-                        $ans = Read-Host "Overwrite $d ? [Y/N]"
-                        if ($ans -notmatch '^[Yy]') { Write-Host "  skipped: $d"; continue }
                     }
                     try {
                         Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $d
@@ -235,14 +267,19 @@ function Main {
     }
 
     Write-Host ""
-    Write-Host "Installed $($script:Installed.Count) item(s):"
-    $script:Installed | ForEach-Object { Write-Host "  $_" }
-    if ($script:Failures.Count -gt 0) {
-        Write-Host "Failed $($script:Failures.Count):"
-        $script:Failures | ForEach-Object { Write-Host "  $_" }
-    }
+    Write-Host "========================================================================" -ForegroundColor Green
+    Write-Host "  ✨ Project Memory Agent (EMA) Installed Successfully!" -ForegroundColor Green
+    Write-Host "========================================================================" -ForegroundColor Green
     Write-Host ""
-    if ($script:Failures.Count -gt 0) { exit 1 }
+    Write-Host "🤖 Inside DeepSeek Harness:" -ForegroundColor Cyan
+    Write-Host "   Type '/ema' or '/project-memory' in any session chat."
+    Write-Host ""
+    Write-Host "🌐 Interactive Visual Memory Graph:" -ForegroundColor Cyan
+    Write-Host "   Run 'ema ui' in your project directory (http://127.0.0.1:3888)"
+    Write-Host ""
+    Write-Host "⚡ Auto-Distillation & Ingestion:" -ForegroundColor Cyan
+    Write-Host "   Run 'ema ingest --git' to capture changes into candidate queue."
+    Write-Host ""
 }
 
 if ($MyInvocation.InvocationName -ne '.') { Main }

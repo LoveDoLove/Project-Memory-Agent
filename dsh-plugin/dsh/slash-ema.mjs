@@ -30,7 +30,7 @@ export function parseEmaCommand(text = '') {
   }
 
   const sub = parts[0].toLowerCase();
-  const knownSubs = ['recall', 'status', 'verify', 'promote'];
+  const knownSubs = ['recall', 'status', 'verify', 'promote', 'ui', 'ingest'];
   if (knownSubs.includes(sub)) {
     return { subcommand: sub, args: parts.slice(1) };
   }
@@ -83,6 +83,21 @@ Please validate and promote knowledge unit '${id}' to '${targetScope}' scope:
 1. Check actor authorization and hard isolation barriers.
 2. If promoting to 'global', enforce ≥2 independent repository sources.
 3. Update promoted_from lineage block and append audit log to docs/CHANGELOG-MEMORY.md.`;
+    }
+
+    case 'ui': {
+      return `Engineering Memory Agent: Launch Visual Memory Graph
+Please provide instructions or start the EMA Visual Memory Graph UI:
+1. Explain that the user can run 'ema ui' or 'node dsh-plugin/bin/ema-cli.mjs ui --port 3888'.
+2. The UI is available at http://127.0.0.1:3888 featuring interactive canvas force graph, node coloring, and slide-over drawer.`;
+    }
+
+    case 'ingest': {
+      return `Engineering Memory Agent: Auto-Distillation & Ingestion
+Please execute auto-distillation on current changes:
+1. Run 'ema ingest --git' or analyze current git diff / task findings.
+2. Extract grounded evidence anchors (commit SHA, file path, symbol/line).
+3. Safely store the resulting knowledge unit in .ema/candidates/ with Candidate + Unreviewed invariants.`;
     }
 
     case 'default':

@@ -42,27 +42,54 @@ Project Memory 为每个编码代理提供一个单一、可信的仓库知识�
 
 ## 快速开始
 
+### 一键通用安装（极速推荐）
+
+支持 Linux、macOS 与 Windows，优先自动配置 **DeepSeek Harness (DSH)**：
+
+**Linux / macOS / WSL：**
+```bash
+curl -fsSL https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.sh | bash
+```
+
+**Windows (PowerShell)：**
 ```powershell
-# 安装到所有支持平台（OpenCode、Codex、Claude、DSH、Global）
 irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
 ```
 
-安装脚本会将编排代理及 8 个技能下载并安装到你选择的工具的全局配置目录中。在交互式菜单中选择目标（`1` OpenCode · `2` Codex · `3` Claude · `4` DSH · `5` Global · `6` All）。通过 `irm | iex` 非交互式运行则默认为 `all`。
+一键脚本将自动执行：
+1. **自动识别 DeepSeek Harness (DSH)**，将 `@lovedolove/dsh-project-memory` 插件挂载到当前活动的 DSH Profile 中。
+2. 安装全局 `ema` 命令行工具到环境变量 PATH（`~/.local/bin/ema` 或 `%USERPROFILE%\.local\bin\ema.cmd`）。
+3. 将 8 项核心工程记忆技能镜像到 `~/.agents/skills/`，并同步支持 Claude Code 及 OpenCode。
+4. 在 DeepSeek Harness 中即刻激活 `/ema` 与 `/project-memory` 斜杠指令。
+
+### 在 DeepSeek Harness 中使用
+
+如果你正在使用 DeepSeek Harness，可以在终端中直接安装插件：
+
+```bash
+# 添加到你常用的 DSH Profile（如 'web'）
+dsh plugin --profile web add @lovedolove/dsh-project-memory
+```
+
+安装完成后，在任意 DSH 对话窗口中直接输入：
+```text
+/ema
+```
+或
+```text
+/project-memory
+```
+代理将自动执行记忆检索、事实核验与经验沉淀编排。
 
 ### 支持平台
 
-| 目标 | 技能位置 | 代理文件 |
-|:----:|----------|----------|
-| OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
-| Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
-| Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
-| DSH | 命令行：`dsh plugin add …` | `~/.dsh/.agent-presets/project-memory/` |
-| Global | `~/.agents/skills/` | `~/.agents/agents/project-memory.md` |
-
-> `all` 将技能写入 `~/.claude/skills` 和 `~/.agents/skills`（避免 OpenCode 双重加载），并为所有平台生成代理文件，同时打印 DSH 插件安装命令。
-
-**本地参数：** `-Target all`、`-Verify`（预演模式）、`-Branch dev`、`-Target dsh`。
-**Codex 注意：** 需要在 `~/.codex/config.toml` 中设置 `[features] multi_agent = true`（安装脚本会打印提示，不会修改你的配置文件）。
+| 目标 | 主要场景 | 技能位置 | 触发方式 |
+|:----:|:--------:|----------|:--------:|
+| **DeepSeek Harness (DSH)** | **主推平台** | DSH 技能注册表 / 插件 | `/ema`, `/project-memory` |
+| **命令行终端 (CLI)** | **图谱 UI 与自动提炼** | 独立 Node.js 客户端 | `ema ui`, `ema ingest`, `ema recall` |
+| **Claude Code** | 兼容支持 | `~/.claude/skills/` | `@project-memory` |
+| **OpenCode** | 兼容支持 | `~/.config/opencode/skills/` | `@project-memory` |
+| **Codex** | 兼容支持 | `~/.agents/skills/` | `@project-memory` |
 
 ---
 

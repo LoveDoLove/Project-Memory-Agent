@@ -49,27 +49,55 @@ With Project Memory, that knowledge is discovered, verified against actual code,
 
 ## Quick Start
 
+### One-Line Universal Install (Recommended)
+
+Install Project Memory Agent (EMA) across all platforms with DeepSeek Harness prioritized:
+
+**Linux / macOS / WSL:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
 ```powershell
-# Install to all supported platforms (OpenCode, Codex, Claude, DSH, Global)
 irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/install.ps1 | iex
 ```
 
-The installer downloads the orchestrator agent and its 8 skills into your chosen tool's global config. Pick a target from the interactive menu (`1` OpenCode · `2` Codex · `3` Claude · `4` DSH · `5` Global · `6` All). Via `irm | iex` it defaults to `all` non-interactively.
+The installer automatically:
+1. Detects **DeepSeek Harness (DSH)** and mounts the `@lovedolove/dsh-project-memory` plugin to your active profile.
+2. Installs the global `ema` CLI to your PATH (`~/.local/bin/ema` or `%USERPROFILE%\.local\bin\ema.cmd`).
+3. Mirrors the 8 core Project Memory skills to `~/.agents/skills/`, Claude Code (`~/.claude/skills`), and OpenCode.
+4. Registers `/ema` and `/project-memory` slash commands in DeepSeek Harness chat.
+
+### Inside DeepSeek Harness (DSH)
+
+If you already use DeepSeek Harness, you can also install the plugin directly:
+
+```bash
+# Add to your active DSH profile (e.g. 'web')
+dsh plugin --profile web add @lovedolove/dsh-project-memory
+```
+
+Once installed, simply open any DSH session and type:
+```text
+/ema
+```
+or
+```text
+/project-memory
+```
+
+The agent will automatically orchestrate memory recall, verification, and compounding.
 
 ### Supported Platforms
 
-| Target | Skills Location | Agent File |
-|:------:|-----------------|------------|
-| OpenCode | `~/.config/opencode/skills/` | `~/.config/opencode/agents/project-memory.md` |
-| Codex | `~/.agents/skills/` | `~/.codex/agents/project-memory.toml` |
-| Claude | `~/.claude/skills/` | `~/.claude/agents/project-memory.md` |
-| DSH | CLI: `dsh plugin add …` | `~/.dsh/.agent-presets/project-memory/` |
-| Global | `~/.agents/skills/` | `~/.agents/agents/project-memory.md` |
-
-> `all` writes skills to both `~/.claude/skills` and `~/.agents/skills` (no OpenCode double-load), seeds agent files for all platforms, and prints DSH plugin commands.
-
-**Local options:** `-Target all`, `-Verify` (dry-run), `-Branch dev`, `-Target dsh`.
-**Codex note:** requires `[features] multi_agent = true` in `~/.codex/config.toml` (installer prints this; never edits your config).
+| Target | Primary Use | Skills Location | Slash Command / Agent |
+|:------:|:-----------:|-----------------|:---------------------:|
+| **DeepSeek Harness (DSH)** | Primary Target | DSH Skill Registry / Plugin | `/ema`, `/project-memory` |
+| **CLI / Terminal** | Visual Graph & Ingest | Standalone Node.js CLI | `ema ui`, `ema ingest`, `ema recall` |
+| **Claude Code** | Compatible | `~/.claude/skills/` | `@project-memory` |
+| **OpenCode** | Compatible | `~/.config/opencode/skills/` | `@project-memory` |
+| **Codex** | Compatible | `~/.agents/skills/` | `@project-memory` |
 
 ---
 

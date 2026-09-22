@@ -3,20 +3,21 @@
   "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, registers the /project-memory slash command, and prompts for memory compounding after tasks.",
   "version": "0.4.31",
   "type": "module",
-  "main": "lib/index.js",
+  "main": "dsh/plugin.mjs",
   "bin": {
     "ema": "./bin/ema-cli.mjs",
     "ema-mcp": "./bin/ema-mcp.mjs"
   },
   "exports": {
-    ".": "./lib/index.js",
-    "./dsh": "./dsh/plugin.mjs"
+    ".": "./dsh/plugin.mjs",
+    "./dsh": "./dsh/plugin.mjs",
+    "./mcp": "./src/mcp/tools.mjs",
+    "./retrieval": "./src/retrieval/index.mjs"
   },
   "files": [
-    "lib/index.js",
-    "dsh/plugin.mjs",
-    "dsh/codebase-memory-bridge.mjs",
-    "dsh/slash-project-memory.mjs",
+    "bin",
+    "src",
+    "dsh",
     "cordis.patch.yml"
   ],
   "license": "MIT",
