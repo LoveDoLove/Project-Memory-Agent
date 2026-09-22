@@ -10,7 +10,8 @@
  *   - Interactive slide-over inspection drawer with evidence anchors & one-click promotion.
  */
 
-export function renderHtml() {
+export function renderHtml(options = {}) {
+  const basePath = (options.basePath || '').replace(/\/$/, '');
   return `<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -390,6 +391,7 @@ export function renderHtml() {
   <div id="tooltip"></div>
 
   <script>
+    const API_BASE = '${basePath}';
     let graphData = { nodes: [], edges: [], stats: {} };
     let nodes = [];
     let edges = [];
@@ -422,7 +424,7 @@ export function renderHtml() {
     // Fetch Graph Data
     async function loadGraph() {
       try {
-        const res = await fetch('/api/graph');
+        const res = await fetch(API_BASE + '/api/graph');
         graphData = await res.json();
         document.getElementById('stats-badge').innerText = 
           \`\${graphData.stats.total_nodes} nodes · \${graphData.stats.total_edges} relations · \${graphData.stats.candidate_count} candidates\`;
@@ -686,7 +688,7 @@ export function renderHtml() {
 
       // Fetch node full details from API
       try {
-        const res = await fetch('/api/nodes/' + encodeURIComponent(node.id));
+        const res = await fetch(API_BASE + '/api/nodes/' + encodeURIComponent(node.id));
         const details = await res.json();
         
         // Render evidence
@@ -712,7 +714,7 @@ export function renderHtml() {
           promoteBtn.onclick = async () => {
             promoteBtn.disabled = true;
             promoteBtn.innerText = 'Promoting...';
-            const pRes = await fetch('/api/promote/' + encodeURIComponent(node.id), { method: 'POST' });
+            const pRes = await fetch(API_BASE + '/api/promote/' + encodeURIComponent(node.id), { method: 'POST' });
             if (pRes.ok) {
               alert('Candidate promoted successfully!');
               loadGraph();

@@ -190,20 +190,45 @@ function findExe() {
 
 const EXE = findExe()
 
+let sharedClient = null;
+
+export function getOrCreateClient() {
+  if (!sharedClient && EXE) {
+    sharedClient = createClient(EXE);
+  }
+  return sharedClient;
+}
+
+/** Eagerly start codebase-memory-mcp daemon on plugin load. */
+export function autoStartCodebaseMemory() {
+  const client = getOrCreateClient();
+  if (client) {
+    client.start().then(() => {
+      console.log('\x1b[36m[project-memory]\x1b[0m 🔍 \x1b[1mcodebase-memory UI is live:\x1b[0m \x1b[32mhttp://localhost:9749/\x1b[0m');
+    }).catch((err) => {
+      console.warn('[project-memory] codebase-memory-mcp failed to start:', err.message);
+    });
+  }
+}
+
 /** Register cbm_* tools on ctx when ctx.tools is available.
  * Also eagerly starts the MCP daemon so the UI (port 9749) is ready
  * as soon as the plugin loads, not only after the first tool call. */
 export function cbmApply(ctx) {
-  const client = createClient(EXE);
-  ctx.effect(() => () => client.dispose());
+  const client = getOrCreateClient();
+  if (!client) return;
+
+  ctx.effect(() => () => {
+    // Graceful teardown
+  });
 
   // Eagerly start the daemon/UI so port 9749 is ready on plugin load.
-  if (EXE) {
+  if (EXE && process.env.NODE_ENV !== 'test' && !process.execArgv.includes('--test')) {
     client.start().then(() => {
-      console.log('[project-memory] codebase-memory UI: http://localhost:9749/')
+      console.log('\x1b[36m[project-memory]\x1b[0m 🔍 \x1b[1mcodebase-memory UI is live:\x1b[0m \x1b[32mhttp://localhost:9749/\x1b[0m');
     }).catch((err) => {
-      console.warn('[project-memory] codebase-memory-mcp failed to start:', err.message)
-    })
+      console.warn('[project-memory] codebase-memory-mcp failed to start:', err.message);
+    });
   }
 
   const tool = (name, description, parameters, exec) => ctx.effect(() => ctx.tools.register(defineTool({

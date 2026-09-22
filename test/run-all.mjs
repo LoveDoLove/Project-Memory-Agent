@@ -14,5 +14,8 @@ function findTestFiles(dir) {
 }
 
 const files = findTestFiles('test');
-const res = spawnSync(process.execPath, ['--test', ...files], { stdio: 'inherit' });
+const res = spawnSync(process.execPath, ['--test', ...files], {
+  stdio: 'inherit',
+  env: { ...process.env, NODE_ENV: 'test' },
+});
 process.exit(res.status ?? 1);

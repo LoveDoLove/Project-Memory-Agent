@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] — 2026-09-22
+
+### Added
+
+- **Native DSH Web Integration & Prefix Mounting**:
+  - Mounted EMA Visual Memory Graph UI directly on DSH's internal web server under `/ema` prefix (`http://127.0.0.1:3080/ema`) via Cordis `ctx.inject(['webServer'], ...)`.
+  - Added `basePath` support across `handleUIRequest` and the Web UI template (`window.__EMA_BASE_PATH__` / `API_BASE`) for transparent prefix mounting.
+  - Prominent startup banner displaying all live UI endpoints on load:
+    - 📊 EMA Visual Memory Graph (mounted): `http://127.0.0.1:3080/ema`
+    - 🌐 Standalone EMA UI (optional): `http://127.0.0.1:3888` (`ema ui`)
+    - 🔍 Codebase Memory UI: `http://localhost:9749/`
+- **Eager Daemon & UI Start for Codebase Memory**:
+  - Restored eager background startup of `codebase-memory-mcp` so `http://localhost:9749/` is live on plugin load without waiting for first tool call.
+  - Guarded against daemon startup during unit/integration tests to ensure clean test exit.
+
 ## [0.5.2] — 2026-09-22
 
 ### Changed

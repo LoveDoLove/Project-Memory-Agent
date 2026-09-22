@@ -32,9 +32,10 @@ import { readFile } from 'node:fs/promises'
 import { join, relative, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { homedir } from 'node:os'
-import { cbmApply } from './codebase-memory-bridge.mjs'
+import { cbmApply, getOrCreateClient } from './codebase-memory-bridge.mjs'
 import { applySlashCommand } from './slash-project-memory.mjs'
 import { applyEmaSlashCommand } from './slash-ema.mjs'
+import { handleUIRequest } from '../src/ui/server.mjs'
 
 const PLUGIN_ID = 'dsh-project-memory'
 
@@ -434,28 +435,76 @@ export function apply(ctx, config = {}) {
     console.log(`[project-memory] registered ${registeredSkills.length} workspace/global skill(s): ${registeredSkills.join(', ')}`)
   }
 
-  // Register cbm_* tools when ctx.tools is available (requires codebase-memory-mcp).
-  if (ctx?.tools && typeof ctx.tools.register === 'function') {
-    try {
-      cbmApply(ctx)
-      console.log('[project-memory] registered cbm_* codebase-memory tools')
-    } catch {
-      // codebase-memory-mcp not available -- skip silently
-    }
-  }
+   // Register cbm_* tools when ctx.tools is available (requires codebase-memory-mcp).
+   if (ctx?.tools && typeof ctx.tools.register === 'function') {
+     try {
+       cbmApply(ctx)
+       console.log('[project-memory] registered cbm_* codebase-memory tools')
+     } catch {
+       // codebase-memory-mcp not available -- skip silently
+     }
+   }
 
-  // 3. Register /project-memory and /ema slash commands (requires ctx.commands).
-  if (ctx?.commands && typeof ctx.commands.register === 'function') {
-    try {
-      ctx.effect(() => {
-        applySlashCommand(ctx, initialWs)
-        applyEmaSlashCommand(ctx, initialWs)
-      }, 'project-memory: slash-commands')
-      console.log('[project-memory] registered /project-memory and /ema slash commands')
-    } catch {
-      // commands service unavailable -- skip silently
-    }
-  }
+   // 3. Register /project-memory and /ema slash commands (requires ctx.commands).
+   if (ctx?.commands && typeof ctx.commands.register === 'function') {
+     try {
+       ctx.effect(() => {
+         applySlashCommand(ctx, initialWs)
+         applyEmaSlashCommand(ctx, initialWs)
+       }, 'project-memory: slash-commands')
+       console.log('[project-memory] registered /project-memory and /ema slash commands')
+     } catch {
+       // commands service unavailable -- skip silently
+     }
+   }
+
+   // 4. Mount EMA Visual Memory Graph UI on ctx.webServer at /ema (when webServer service is available)
+   if (typeof ctx.inject === 'function') {
+     ctx.inject(['webServer'], (webCtx) => {
+       webCtx.effect(() => {
+         const dispose = webCtx.webServer.register({
+           kind: 'prefix',
+           path: '/ema',
+           handler: async (req, res) => {
+             await handleUIRequest(req, res, {
+               basePath: '/ema',
+               repoRoot: initialWs,
+             });
+           }
+         }, 'project-memory: ui-server');
+         return dispose;
+       });
+       console.log('[project-memory] mounted EMA Visual Memory Graph UI at /ema');
+     });
+   }
+
+   // 5. Auto-start codebase-memory-mcp (if available) and log UI URLs prominently.
+   if (process.env.NODE_ENV !== 'test' && !process.execArgv.includes('--test')) {
+     const cbmClient = getOrCreateClient();
+     if (cbmClient) {
+       cbmClient.start().then(() => {
+         console.log('\n[project-memory] 🚀 Engineering Memory Agent is ready!');
+         console.log('  📊 EMA Visual Memory Graph (mounted): http://127.0.0.1:3080/ema');
+         console.log('  🌐 Standalone EMA UI (optional):     http://127.0.0.1:3888 (run ema ui)');
+         console.log('  🔍 Codebase Memory UI:               http://localhost:9749/');
+         console.log('');
+       }).catch((err) => {
+         console.warn('[project-memory] codebase-memory-mcp failed to start:', err.message);
+         // Still show the EMA UI banner even if codebase-memory fails
+         console.log('\n[project-memory] 🚀 Engineering Memory Agent is ready!');
+         console.log('  📊 EMA Visual Memory Graph (mounted): http://127.0.0.1:3080/ema');
+         console.log('  🌐 Standalone EMA UI (optional):     http://127.0.0.1:3888 (run ema ui)');
+         console.log('');
+       });
+     } else {
+       // codebase-memory-mcp not found, still show EMA UI banner
+       console.log('\n[project-memory] 🚀 Engineering Memory Agent is ready!');
+       console.log('  📊 EMA Visual Memory Graph (mounted): http://127.0.0.1:3080/ema');
+       console.log('  🌐 Standalone EMA UI (optional):     http://127.0.0.1:3888 (run ema ui)');
+       console.log('  ⚠️  codebase-memory-mcp not installed (optional for advanced code search)');
+       console.log('');
+     }
+   }
 
   const initHinted = new Set()
   const contextInjected = new Set()

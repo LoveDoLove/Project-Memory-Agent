@@ -1,7 +1,7 @@
 {
   "name": "@lovedolove/dsh-project-memory",
   "description": "DSH bundle plugin: mounts Project Memory skills, bootstraps memory architecture on first use, registers the /project-memory slash command, and prompts for memory compounding after tasks.",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "main": "dsh/plugin.mjs",
   "bin": {
@@ -15,7 +15,8 @@
     ".": "./dsh/plugin.mjs",
     "./dsh": "./dsh/plugin.mjs",
     "./mcp": "./src/mcp/tools.mjs",
-    "./retrieval": "./src/retrieval/index.mjs"
+    "./retrieval": "./src/retrieval/index.mjs",
+    "./package.json": "./package.json"
   },
   "files": [
     "bin",

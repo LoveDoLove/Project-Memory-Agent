@@ -11,8 +11,9 @@ import os from 'node:os';
 import { initIndex, closeIndex, defaultIndexPath } from '../../src/index/db.mjs';
 import { indexEKU } from '../../src/index/lexical-index.mjs';
 import { extractGraphData } from '../../src/ui/graph-data.mjs';
-import { startUIServer } from '../../src/ui/server.mjs';
+import { startUIServer, handleUIRequest } from '../../src/ui/server.mjs';
 import { createCandidate } from '../../src/storage/candidate-store.mjs';
+import http from 'node:http';
 
 function createTestEnvironment() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ema-ui-test-'));
@@ -122,6 +123,55 @@ test('UI Server: serves HTML SPA and API endpoints', async () => {
 
   } finally {
     if (serverInstance) serverInstance.close();
+    env.cleanup();
+  }
+});
+
+test('handleUIRequest: mounts on prefix /ema and serves SPA and APIs', async () => {
+  const env = createTestEnvironment();
+  let server;
+  try {
+    indexEKU(env.db, {
+      title: 'Mounted Prefix Test',
+      status: 'Current',
+      validation_state: 'Verified',
+      authority_level: 'Canonical',
+      confidence: 'High',
+      scope: 'project',
+      bodyText: 'Details on mounted prefix.',
+    }, 'docs/mounted.md');
+
+    server = http.createServer(async (req, res) => {
+      await handleUIRequest(req, res, {
+        basePath: '/ema',
+        repoRoot: env.tmpDir,
+        db: env.db,
+      });
+    });
+
+    await new Promise((resolve) => server.listen(4001, '127.0.0.1', resolve));
+
+    // Test GET /ema
+    const htmlRes = await fetch('http://127.0.0.1:4001/ema');
+    assert.equal(htmlRes.status, 200);
+    const html = await htmlRes.text();
+    assert.ok(html.includes("const API_BASE = '/ema';"));
+
+    // Test GET /ema/api/graph
+    const graphRes = await fetch('http://127.0.0.1:4001/ema/api/graph');
+    assert.equal(graphRes.status, 200);
+    const graphData = await graphRes.json();
+    assert.equal(graphData.stats.total_nodes, 1);
+    assert.equal(graphData.nodes[0].title, 'Mounted Prefix Test');
+
+    // Test GET /ema/api/status
+    const statusRes = await fetch('http://127.0.0.1:4001/ema/api/status');
+    assert.equal(statusRes.status, 200);
+    const statusData = await statusRes.json();
+    assert.equal(statusData.ok, true);
+    assert.equal(statusData.basePath, '/ema');
+  } finally {
+    if (server) server.close();
     env.cleanup();
   }
 });

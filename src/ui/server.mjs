@@ -18,6 +18,126 @@ import { rebuildIndex } from '../index/rebuild.mjs';
 import { defaultIndexPath, initIndex } from '../index/db.mjs';
 
 /**
+ * Handles incoming HTTP requests for the EMA Visual Memory Graph.
+ * Can be mounted directly onto ctx.webServer (e.g. prefix '/ema') or inside startUIServer.
+ *
+ * @param {import('node:http').IncomingMessage} req
+ * @param {import('node:http').ServerResponse} res
+ * @param {object} [options]
+ * @param {string} [options.basePath=''] - Route prefix (e.g. '/ema')
+ * @param {string} [options.repoRoot=process.cwd()] - Repository root
+ * @param {import('better-sqlite3').Database} [options.db] - Open database handle
+ */
+export async function handleUIRequest(req, res, options = {}) {
+  const basePath = (options.basePath || '').replace(/\/$/, '');
+  const repoRoot = path.resolve(options.repoRoot || process.cwd());
+
+  let db = options.db;
+  if (!db) {
+    try {
+      db = initIndex(defaultIndexPath(repoRoot));
+    } catch {
+      // Database may not exist yet; gracefully proceed
+    }
+  }
+
+  const urlObj = new URL(req.url, `http://${req.headers?.host || '127.0.0.1'}`);
+  let pathname = urlObj.pathname;
+
+  // Strip basePath prefix if present (e.g. /ema/api/graph -> /api/graph)
+  if (basePath && (pathname === basePath || pathname.startsWith(basePath + '/'))) {
+    pathname = pathname.slice(basePath.length) || '/';
+  }
+
+  // CORS headers for local tools
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  try {
+    // 1. Root SPA HTML
+    if (req.method === 'GET' && (pathname === '/' || pathname === '')) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(renderHtml({ basePath }));
+      return;
+    }
+
+    // 2. Graph Data API
+    if (req.method === 'GET' && pathname === '/api/graph') {
+      const data = extractGraphData(db, repoRoot);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(data));
+      return;
+    }
+
+    // 3. Node Detail API
+    if (req.method === 'GET' && pathname.startsWith('/api/nodes/')) {
+      const rawId = decodeURIComponent(pathname.slice('/api/nodes/'.length));
+      const details = getNodeDetails(rawId, db, repoRoot);
+      if (details) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(details));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'NodeNotFound', id: rawId }));
+      }
+      return;
+    }
+
+    // 4. Promote Candidate API
+    if (req.method === 'POST' && pathname.startsWith('/api/promote/')) {
+      const candidateId = decodeURIComponent(pathname.slice('/api/promote/'.length));
+      const candidateDir = path.join(repoRoot, '.ema', 'candidates');
+      const docsDir = path.join(repoRoot, 'docs');
+
+      const promoteResult = promoteScope(candidateId, 'project', 'Promoted via Visual Memory Graph UI', {
+        actor: 'human',
+        candidateDir,
+        docsDir,
+        writeToDisk: true,
+      });
+
+      if (promoteResult.success) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(promoteResult));
+      } else {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(promoteResult));
+      }
+      return;
+    }
+
+    // 5. Reindex API
+    if (req.method === 'POST' && pathname === '/api/reindex') {
+      const reindexResult = rebuildIndex('docs', { repoRoot, db });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(reindexResult));
+      return;
+    }
+
+    // 6. Status API
+    if (req.method === 'GET' && pathname === '/api/status') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, repoRoot, basePath }));
+      return;
+    }
+
+    // 404 Fallback
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'InternalServerError', message: err.message }));
+  }
+}
+
+/**
  * Creates and starts the EMA Visual Memory Graph HTTP server.
  *
  * @param {object} [options]
@@ -45,88 +165,7 @@ export function startUIServer(options = {}) {
   }
 
   const server = http.createServer(async (req, res) => {
-    const urlObj = new URL(req.url, `http://${host}:${port}`);
-    const pathname = urlObj.pathname;
-
-    // CORS headers for local tools
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-      res.writeHead(204);
-      res.end();
-      return;
-    }
-
-    try {
-      // 1. Root SPA HTML
-      if (req.method === 'GET' && pathname === '/') {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(renderHtml());
-        return;
-      }
-
-      // 2. Graph Data API
-      if (req.method === 'GET' && pathname === '/api/graph') {
-        const data = extractGraphData(db, repoRoot);
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(data));
-        return;
-      }
-
-      // 3. Node Detail API
-      if (req.method === 'GET' && pathname.startsWith('/api/nodes/')) {
-        const rawId = decodeURIComponent(pathname.slice('/api/nodes/'.length));
-        const details = getNodeDetails(rawId, db, repoRoot);
-        if (details) {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(details));
-        } else {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'NodeNotFound', id: rawId }));
-        }
-        return;
-      }
-
-      // 4. Promote Candidate API
-      if (req.method === 'POST' && pathname.startsWith('/api/promote/')) {
-        const candidateId = decodeURIComponent(pathname.slice('/api/promote/'.length));
-        const candidateDir = path.join(repoRoot, '.ema', 'candidates');
-        const docsDir = path.join(repoRoot, 'docs');
-
-        const promoteResult = promoteScope(candidateId, 'project', 'Promoted via Visual Memory Graph UI', {
-          actor: 'human',
-          candidateDir,
-          docsDir,
-          writeToDisk: true,
-        });
-
-        if (promoteResult.success) {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(promoteResult));
-        } else {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(promoteResult));
-        }
-        return;
-      }
-
-      // 5. Reindex API
-      if (req.method === 'POST' && pathname === '/api/reindex') {
-        const reindexResult = rebuildIndex('docs', { repoRoot, db });
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(reindexResult));
-        return;
-      }
-
-      // 404 Fallback
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not Found');
-    } catch (err) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'InternalServerError', message: err.message }));
-    }
+    await handleUIRequest(req, res, { ...options, db, repoRoot });
   });
 
   return new Promise((resolve, reject) => {
