@@ -14,6 +14,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execSync } from 'node:child_process';
 
 import {
   LOGICAL_ANCHOR_TYPES,
@@ -487,7 +488,12 @@ See PR #42 and issue #105.
 });
 
 test('End-to-End Real Git: resolves real commit blob and heading anchor from repo', () => {
-  const headSha = 'e2bed4702a0f56ac48feedba583aa43c7e0ecb9c';
+  let headSha;
+  try {
+    headSha = execSync('git rev-parse HEAD', { cwd: process.cwd(), encoding: 'utf8' }).trim();
+  } catch {
+    headSha = 'e2bed4702a0f56ac48feedba583aa43c7e0ecb9c';
+  }
   const anchor = `ema://evidence/Project-Memory-Agent/${headSha}/AGENTS.md#sec:Critical%20Rules`;
 
   const res = resolveEvidenceAnchor(anchor, { repoPath: process.cwd() });
