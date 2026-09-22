@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] — 2026-09-22
+
+### Added
+
+- **First-Class Native System Bundled Skills for DeepSeek Harness (Parity with `dsh-univer-office`)**:
+  - Direct packaging of all 8 Project Memory skills (`knowledge-classification`, `knowledge-compounding`, `knowledge-discovery`, `memory-architecture`, `memory-edit`, `memory-verification`, `obsolete-knowledge`, `repository-audit`) and their reference guides directly inside `@lovedolove/dsh-project-memory`.
+  - Implemented `createBundledSkillProvider()` conforming to `@deepseek-ai/dsh-skill` `SkillRegistry` with rank `BUNDLED_SKILL_RANK` (600) and `source: 'bundled'`.
+  - Seamless single-command installation via DeepSeek Harness native package manager (`dsh plugin add @lovedolove/dsh-project-memory`), automatically activating all 8 skills across all sessions with zero filesystem copying or symlinking required.
+
 ## [0.5.0] — 2026-09-22
 
 ### Added

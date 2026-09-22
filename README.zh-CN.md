@@ -62,14 +62,20 @@ irm https://raw.githubusercontent.com/LoveDoLove/Project-Memory-Agent/main/insta
 3. 将 8 项核心工程记忆技能镜像到 `~/.agents/skills/`，并同步支持 Claude Code 及 OpenCode。
 4. 在 DeepSeek Harness 中即刻激活 `/ema` 与 `/project-memory` 斜杠指令。
 
-### 在 DeepSeek Harness 中使用
+### 在 DeepSeek Harness 中使用（原生零配置极速安装）
 
-如果你正在使用 DeepSeek Harness，可以在终端中直接安装插件：
+参考 DeepSeek 官方标准（如 `dsh-univer-office`），只需一行 DSH 原生包管理命令，即可直接装完全部功能：
 
 ```bash
-# 添加到你常用的 DSH Profile（如 'web'）
+# 添加到当前激活的 DSH Profile（如 'web'）
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
+
+该命令将自动：
+1. **注入系统原生打包技能（System Bundled Skills）**：通过 `ctx.skills.registerProvider` 注册 `BUNDLED_SKILL_RANK` 级原生技能源，所有 8 项技能直接进入 Harness 核心技能表，无需向用户目录拷贝任何文件。
+2. **注册原生斜杠指令**：激活 `/ema` 与 `/project-memory` 对话框交互。
+3. **注入 MCP 工具链**：挂载 `ema_recall`、`ema_distill`、`ema_add` 等 6 项标准工具。
+4. **激活向量引擎**：离线 384-d 向量与 `sqlite-vec` RRF 混合检索即刻就绪。
 
 安装完成后，在任意 DSH 对话窗口中直接输入：
 ```text

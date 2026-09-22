@@ -69,14 +69,20 @@ The installer automatically:
 3. Mirrors the 8 core Project Memory skills to `~/.agents/skills/`, Claude Code (`~/.claude/skills`), and OpenCode.
 4. Registers `/ema` and `/project-memory` slash commands in DeepSeek Harness chat.
 
-### Inside DeepSeek Harness (DSH)
+### Inside DeepSeek Harness (DSH) — Zero Setup Required
 
-If you already use DeepSeek Harness, you can also install the plugin directly:
+DeepSeek Harness users can install the complete suite in a single command using DSH's native plugin manager (matching the official `dsh-univer-office` system bundled skills standard):
 
 ```bash
 # Add to your active DSH profile (e.g. 'web')
 dsh plugin --profile web add @lovedolove/dsh-project-memory
 ```
+
+This single command automatically:
+- Registers all 8 Project Memory skills as **native system bundled skills** (`source: 'bundled'`, `rank: 600`) via `ctx.skills.registerProvider` — accessible immediately in every session with zero file copying.
+- Registers the `/ema` and `/project-memory` slash commands.
+- Mounts the 6 Stdio MCP tools (`ema_recall`, `ema_distill`, `ema_add`, `ema_context`, `ema_validate`, `ema_promote`).
+- Activates the offline 384-d vector embedder and `sqlite-vec` RRF hybrid retrieval.
 
 Once installed, simply open any DSH session and type:
 ```text

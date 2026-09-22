@@ -15,12 +15,16 @@ import { estimateTokens } from '../../src/retrieval/context-builder.mjs';
 function createMockCordis() {
   const registeredCommands = new Map();
   const registeredSkills = [];
+  const registeredProviders = [];
   const eventListeners = new Map();
 
   const ctx = {
     skills: {
       register(skill) {
         registeredSkills.push(skill);
+      },
+      registerProvider(thunk) {
+        registeredProviders.push(thunk());
       },
     },
     commands: {
@@ -45,6 +49,7 @@ function createMockCordis() {
     },
     registeredCommands,
     registeredSkills,
+    registeredProviders,
     eventListeners,
   };
 
@@ -173,5 +178,48 @@ test('Plugin Lifecycle: registers both /project-memory and /ema commands seamles
     }
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+// ── Native DSH System Bundled Skills Provider ─────────────────────────────────
+
+test('Bundled Skills: registers 8 system bundled skills via ctx.skills.registerProvider', async () => {
+  const ctx = createMockCordis();
+  const disposer = apply(ctx, { workspaceRoot: process.cwd() });
+
+  assert.equal(ctx.registeredProviders.length, 1, 'Must register exactly 1 bundled skill provider');
+  const provider = ctx.registeredProviders[0];
+  assert.equal(provider.name, 'project-memory', 'Provider name must be project-memory');
+
+  const candidates = await provider.list();
+  assert.equal(candidates.length, 8, 'Must provide all 8 Project Memory skills');
+
+  const expectedSkills = [
+    'knowledge-classification',
+    'knowledge-compounding',
+    'knowledge-discovery',
+    'memory-architecture',
+    'memory-edit',
+    'memory-verification',
+    'obsolete-knowledge',
+    'repository-audit'
+  ];
+
+  for (const expected of expectedSkills) {
+    const candidate = candidates.find(c => c.name === expected);
+    assert.ok(candidate, `Candidate list must include ${expected}`);
+    assert.equal(candidate.source, 'bundled', 'Must be marked as bundled');
+    assert.equal(candidate.rank, 600, 'Bundled skill rank must be 600');
+    assert.equal(candidate.invocation.modelInvocable, true);
+    assert.equal(candidate.invocation.userInvocable, true);
+
+    const definition = await provider.get(candidate);
+    assert.equal(definition.name, expected);
+    assert.ok(definition.content.length > 100, 'Skill content must be loaded');
+    assert.ok(!definition.content.startsWith('---'), 'Frontmatter must be stripped');
+  }
+
+  if (typeof disposer === 'function') {
+    disposer();
   }
 });

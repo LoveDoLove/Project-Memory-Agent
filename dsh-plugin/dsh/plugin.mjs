@@ -28,8 +28,9 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { join, relative, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { homedir } from 'node:os'
 import { cbmApply } from './codebase-memory-bridge.mjs'
 import { applySlashCommand } from './slash-project-memory.mjs'
@@ -40,6 +41,104 @@ const PLUGIN_ID = 'dsh-project-memory'
 /** Path to this plugin's own source -- used to resolve skills/ relative to the repo. */
 const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(PLUGIN_ROOT, '..', '..')
+
+// ── Native DSH System Bundled Skills Provider ─────────────────────────────────
+
+const BUNDLED_SKILL_RANK = 600
+const SKILL_PROVIDER_NAME = 'project-memory'
+const SKILL_INVOCATION = { modelInvocable: true, userInvocable: true }
+
+export const BUNDLED_SKILL_DEFINITIONS = [
+  {
+    name: 'knowledge-classification',
+    description: 'Evidence-based project knowledge classification skill. Classifies verified repository findings - including claims extracted from existing multi-origin knowledge sources (AGENTS.md, CLAUDE.md, .cursor/rules/, .claude/, docs/) - into current facts, architecture, decisions, solutions, lessons, constraints, workflows, reference, historical, or obsolete knowledge; determines current-state status, durability, and knowledge value; resolves cross-source conflicts with evidence; detects semantic duplicates across origin tools; and returns recommendation-only classification decisions to the Project Memory orchestrator without modifying repository files.'
+  },
+  {
+    name: 'knowledge-compounding',
+    description: 'Extracts durable, reusable engineering knowledge from completed work, debugging sessions, migrations, incidents, and difficult implementation tasks. Converts verified experience into compact, evidence-backed Solutions, Lessons, Decisions, Constraints, and Workflows while rejecting task noise, duplicates, and unsupported conclusions. Read-only: produces knowledge proposals; memory-edit applies them.'
+  },
+  {
+    name: 'knowledge-discovery',
+    description: 'Discovers and inventories every pre-existing project knowledge source in a repository - AGENTS.md, CLAUDE.md, .cursor/rules/, .cursorrules, .windsurfrules, .github/copilot-instructions.md, .claude/, skills/, agents/, README.md, CONTRIBUTING.md, docs/, ADRs, lessons-learned files, generated AI documentation, and prior Project Memory output. Extracts atomic claims, tags provenance, detects overlaps and contradictions. Produces the Existing Knowledge Inventory for downstream verification. Read-only; never verifies, classifies, or edits.'
+  },
+  {
+    name: 'memory-architecture',
+    description: 'Designs and restructures the repository\'s Project Memory architecture for progressive loading, low redundancy, canonical knowledge ownership, and stable navigation. Determines domains, canonical locations, indexes, cross-references, document boundaries, and current-versus-historical separation. Designs reconstruction plans consolidating knowledge scattered across pre-existing origin tools (AGENTS.md, CLAUDE.md, .cursor/rules/, docs/) into one canonical architecture without modifying repository files.'
+  },
+  {
+    name: 'memory-edit',
+    description: 'Applies approved Project Memory changes to repository documentation - scoped additions, modifications, moves, merges, deletions, thin-pointer conversions, and navigation updates, including multi-source reconstruction consolidating pre-existing origin tools (AGENTS.md, CLAUDE.md, .cursor/rules/, .claude/) into one canonical location while preserving canonical ownership, historical boundaries, and reference integrity. Delegates bounded mechanical edits to cavecrew-builder; never performs blind bulk rewrites. Appends each change to docs/CHANGELOG-MEMORY.md for audit traceability.'
+  },
+  {
+    name: 'memory-verification',
+    description: 'Final verification gate for Project Memory after auditing, classification, architecture, compounding, cleanup, and edits. Cross-checks documentation against repository evidence, tests, configuration, build/CI, Git history, knowledge ownership, lifecycle status, references, navigation, and progressive-loading paths. Detects contradictions, stale knowledge, duplicate ownership, broken references, unsupported claims, and incomplete migrations. Emits PASS | PASS WITH WARNINGS | FAIL | BLOCKED.'
+  },
+  {
+    name: 'obsolete-knowledge',
+    description: 'Audits Project Memory for stale, obsolete, deprecated, or superseded knowledge. Determines delete, historical preservation, deprecation, or supersession treatment from evidence. Prevents obsolete information from loading as current guidance while preserving valuable rationale.'
+  },
+  {
+    name: 'repository-audit',
+    description: 'Evidence-first repository auditing skill. Discovers and verifies repository state across source code, tests, configuration, build/CI, Git history, documentation, and agent instructions. Verifies claims surfaced by knowledge-discovery, detects documentation mismatches, and produces a scoped evidence inventory with explicit coverage limitations. Read-only; makes no classification decisions or edits.'
+  }
+];
+
+const BUNDLED_SKILLS_DIR = existsSync(join(PLUGIN_ROOT, '..', 'skills'))
+  ? join(PLUGIN_ROOT, '..', 'skills')
+  : join(REPO_ROOT, 'skills');
+
+function stripSkillFrontmatter(value) {
+  const match = value.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)/);
+  return match ? value.slice(match[0].length).trim() : value.trim();
+}
+
+/**
+ * Creates the system bundled skill provider conforming to DSH SkillRegistry.
+ */
+export function createBundledSkillProvider() {
+  const candidates = BUNDLED_SKILL_DEFINITIONS.map(def => {
+    const dir = join(BUNDLED_SKILLS_DIR, def.name);
+    const file = join(dir, 'SKILL.md');
+    return {
+      name: def.name,
+      description: def.description,
+      invocation: SKILL_INVOCATION,
+      provider: SKILL_PROVIDER_NAME,
+      source: 'bundled',
+      resourceBase: {
+        kind: 'directory',
+        path: dir,
+      },
+      rank: BUNDLED_SKILL_RANK,
+      locator: pathToFileURL(file),
+    };
+  });
+
+  return {
+    name: SKILL_PROVIDER_NAME,
+    list: () => Promise.resolve(candidates),
+    async get(candidate) {
+      let filePath;
+      if (candidate.locator instanceof URL) {
+        filePath = fileURLToPath(candidate.locator);
+      } else if (typeof candidate.locator === 'string') {
+        filePath = candidate.locator;
+      } else {
+        filePath = join(BUNDLED_SKILLS_DIR, candidate.name, 'SKILL.md');
+      }
+      const raw = await readFile(filePath, 'utf8');
+      return {
+        name: candidate.name,
+        description: candidate.description,
+        invocation: candidate.invocation,
+        provider: candidate.provider,
+        source: candidate.source,
+        ...(candidate.resourceBase ? { resourceBase: candidate.resourceBase } : {}),
+        content: stripSkillFrontmatter(raw),
+      };
+    }
+  };
+}
 
 // - Helpers -
 
@@ -305,12 +404,34 @@ export function apply(ctx, config = {}) {
   const skills = ctx?.skills
   const on = ctx?.on
 
-  // 1. Register skills from the active workspace on load.
-  //    The workspace root is whatever the session was started in.
+  // 1. Register native DSH system bundled skills provider
+  const registerBundled = (targetCtx) => {
+    if (targetCtx?.skills && typeof targetCtx.skills.registerProvider === 'function') {
+      try {
+        const provider = createBundledSkillProvider();
+        targetCtx.skills.registerProvider(() => provider);
+        console.log(`[project-memory] registered 8 system bundled skills via ctx.skills.registerProvider`);
+      } catch (err) {
+        console.warn(`[project-memory] registerProvider error:`, err);
+      }
+    }
+  };
+
+  if (typeof ctx?.inject === 'function') {
+    try {
+      ctx.inject(['skills'], registerBundled);
+    } catch {
+      registerBundled(ctx);
+    }
+  } else {
+    registerBundled(ctx);
+  }
+
+  // 2. Also register skills from active workspace or global directories
   const initialWs = config.workspaceRoot ?? process.cwd()
   const registeredSkills = registerWorkspaceSkills(ctx, initialWs)
   if (registeredSkills.length > 0) {
-    console.log(`[project-memory] registered ${registeredSkills.length} skill(s): ${registeredSkills.join(', ')}`)
+    console.log(`[project-memory] registered ${registeredSkills.length} workspace/global skill(s): ${registeredSkills.join(', ')}`)
   }
 
   // Register cbm_* tools when ctx.tools is available (requires codebase-memory-mcp).
