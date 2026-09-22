@@ -94,8 +94,7 @@ Confidence: High if tests verify claimed behavior
 ```text
 High     - verified against multiple sources (code + tests + config)
 Medium   - verified against one source (code or tests)
-Low      - partially verified or inferred
-Unknown  - cannot verify mechanically
+Low      - partially verified or indirect evidence (legacy 'unknown' maps to low + unreviewed)
 ```
 
 ---

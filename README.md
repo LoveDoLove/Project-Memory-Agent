@@ -22,12 +22,19 @@ Code tells agents **what exists**. Project Memory helps them remember **why** �
 - [Why it matters](#why-it-matters)
 - [Quick Start](#quick-start)
 - [Supported Platforms](#supported-platforms)
+- [Engineering Memory Agent (EMA)](#engineering-memory-agent-ema)
+  - [Core Capabilities](#core-capabilities)
+  - [CLI Tooling](#cli-tooling)
+  - [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
+  - [DSH Plugin & Slash Commands](#dsh-plugin--slash-commands)
 - [DeepSeek Harness (DSH) Plugin](#deepseek-harness-dsh-plugin)
 - [How to Use](#how-to-use)
 - [What It Does](#what-it-does)
 - [Skills](#skills)
 - [Knowledge Architecture](#knowledge-architecture)
+- [Prerequisites & Limitations](#prerequisites--limitations)
 - [Testing](#testing)
+- [Architecture & Research Documentation](#architecture--research-documentation)
 - [License](#license)
 
 ---
@@ -63,6 +70,76 @@ The installer downloads the orchestrator agent and its 8 skills into your chosen
 
 **Local options:** `-Target all`, `-Verify` (dry-run), `-Branch dev`, `-Target dsh`.
 **Codex note:** requires `[features] multi_agent = true` in `~/.codex/config.toml` (installer prints this; never edits your config).
+
+---
+
+## Engineering Memory Agent (EMA)
+
+Engineering Memory Agent (EMA) extends Project Memory with a formal four-dimensional lifecycle model, authoritative 6-stage retrieval, six-boundary hard isolation, grounded evidence anchors, candidate queueing, and a standalone stdio MCP server.
+
+### Core Capabilities
+
+- **Four Orthogonal Lifecycle Dimensions**:
+  - `status`: `Draft` | `Current` | `Deprecated` | `Superseded` | `Historical` | `Abandoned`
+  - `validation_state`: `Unreviewed` | `Needs Review` | `Potentially Stale` | `Verified` | `Invalid` | `Quarantined`
+  - `authority_level`: `Candidate` | `Derived` | `Canonical`
+  - `confidence`: `High` | `Medium` | `Low`
+- **Authoritative 6-Stage Retrieval Pipeline**:
+  `Stage 1: Authorization Gate` → `Stage 2: Candidate Retrieval` → `Stage 3: Lifecycle Filtering` → `Stage 4: Multi-Dimensional Ranking` → `Stage 5: Contradiction Surfacing` → `Stage 6: Context Assembly`.
+- **Zero Silent Contradiction Resolution**: Contradicting knowledge units are surfaced explicitly with warning banners; neither is silently suppressed.
+- **Candidate Isolation & Multi-Repo Promotion**: Unreviewed knowledge is quarantined in `.ema/candidates/` with `authority_level: Candidate`. Promoting to `global` scope requires $\ge 2$ independent repository sources.
+- **Evidence Anchoring**: Grounded via immutable URIs: `ema://evidence/<repo-id>/<git-ref>/<file-path>#<logical-anchor>`.
+- **6-Boundary Hard Isolation**: Storage, Index, Query (zero-knowledge), Authorization (404 No-Probe), Promotion, and Export boundaries.
+- **Canonical Markdown Ownership**: Markdown files in `docs/` remain the single source of truth. The SQLite FTS5 index (`.ema/index.db`) is derived and fully rebuildable.
+
+### CLI Tooling
+
+The EMA CLI is available directly via Node.js in `dsh-plugin/bin/ema-cli.mjs` (or via `npx ema` / `npm link`):
+
+```bash
+# Check database health, schema version, unit counts, and candidate queue
+node dsh-plugin/bin/ema-cli.mjs status
+
+# Validate all repository knowledge documents against EKU Schema v2
+node dsh-plugin/bin/ema-cli.mjs verify docs
+
+# Execute authoritative 6-stage memory recall
+node dsh-plugin/bin/ema-cli.mjs recall "cordis plugin"
+
+# Rebuild the derived SQLite + FTS5 index from canonical Markdown
+node dsh-plugin/bin/ema-cli.mjs index docs
+
+# View CLI help and usage options
+node dsh-plugin/bin/ema-cli.mjs help
+```
+
+### Model Context Protocol (MCP) Server
+
+EMA includes a standalone stdio JSON-RPC 2.0 MCP server:
+
+```bash
+# Start the MCP server over stdio
+node dsh-plugin/bin/ema-mcp.mjs
+```
+
+Available tools registered by the MCP server:
+- `ema_recall`: Authoritative recall across authorized scopes (`query`, `limit`, `scope`, `actor`).
+- `ema_add`: Submit new candidate knowledge into `.ema/candidates/`.
+- `ema_context`: Assemble budget-capped static context injection for prompts.
+- `ema_validate`: Update validation state and record validation audit trail.
+- `ema_promote`: Promote knowledge units to broader scopes (`project`, `workspace`, `global`).
+
+### DSH Plugin & Slash Commands
+
+When mounted in DeepSeek Harness, the plugin registers both `/project-memory` and `/ema`:
+
+```text
+/ema recall <query>        # Authoritative recall with provenance headers
+/ema status                # Memory health, index stats, and candidate queue
+/ema verify                # Validate all documentation units
+/ema promote <id> <scope>  # Promotes a validated candidate EKU
+/ema                       # Interactive memory inspection & compounding workflow
+```
 
 ---
 
@@ -209,13 +286,39 @@ Detailed guidance lives in each skill:
 
 ---
 
+## Prerequisites & Limitations
+
+- **Prerequisites**: Node.js `>= 18.0.0` (Node.js 20+ or 24 recommended).
+- **Runtime Dependencies**: `better-sqlite3` and `sqlite-vec` in `dsh-plugin/`.
+- **Disposable Cache**: The derived database `.ema/index.db` is purely a local cache; deleting it does not destroy any canonical knowledge.
+- **Current Vector Status**: `sqlite-vec` foundation and schema are implemented; semantic vector embeddings are staged for future embedding provider integrations, while lexical FTS5 search is fully active.
+
+---
+
 ## Testing
 
-```powershell
+```bash
+# Run the complete EMA unit, integration, and security test suite (172 tests)
+cd dsh-plugin
+node --test "test/**/*.test.mjs" "test/*.test.mjs"
+
+# Run installer test suite
 Invoke-Pester ./install.tests.ps1
 ```
 
-12 tests cover installer targets, the no-double-load rule, and a guardrail keeping the 8 skills, their manifest, and both agent files in sync.
+12 tests cover installer targets, the no-double-load rule, and a guardrail keeping the 8 skills, their manifest, and both agent files in sync. The EMA suite covers 172 tests across schema validation, evidence grounding, derived SQLite indexing, fail-closed policy, 6-stage retrieval, promotion pipelines, DSH hooks, and stdio MCP server.
+
+---
+
+## Architecture & Research Documentation
+
+For detailed architecture specifications and the phased implementation reports:
+
+- [EMA Development Plan](docs/research/ema/development-plan.md) — 9-phase evolution roadmap and milestones
+- [EMA Architecture Blueprint](docs/research/ema/ema-architecture-blueprint.md) — Deep architectural specification
+- [Architecture Approval Candidate](docs/research/ema/architecture-approval-candidate.md) — Invariants, governance, and security model
+- [Change Audit Log](docs/CHANGELOG-MEMORY.md) — Chronological ledger of all memory system changes
+- [Phase 1–9 Reports](docs/research/ema/) — Individual phase implementation reports and verification reviews
 
 ---
 

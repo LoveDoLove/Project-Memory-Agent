@@ -1,16 +1,16 @@
 ---
-title: "DSH Plugin Boot Failures --> Triple-Layer Error Diagnosis"
-problem_type: bug
-category: integration_issue
-module: "dsh-plugin / cordis loader"
-status: active
-created: "2026-09-05"
-last_verified: "2026-09-05"
-tags:
-  - dsh
-  - cordis
-  - plugin
-  - troubleshooting
+title: DSH Plugin Boot Failures --> Triple-Layer Error Diagnosis
+type: solution
+status: Current
+validation_state: Verified
+authority_level: Canonical
+confidence: High
+scope: project
+isolation: soft
+tags: [dsh, cordis, plugin, troubleshooting]
+created: 2026-09-05
+last_verified: 2026-09-05
+module: dsh-plugin / cordis loader
 severity: high
 ---
 

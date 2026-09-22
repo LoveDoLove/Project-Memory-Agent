@@ -124,6 +124,10 @@ Use the following routing:
 | Update a Decision                                             | `repository-audit`, `knowledge-classification`, `memory-edit`, `memory-verification`                                  |
 | Remove obsolete knowledge                                     | `obsolete-knowledge`, `memory-edit`, `memory-verification`                                                             |
 | Verify an existing memory system                              | `repository-audit`, `memory-verification`                                                                              |
+| Validate candidate knowledge unit                             | `repository-audit`, `knowledge-classification`, `memory-verification`                                                  |
+| Cross-scope knowledge promotion                               | `repository-audit`, `memory-verification`, `memory-edit` (enforces ≥2 independent repos for Global)                    |
+| Quarantine contradictory knowledge                            | `repository-audit`, `obsolete-knowledge`, `memory-edit`                                                                |
+| Authoritative recall & memory status                          | `repository-audit`, `memory-verification`                                                                              |
 
 This table is routing guidance, not a mandatory fixed pipeline. The current
 task and evidence requirements take precedence.

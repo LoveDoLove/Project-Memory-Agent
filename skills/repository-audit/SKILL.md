@@ -485,6 +485,29 @@ Never silently upgrade evidence quality.
 
 ---
 
+# Canonical Evidence Anchors (EMA)
+
+When recording evidence in audit reports or EKU proposals, format precise evidence as canonical `ema://` URIs:
+
+```text
+ema://evidence/<repo-id>/<git-ref>/<file-path>#<logical-anchor>
+```
+
+- `<repo-id>`: Remote URL or normalized repository identifier (e.g. `github.com/org/repo` or repository directory name).
+- `<git-ref>`: Immutable commit SHA (7–40 hexadecimal characters). Mutable branch references (`HEAD`, `main`, `master`, etc.) are strictly prohibited.
+- `<file-path>`: Repository-relative POSIX file path (strictly rejecting `../`, leading `/`, Windows drive paths, or UNC shares).
+- `#<logical-anchor>`: Exactly one of the 8 approved anchor forms:
+  - `sym:<identifier>` — function, class, interface, method, or variable name
+  - `ast:<path>` — AST node path or selector
+  - `sec:<heading>` — markdown section heading
+  - `test:<id>` — test suite or test case identifier
+  - `cfg:<jsonpath>` — configuration key or JSONPath
+  - `pr:<number>` — pull request number
+  - `issue:<number>` — issue tracker number
+  - `line:<start>:<end>` or `line:<start>` — line number fallback
+
+---
+
 # Evidence Inventory Format
 
 Use:

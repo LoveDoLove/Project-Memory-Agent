@@ -1,16 +1,16 @@
 ---
-title: "Cordis Plugin Contract - inject, patch, and bundle mechanics"
-problem_type: knowledge
-category: architecture_pattern
-module: "dsh / cordis"
-status: active
-created: "2026-09-05"
-last_verified: "2026-09-05"
-tags:
-  - cordis
-  - dsh
-  - plugin
-  - architecture
+title: Cordis Plugin Contract - inject, patch, and bundle mechanics
+type: lesson
+status: Current
+validation_state: Verified
+authority_level: Canonical
+confidence: High
+scope: project
+isolation: soft
+tags: [cordis, dsh, plugin, architecture]
+created: 2026-09-05
+last_verified: 2026-09-05
+module: dsh / cordis
 severity: medium
 ---
 

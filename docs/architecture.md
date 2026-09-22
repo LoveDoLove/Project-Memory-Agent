@@ -1,13 +1,15 @@
 ---
-title: "Project Memory - System Architecture"
-category: reference
-status: active
-created: "2026-09-05"
-last_verified: "2026-09-05"
-tags:
-  - architecture
-  - dsh
-  - plugin
+title: Project Memory - System Architecture
+type: reference
+status: Current
+validation_state: Verified
+authority_level: Canonical
+confidence: High
+scope: project
+isolation: soft
+tags: [architecture, dsh, plugin]
+created: 2026-09-05
+last_verified: 2026-09-05
 ---
 
 # System Architecture

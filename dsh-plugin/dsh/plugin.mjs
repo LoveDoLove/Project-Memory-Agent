@@ -33,6 +33,7 @@ import { fileURLToPath } from 'node:url'
 import { homedir } from 'node:os'
 import { cbmApply } from './codebase-memory-bridge.mjs'
 import { applySlashCommand } from './slash-project-memory.mjs'
+import { applyEmaSlashCommand } from './slash-ema.mjs'
 
 const PLUGIN_ID = 'dsh-project-memory'
 
@@ -221,6 +222,45 @@ generic programming advice, or information already obvious from nearby code.
 Decide now: compound or skip. If skipping, say "No durable knowledge identified."`
 }
 
+// ── Static Context Injection (EMA Phase 7) ────────────────────────────────────
+
+/**
+ * Builds compact L0 static engineering context from AGENTS.md.
+ * Strictly capped at tokenBudget (default 500 tokens).
+ *
+ * @param {string} workspaceRoot
+ * @param {number} [tokenBudget=500]
+ * @returns {string|null}
+ */
+export function buildStaticContext(workspaceRoot, tokenBudget = 500) {
+  if (!workspaceRoot) return null
+  const agentsFile = join(workspaceRoot, 'AGENTS.md')
+  if (!existsSync(agentsFile)) return null
+
+  try {
+    const raw = readFileSync(agentsFile, 'utf8')
+    let criticalRules = ''
+    if (raw.includes('## Critical Rules')) {
+      const start = raw.indexOf('## Critical Rules')
+      const nextHeader = raw.indexOf('\n## ', start + 10)
+      criticalRules = (nextHeader !== -1 ? raw.slice(start, nextHeader) : raw.slice(start)).trim()
+    } else {
+      criticalRules = `## Critical Rules\n1. Discover before assume\n2. Evidence before memory\n3. One canonical home per concept\n4. Current wins over historical`
+    }
+
+    const contextBlock = `[EMA Active Engineering Context]\nWorkspace: ${workspaceRoot}\n\n${criticalRules}\n\n- Scope Isolation: Hard isolation enforced across boundaries\n- Retrieval: 6-stage pipeline (Candidates excluded from active recall)`
+
+    // Estimate tokens (4 chars per token)
+    const maxChars = tokenBudget * 4
+    if (contextBlock.length > maxChars) {
+      return contextBlock.slice(0, maxChars - 30) + '\n...[context capped]'
+    }
+    return contextBlock
+  } catch {
+    return null
+  }
+}
+
 // ── Freshness Warning ─────────────────────────────────────────────────────────
 
 /** Check domain READMEs for pending_updates > 0 and return warning text. */
@@ -283,22 +323,24 @@ export function apply(ctx, config = {}) {
     }
   }
 
-  // 3. Register /project-memory slash command (requires ctx.commands).
+  // 3. Register /project-memory and /ema slash commands (requires ctx.commands).
   if (ctx?.commands && typeof ctx.commands.register === 'function') {
     try {
       ctx.effect(() => {
         applySlashCommand(ctx, initialWs)
-      }, 'project-memory: slash-command')
-      console.log('[project-memory] registered /project-memory slash command')
+        applyEmaSlashCommand(ctx, initialWs)
+      }, 'project-memory: slash-commands')
+      console.log('[project-memory] registered /project-memory and /ema slash commands')
     } catch {
       // commands service unavailable -- skip silently
     }
   }
 
   const initHinted = new Set()
+  const contextInjected = new Set()
   const compoundHinted = new Set()  // track agents that already got compounding prompt
 
-  // Listen for agent/pre-step to inject first-time-init hint when needed.
+  // Listen for agent/pre-step to inject static context and first-time-init hint when needed.
   if (typeof on === 'function') {
     try {
       on('agent/pre-step', (payload, next) => {
@@ -306,7 +348,22 @@ export function apply(ctx, config = {}) {
           const workspace = resolveWorkspace(payload)
           const agent = payload?.agent ?? payload
 
-          // 1. Freshness warning: check domain READMEs for pending updates
+          // 1. Static context injection (staying under 500 tokens, once per agent)
+          if (workspace && agent && !contextInjected.has(agent)) {
+            const staticCtx = buildStaticContext(workspace, 500)
+            if (staticCtx && typeof agent?.inject === 'function') {
+              contextInjected.add(agent)
+              agent.inject({
+                id: crypto.randomUUID(),
+                role: 'user',
+                content: [{ type: 'text', text: staticCtx }],
+                source: { kind: 'plugin', plugin: PLUGIN_ID, form: 'context' },
+              })
+              console.log(`[project-memory] injected L0 static context (< 500 tokens) for ${workspace}`)
+            }
+          }
+
+          // 2. Freshness warning: check domain READMEs for pending updates
           if (workspace) {
             const freshnessWarning = buildFreshnessWarning(workspace)
             if (freshnessWarning && typeof agent?.inject === 'function') {
@@ -320,7 +377,7 @@ export function apply(ctx, config = {}) {
             }
           }
 
-          // 2. First-time-init hint
+          // 3. First-time-init hint
           if (workspace && needsInit(workspace) && agent && !initHinted.has(agent)) {
             initHinted.add(agent)
             if (typeof agent?.inject === 'function') {

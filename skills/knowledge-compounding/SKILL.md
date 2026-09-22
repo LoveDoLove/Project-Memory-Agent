@@ -711,6 +711,9 @@ discussed. Prefer completed and verified engineering experience.
 # Knowledge Proposal Format
 
 Canonical output contract:
+All extracted proposals represent **Candidate** knowledge units (`authority_level: Candidate`,
+`validation_state: Unreviewed`). They are stored in `.ema/candidates/` pending validation
+and explicit promotion before becoming canonical memory in `docs/`.
 
 ```markdown
 ## Knowledge Compounding

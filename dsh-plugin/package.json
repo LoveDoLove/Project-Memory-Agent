@@ -4,6 +4,10 @@
   "version": "0.4.31",
   "type": "module",
   "main": "lib/index.js",
+  "bin": {
+    "ema": "./bin/ema-cli.mjs",
+    "ema-mcp": "./bin/ema-mcp.mjs"
+  },
   "exports": {
     ".": "./lib/index.js",
     "./dsh": "./dsh/plugin.mjs"
@@ -40,7 +44,9 @@
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-llm": "^0.1.2-rc.1"
+    "@deepseek-ai/dsh-llm": "^0.1.2-rc.1",
+    "better-sqlite3": "^13.0.3",
+    "sqlite-vec": "^0.1.9"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": ">=4.0.1-rc.1 <5.0.0-0",

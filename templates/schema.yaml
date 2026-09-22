@@ -35,23 +35,44 @@ core:
     type: enum
     required: true
     values:
-      - current       # Implementation exists, no replacement
-      - in_progress   # Active implementation or migration
-      - partial       # Some behavior exists, full claim unsupported
-      - experimental  # Proof of concept, unstable dev
+      - draft         # Work in progress, unvalidated
+      - current       # Active implementation exists, authoritative
       - deprecated    # Still present but should no longer be used
-      - superseded    # Replaced by newer implementation
+      - superseded    # Replaced by newer implementation (requires superseded_by)
+      - historical    # No longer current but explains system rationale
       - abandoned     # Started, no longer pursued
-      - historical    # No longer current but explains something important
-      - unknown       # Evidence insufficient (internal only)
-    description: "Current lifecycle state"
+    description: >
+      Lifecycle State (Dimension 1 of 4): Active currency and evolution stage.
+      Legacy values (in_progress, partial, experimental, unknown) are deprecated
+      migration inputs and automatically mapped to the 4-D model.
+
+  validation_state:
+    type: enum
+    required: false
+    values:
+      - unreviewed        # Extracted or migrated, not yet verified against current code
+      - needs_review      # Potential drift detected, revalidation requested
+      - potentially_stale # Source code modified; requires empirical verification
+      - verified          # Checked and confirmed true against current code/tests
+      - invalid           # Disproved by current code or failing tests
+      - quarantined       # Blocked from active retrieval due to conflict
+    description: "Validation State (Dimension 2 of 4): Empirical verification health"
+
+  authority_level:
+    type: enum
+    required: false
+    values:
+      - candidate # Proposed extraction, stored in candidate queue
+      - derived   # Regenerable from primary code/tests
+      - canonical # Authoritative human/promoted engineering knowledge
+    description: "Authority Level (Dimension 3 of 4): Trust and promotion stage"
 
   confidence:
     type: enum
     required: true
     values: [high, medium, low]
     description: >
-      How strongly repository evidence supports this claim.
+      Confidence Level (Dimension 4 of 4): Certainty based on evidence diversity.
       high = multiple independent sources agree (source + tests + config).
       medium = one strong direct source.
       low = indirect, incomplete, or historical evidence.
@@ -62,21 +83,41 @@ core:
     items:
       type: object
       properties:
+        anchor:
+          type: string
+          description: "Canonical evidence anchor URI: ema://evidence/<repo-id>/<git-ref>/<file-path>#<logical-anchor>"
         path:
           type: string
-          description: "File path with optional line number (src/file.ts:42)"
+          description: "Legacy file path with optional line number (src/file.ts:42)"
         type:
           type: enum
           values: [source, test, config, ci, git]
           description: "Kind of evidence"
-      required: [path]
+      description: "Evidence item: requires either 'anchor' (canonical) or 'path' (legacy)"
     description: "Repository evidence backing this claim"
 
   scope:
     type: enum
-    values: [project, domain, component, subsystem]
+    values: [project, workspace, global]
     required: false
-    description: "Breadth of applicability"
+    description: >
+      Knowledge Scope: Cross-repository applicability boundary.
+      project = repository-local knowledge.
+      workspace = shared multi-repo engineering context.
+      global = universal engineering principles across all workspaces.
+      Note: Legacy values [domain, component, subsystem] represent intra-project
+      architectural granularity, which belongs in tags or directory paths.
+
+  scope_id:
+    type: string
+    required: false
+    description: "Fully qualified scope URI (e.g. project:github.com/org/repo)"
+
+  isolation:
+    type: enum
+    values: [soft, hard]
+    required: false
+    description: "Hard-isolation flag preventing cross-scope information leakage"
 
   tags:
     type: array
@@ -105,7 +146,7 @@ core:
   # relationship reduces retrieval ambiguity; plain paths remain valid for
   # loose associations.
   #
-  # Relationship semantics (source -> target):
+  # Approved relationship semantics (source -> target):
   #   supersedes    - current source replaces target; use with target in
   #                   superseded/historical status.
   #   evolved_from  - source is a newer version of target.
@@ -118,6 +159,10 @@ core:
   #   contradicts   - source conflicts with target; resolution is required.
   #   derived_from  - source was distilled, inferred, or generalized from
   #                   target.
+  #   promoted_from - source unit was promoted from target candidate/project.
+  #   updates       - source updates or revises target.
+  #   extends       - source builds upon or broadens target without replacing.
+  #   derives       - source was used to infer or generate target.
 
   related:
     type: array
@@ -130,6 +175,9 @@ core:
             path:
               type: string
               description: "Path to related knowledge document"
+            target:
+              type: string
+              description: "Target URI or path (alias for path)"
             type:
               type: enum
               values:
@@ -141,24 +189,59 @@ core:
                 - belongs_to     # "I belong to this parent concept"
                 - contradicts    # "This contradicts the target"
                 - derived_from   # "This was derived from the target"
+                - promoted_from  # "This was promoted from the target"
+                - updates        # "This updates the target"
+                - extends        # "This extends the target"
+                - derives        # "This derives the target"
               description: "Semantic relationship type"
+            verification:
+              type: string
+              description: "Verification status of the link (e.g. Verified, Needs Review)"
+            notes:
+              type: string
+              description: "Contextual explanation of the relationship"
           required: [path]
     description: >
       Related knowledge units. Plain strings are backward-compatible.
-      Typed links enable semantic retrieval (e.g. following evolved_from
-      to find the current version of a superseded decision). Typed
-      relationships are directional and must not present superseded or
-      obsolete targets as current authoritative knowledge.
+      Typed links enable semantic retrieval. Typed relationships are directional
+      and must not present superseded or obsolete targets as current authoritative knowledge.
 
   superseded_by:
     type: [string, null]
     required: false
     description: >
       Path to the knowledge unit that replaces this one. Required when
-      status is 'superseded'. Must point to an existing document. The
-      replacing unit may also include a `related` link of type
-      `supersedes` back to this unit, but `superseded_by` remains the
-      canonical lifecycle field.
+      status is 'superseded'. Must point to an existing document.
+
+  promoted_from:
+    type: object
+    required: false
+    properties:
+      origin_scope:
+        type: string
+        description: "Source scope before promotion (e.g. project:github.com/org/sub-repo)"
+      origin_id:
+        type: string
+        description: "Original document path or identifier in source scope"
+      validated_by:
+        type: string
+        description: "Agent or human that validated the unit before promotion"
+      promoted_by:
+        type: string
+        description: "Authorized actor (human/admin) that executed the promotion"
+      promoted_at:
+        type: string
+        description: "ISO timestamp of the promotion event"
+      rationale:
+        type: string
+        description: "Justification explaining multi-repo or global applicability"
+      min_sources_checked:
+        type: integer
+        description: "Number of independent project repositories verified (>=2 for global)"
+      audit_ref:
+        type: string
+        description: "Reference to audit entry in docs/CHANGELOG-MEMORY.md"
+    description: "Structured provenance lineage for promoted knowledge units"
 
   consolidated_from:
     type: array

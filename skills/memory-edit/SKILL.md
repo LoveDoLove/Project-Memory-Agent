@@ -30,6 +30,12 @@ consistent, easy to verify.
 Only `memory-edit` writes Project Memory changes. Every edit requires an
 approved plan and is the smallest valid change that executes it.
 
+Canonical Storage & Promotion Invariant:
+Only validated and promoted units (`authority_level: Canonical`) may be written into
+canonical repository documentation (`docs/`). Unvalidated proposals must be routed to
+the Candidate Queue (`.ema/candidates/`). When promoting knowledge across scopes,
+maintain full `promoted_from` lineage and append an audit record to `docs/CHANGELOG-MEMORY.md`.
+
 Do not edit by improvisation. Expected flow:
 
 ```text

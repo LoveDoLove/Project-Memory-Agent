@@ -1,3 +1,7 @@
 /dsh-plugin/node_modules
 /node_modules
 /.agent-teams
+
+# EMA derived index
+/.ema/index.db
+/.ema/index.db-*

@@ -15,10 +15,20 @@ omitted fields are optional unless marked required for the document type.
 
 ```yaml
 ---
+# Minimal Core Fields
 title: "Short descriptive title"
-type: architecture | decision | solution | lesson | constraint | workflow | reference | history
-status: current | deprecated | superseded | historical
-confidence: high | medium | low
+type: architecture | decision | solution | lesson | constraint | workflow | reference | history | fact | obsolete
+
+# Four Orthogonal Dimensions
+status: current | draft | deprecated | superseded | historical | abandoned  # Lifecycle State
+validation_state: unreviewed | needs_review | potentially_stale | verified | invalid | quarantined  # Validation State
+authority_level: canonical | derived | candidate  # Authority Level
+confidence: high | medium | low  # Confidence Level
+
+# Knowledge Scope (project-local, shared workspace, or universal global)
+scope: project | workspace | global
+
+# Verification Dates
 created: "YYYY-MM-DD"
 last_verified: "YYYY-MM-DD"
 ---
@@ -28,10 +38,15 @@ last_verified: "YYYY-MM-DD"
 
 ```yaml
 ---
-# Evidence backing this claim (file paths with optional line numbers)
+# Scope URI and Isolation
+scope_id: "project:github.com/org/repo"
+isolation: soft | hard  # default soft; hard prevents cross-scope query leakage
+
+# Evidence backing this claim (anchors or file paths)
 evidence:
-  - path: src/auth/token.ts:42
+  - anchor: "ema://evidence/github.com/org/repo/9f8a2c1b/src/auth/token.ts#sym:verifyToken"
     type: source
+    verified_at: "2026-09-22T10:00:00Z"
   - path: tests/auth/token.test.ts
     type: test
 
@@ -52,6 +67,18 @@ related:
     type: resolves            # This fix/decision addresses the target problem
   - path: docs/architecture/build/generated-sources.md
     type: affects             # This change constrains or impacts the target
+  - path: docs/decisions/legacy-auth.md
+    type: contradicts         # Direct conflict; resolution required
+  - path: docs/solutions/token-distill.md
+    type: derived_from        # Generalized from target
+  - path: docs/solutions/jwt-fix.md
+    type: promoted_from       # Promoted from target candidate/project
+  - path: docs/architecture/auth-v2.md
+    type: updates             # Updates target architecture
+  - path: docs/architecture/core.md
+    type: extends             # Builds upon target without replacing
+  - path: docs/lessons/auth-patterns.md
+    type: derives             # Source of derivation for target
 
 # Relationship vocabulary (source -> target):
 #   supersedes    - source is the current replacement for target
@@ -62,13 +89,24 @@ related:
 #   belongs_to    - source is a sub-topic, detail, or component of target
 #   contradicts   - source conflicts with target; resolution is required
 #   derived_from  - source was distilled, inferred, or generalized from target
-
-# Use typed links only when the relationship reduces retrieval ambiguity.
-# A typed link must not present a superseded or obsolete target as current
-# authoritative knowledge; lifecycle status remains the source of truth.
+#   promoted_from - source was promoted from target candidate/project
+#   updates       - source updates or revises target
+#   extends       - source builds upon target without replacing
+#   derives       - source was used to infer or generate target
 
 # What supersedes this knowledge (required when status = superseded)
 superseded_by: "docs/decisions/new-authentication.md"
+
+# Promotion lineage (present when promoted from Candidate/Project to Workspace/Global)
+promoted_from:
+  origin_scope: "project:github.com/org/sub-repo"
+  origin_id: "docs/solutions/jwt-fix.md"
+  validated_by: "agent:project-memory"
+  promoted_by: "human:lead-dev"
+  promoted_at: "2026-09-22T12:00:00Z"
+  rationale: "Pattern verified across independent services"
+  min_sources_checked: 2
+  audit_ref: "docs/CHANGELOG-MEMORY.md#2026-09-22-jwt-promotion"
 
 # Origin paths merged during multi-source reconstruction
 consolidated_from:
@@ -79,13 +117,6 @@ consolidated_from:
 tags:
   - authentication
   - security
-
-# Breadth of applicability
-scope: project | domain | component
-
-# Domain README only — freshness indicators
-# last_indexed: "2026-09-08"
-# pending_updates: 0
 ---
 ```
 

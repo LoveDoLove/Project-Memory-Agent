@@ -9,6 +9,7 @@ l0_domains:
   architecture: "System design, DSH plugin internals, progressive loading model"
   solutions: "Diagnosed fix patterns for recurring issues and bugs"
   lessons: "Reusable engineering principles distilled from completed work"
+  research/ema: "EMA Architecture Blueprint, Supermemory investigation, capability matrix, gap analysis, Architecture Approval Candidate, Development Plan, Implementation Planning Review, Phase 1 Schema v2, and Phase 2 Evidence Anchors"
 ---
 
 # Project Memory
@@ -61,6 +62,7 @@ See [docs/architecture.md](./docs/architecture.md) for system design details.
 | `docs/architecture/` | System design, DSH plugin internals, progressive loading model | Understanding system internals or debugging DSH issues |
 | `docs/solutions/` | Diagnosed fix patterns for recurring issues and bugs | Debugging, error investigation, fixing known problems |
 | `docs/lessons/` | Reusable engineering principles distilled from completed work | Learning from past work, avoiding repeated mistakes |
+| `docs/research/ema/` | EMA Architecture Blueprint, Supermemory investigation, capability matrix, gap analysis, Architecture Approval Candidate, Development Plan, Implementation Planning Review, Phase 1 Schema v2, and Phase 2 Evidence Anchors | EMA architecture planning, understanding memory system evolution, pre-development review |
 
 For full domain details, see each domain's `README.md` (Level 1).
 

@@ -440,6 +440,18 @@ resolve the conflict before ordinary drift cleanup: establish which side
 current code follows, then treat the losing side as stale. Do not clean up
 an unrelated stale unit and call a live contradiction handled.
 
+## Quarantine Treatment for Unresolved Contradictions
+
+When a direct contradiction or severe integrity conflict is detected between
+knowledge units and the conflict cannot be immediately verified or resolved
+from current repository evidence, place the affected unit into `validation_state: Quarantined`.
+
+Quarantined units:
+- Are strictly excluded from authoritative recall (`emaRecall` Stage 3).
+- Prevent conflicting guidance from misguiding coding agents.
+- Record `quarantine_reason`, `quarantined_by`, and `quarantined_at`.
+- Remain preserved until an explicit human/admin resolution or verified promotion decision resolves the conflict.
+
 ## Guidance-Layer Precedence
 
 When a learning contradicts a guidance file it names (a skill's SKILL.md,

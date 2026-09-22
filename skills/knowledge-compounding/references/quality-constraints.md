@@ -48,16 +48,15 @@ the single strongest one this run.
 ```text
 High     - verified against multiple sources (code + tests + config)
 Medium   - verified against one source (code or tests)
-Low      - partially verified or inferred
-Unknown  - cannot verify mechanically
+Low      - partially verified or indirect evidence (legacy 'unknown' mapped to low + unreviewed)
 ```
 
 ## Usage
 
 ```text
-- Every knowledge proposal must include evidence confidence
+- Every knowledge proposal must include evidence confidence (high | medium | low)
 - Confidence affects compounding value assessment
-- Low/Unknown confidence requires additional verification
+- Low confidence requires additional verification (validation_state: needs_review)
 ```
 
 ---
