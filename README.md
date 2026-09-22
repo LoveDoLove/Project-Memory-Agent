@@ -79,34 +79,61 @@ Engineering Memory Agent (EMA) extends Project Memory with a formal four-dimensi
 
 ### Core Capabilities
 
+- **Interactive Visual Memory Graph**:
+  - Live full-screen dark-theme force-directed knowledge graph (`ema ui`).
+  - Real-time multi-dimensional node coloring: Emerald (`#10b981`) for Canonical/Verified, Amber (`#f59e0b`) for Quarantined Candidates, Crimson (`#ef4444`) with animated glowing rings for Contradictions & Conflicts, Slate (`#64748b`) for Historical/Superseded.
+  - Interactive slide-over inspection drawer with grounded evidence anchors, Markdown previews, and one-click promotion actions.
+- **Built-in Vector Model & sqlite-vec Hybrid RRF Search**:
+  - Out-of-the-box 384-dimensional feature-hash & subword n-gram semantic vectorizer (zero network dependencies, zero API keys required).
+  - Reciprocal Rank Fusion (RRF) combining FTS5 lexical precision with KNN cosine distance in `sqlite-vec`.
+  - Extensible to remote neural embeddings (`EMA_EMBEDDING_API_KEY`, `OPENAI_API_KEY`, `EMA_EMBEDDING_URL`).
+- **Autonomous Distillation & Ingestion Engine**:
+  - One-click memory capture from Git diffs, commits, or task summaries (`ema ingest`).
+  - Automatically parses modified files, hunk line ranges, and symbols into grounded evidence anchors (`ema://evidence/...#sym:...`, `#line:...`).
+  - Strictly adheres to the Quarantined Candidate invariant: extracted knowledge enters `.ema/candidates/` with `authority_level: Candidate` and `validation_state: Unreviewed` (never directly modifying canonical `docs/`).
 - **Four Orthogonal Lifecycle Dimensions**:
   - `status`: `Draft` | `Current` | `Deprecated` | `Superseded` | `Historical` | `Abandoned`
   - `validation_state`: `Unreviewed` | `Needs Review` | `Potentially Stale` | `Verified` | `Invalid` | `Quarantined`
   - `authority_level`: `Candidate` | `Derived` | `Canonical`
   - `confidence`: `High` | `Medium` | `Low`
 - **Authoritative 6-Stage Retrieval Pipeline**:
-  `Stage 1: Authorization Gate` → `Stage 2: Candidate Retrieval` → `Stage 3: Lifecycle Filtering` → `Stage 4: Multi-Dimensional Ranking` → `Stage 5: Contradiction Surfacing` → `Stage 6: Context Assembly`.
+  `Stage 1: Authorization Gate` → `Stage 2: Candidate Retrieval (Hybrid RRF)` → `Stage 3: Lifecycle Filtering` → `Stage 4: Multi-Dimensional Ranking` → `Stage 5: Contradiction Surfacing` → `Stage 6: Context Assembly`.
 - **Zero Silent Contradiction Resolution**: Contradicting knowledge units are surfaced explicitly with warning banners; neither is silently suppressed.
 - **Candidate Isolation & Multi-Repo Promotion**: Unreviewed knowledge is quarantined in `.ema/candidates/` with `authority_level: Candidate`. Promoting to `global` scope requires $\ge 2$ independent repository sources.
 - **Evidence Anchoring**: Grounded via immutable URIs: `ema://evidence/<repo-id>/<git-ref>/<file-path>#<logical-anchor>`.
 - **6-Boundary Hard Isolation**: Storage, Index, Query (zero-knowledge), Authorization (404 No-Probe), Promotion, and Export boundaries.
-- **Canonical Markdown Ownership**: Markdown files in `docs/` remain the single source of truth. The SQLite FTS5 index (`.ema/index.db`) is derived and fully rebuildable.
+- **Canonical Markdown Ownership**: Markdown files in `docs/` remain the single source of truth. The SQLite + `sqlite-vec` index (`.ema/index.db`) is derived and fully rebuildable.
 
 ### CLI Tooling
 
 The EMA CLI is available directly via Node.js in `dsh-plugin/bin/ema-cli.mjs` (or via `npx ema` / `npm link`):
 
 ```bash
+# Launch the interactive Visual Memory Graph Web UI
+node dsh-plugin/bin/ema-cli.mjs ui --port 3888
+
+# Auto-distill and capture knowledge from working tree git changes into candidate queue
+node dsh-plugin/bin/ema-cli.mjs ingest --git
+
+# Auto-distill from a specific patch or diff file
+node dsh-plugin/bin/ema-cli.mjs ingest --diff ./fix.patch
+
+# Distill engineering knowledge from an explanation or incident text
+node dsh-plugin/bin/ema-cli.mjs ingest --text "Fixed race condition in token refresh by using mutex"
+
+# Review and promote an approved candidate to project canonical storage
+node dsh-plugin/bin/ema-cli.mjs promote <candidate_id> project
+
 # Check database health, schema version, unit counts, and candidate queue
 node dsh-plugin/bin/ema-cli.mjs status
 
 # Validate all repository knowledge documents against EKU Schema v2
 node dsh-plugin/bin/ema-cli.mjs verify docs
 
-# Execute authoritative 6-stage memory recall
-node dsh-plugin/bin/ema-cli.mjs recall "cordis plugin"
+# Execute authoritative 6-stage hybrid memory recall (FTS5 + sqlite-vec RRF)
+node dsh-plugin/bin/ema-cli.mjs recall "cordis plugin injection"
 
-# Rebuild the derived SQLite + FTS5 index from canonical Markdown
+# Rebuild the derived SQLite + sqlite-vec vector index from canonical Markdown
 node dsh-plugin/bin/ema-cli.mjs index docs
 
 # View CLI help and usage options
@@ -123,8 +150,9 @@ node dsh-plugin/bin/ema-mcp.mjs
 ```
 
 Available tools registered by the MCP server:
-- `ema_recall`: Authoritative recall across authorized scopes (`query`, `limit`, `scope`, `actor`).
-- `ema_add`: Submit new candidate knowledge into `.ema/candidates/`.
+- `ema_recall`: Authoritative hybrid recall across authorized scopes (`query`, `limit`, `scope`, `actor`).
+- `ema_distill`: Automatically distill knowledge from Git diffs or text into the candidate queue with grounded evidence anchors.
+- `ema_add`: Submit new candidate knowledge manually into `.ema/candidates/`.
 - `ema_context`: Assemble budget-capped static context injection for prompts.
 - `ema_validate`: Update validation state and record validation audit trail.
 - `ema_promote`: Promote knowledge units to broader scopes (`project`, `workspace`, `global`).

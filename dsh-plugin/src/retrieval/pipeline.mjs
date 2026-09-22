@@ -16,6 +16,7 @@
  */
 
 import { searchLexical } from '../index/lexical-index.mjs';
+import { searchVector } from '../index/vector-index.mjs';
 import { evaluateAccess, getAuthorizedScopes } from '../policy/authorization.mjs';
 import { isHardIsolated } from '../policy/isolation.mjs';
 import { rankCandidates } from './ranking.mjs';
@@ -114,7 +115,7 @@ export function emaRecall(query, options = {}) {
     targetScopes = [matched];
   }
 
-  // ── Stage 2: Candidate Retrieval (Authorized Scopes Only) ───────────────────
+  // ── Stage 2: Candidate Retrieval (Authorized Scopes - Hybrid RRF) ──────────
   if (!db) {
     return {
       results: [],
@@ -127,6 +128,7 @@ export function emaRecall(query, options = {}) {
 
   const rawCandidates = [];
   const seenIds = new Set();
+  const candidateScores = new Map(); // id -> { candidate, rrf, lexicalRank, vectorRank }
 
   // Multi-term candidate expansion (retrieves both exact phrase and term matches)
   const trimmed = query.trim();
@@ -134,14 +136,51 @@ export function emaRecall(query, options = {}) {
   const searchPhrases = [trimmed, ...queryTerms];
 
   for (const authScope of targetScopes) {
+    // 1. Lexical retrieval
+    let lexRank = 1;
     for (const phrase of searchPhrases) {
       const matches = searchLexical(db, phrase, authScope.scope, { limit: limit * 2 });
       for (const m of matches) {
-        if (!seenIds.has(m.id)) {
-          seenIds.add(m.id);
-          rawCandidates.push(m);
+        if (!candidateScores.has(m.id)) {
+          candidateScores.set(m.id, { candidate: m, rrf: 0, lexicalRank: lexRank, vectorRank: null });
+          lexRank++;
+        }
+        const entry = candidateScores.get(m.id);
+        entry.rrf += 1.0 / (60 + (entry.lexicalRank || 100));
+      }
+    }
+
+    // 2. Vector semantic retrieval (if sqlite-vec is active)
+    try {
+      const vecResult = searchVector(db, trimmed, authScope.scope, { limit: limit * 2 });
+      if (vecResult?.status === 'OK' && Array.isArray(vecResult.results)) {
+        let vecRank = 1;
+        for (const v of vecResult.results) {
+          if (!candidateScores.has(v.id)) {
+            candidateScores.set(v.id, { candidate: v, rrf: 0, lexicalRank: null, vectorRank: vecRank });
+          }
+          const entry = candidateScores.get(v.id);
+          entry.vectorRank = vecRank;
+          entry.rrf += 1.0 / (60 + vecRank);
+          if (v.score !== undefined) {
+            entry.candidate.vectorScore = v.score;
+          }
+          vecRank++;
         }
       }
+    } catch {
+      // Vector search failure is non-fatal; fall back cleanly to lexical
+    }
+  }
+
+  // Populate rawCandidates in RRF score order
+  const sortedEntries = Array.from(candidateScores.values()).sort((a, b) => b.rrf - a.rrf);
+  for (const entry of sortedEntries) {
+    const cand = entry.candidate;
+    cand.rrfScore = entry.rrf;
+    if (!seenIds.has(cand.id)) {
+      seenIds.add(cand.id);
+      rawCandidates.push(cand);
     }
   }
 

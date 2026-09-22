@@ -88,6 +88,20 @@ export function getToolDefinitions() {
         required: ['candidate_id', 'target_scope', 'rationale'],
       },
     },
+    {
+      name: 'ema_distill',
+      description: 'Automatically distill and capture knowledge from a Git diff or text into the quarantined candidate queue (.ema/candidates/) with grounded evidence anchors. Never writes directly to canonical docs.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          diff: { type: 'string', description: 'Unified Git diff text to analyze and ground' },
+          text: { type: 'string', description: 'Task summary or engineering explanation to distill' },
+          title: { type: 'string', description: 'Optional explicit title for the candidate' },
+          from_git: { type: 'boolean', description: 'Extract diff automatically from current Git working tree', default: false },
+          scope: { type: 'string', enum: ['project', 'workspace', 'global'], default: 'project' },
+        },
+      },
+    },
   ];
 }
 
@@ -193,6 +207,33 @@ export async function executeToolCall(toolName, args = {}, context = {}) {
         status: 'promoted',
         promoted_from: result.promotedEKU.promoted_from,
         file_path: result.filePath,
+      };
+    }
+
+    case 'ema_distill': {
+      const { ingestKnowledge } = await import('../ingest/distill.mjs');
+      const result = ingestKnowledge(
+        {
+          diff: args.diff,
+          text: args.text,
+          fromGitWorkingTree: args.from_git,
+        },
+        {
+          title: args.title,
+          scope: args.scope || 'project',
+          repoRoot: projectRoot,
+          candidateDir: context.candidateDir,
+          db,
+        }
+      );
+
+      return {
+        candidate_id: result.candidateId,
+        title: result.candidate.title,
+        authority_level: result.candidate.authority_level,
+        validation_state: result.candidate.validation_state,
+        evidence_count: result.candidate.evidence ? result.candidate.evidence.length : 0,
+        filePath: result.filePath,
       };
     }
 

@@ -27,7 +27,7 @@ import path from 'node:path';
 
 import { initIndex, closeIndex, dropAndReinitIndex, defaultIndexPath } from './db.mjs';
 import { indexEKU, countIndexedEKUs } from './lexical-index.mjs';
-import { initVectorIndex } from './vector-index.mjs';
+import { initVectorIndex, storeVector } from './vector-index.mjs';
 
 // ── Frontmatter parser (zero external dependencies) ──────────────────────────
 
@@ -328,6 +328,13 @@ export function rebuildIndex(docsPath, options = {}) {
 
         const eku = { ...frontmatter, bodyText };
         indexEKU(db, eku, relPath);
+        try {
+          const tagsStr = Array.isArray(eku.tags) ? eku.tags.join(' ') : (eku.tags || '');
+          const textForVector = `${eku.title || ''} ${bodyText} ${tagsStr}`.trim();
+          storeVector(db, relPath, textForVector);
+        } catch {
+          // Vector indexing failure is non-fatal
+        }
         indexed++;
 
         if (options.verbose) {
@@ -439,6 +446,13 @@ export function rebuildIndexWithDB(docsPath, db, options = {}) {
         const bodyText = extractBodyText(body);
         const eku = { ...frontmatter, bodyText };
         indexEKU(db, eku, relPath);
+        try {
+          const tagsStr = Array.isArray(eku.tags) ? eku.tags.join(' ') : (eku.tags || '');
+          const textForVector = `${eku.title || ''} ${bodyText} ${tagsStr}`.trim();
+          storeVector(db, relPath, textForVector);
+        } catch {
+          // Vector indexing failure is non-fatal
+        }
         indexed++;
 
       } catch (err) {

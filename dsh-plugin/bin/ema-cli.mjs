@@ -12,6 +12,7 @@ import { emaRecall } from '../src/retrieval/index.mjs';
 import { listCandidates, defaultCandidateDir } from '../src/storage/candidate-store.mjs';
 import { validateEKU } from '../src/core/schema.mjs';
 import { parseFrontmatter } from '../src/index/rebuild.mjs';
+import { startUIServer } from '../src/ui/server.mjs';
 
 const args = process.argv.slice(2);
 const command = args[0] || 'help';
@@ -152,16 +153,121 @@ async function main() {
       break;
     }
 
+    case 'ui': {
+      let port = 3888;
+      let host = '127.0.0.1';
+
+      for (let i = 1; i < args.length; i++) {
+        if (args[i] === '--port' && args[i + 1]) {
+          port = parseInt(args[i + 1], 10) || 3888;
+          i++;
+        } else if (args[i] === '--host' && args[i + 1]) {
+          host = args[i + 1];
+          i++;
+        }
+      }
+
+      console.log(`[EMA CLI] Starting Visual Memory Graph server...`);
+      const { url } = await startUIServer({ port, host, repoRoot: projectRoot });
+      console.log(`\n  🚀 EMA Visual Memory Graph is running at:`);
+      console.log(`     ${url}\n`);
+      console.log(`  Press Ctrl+C to stop.\n`);
+
+      // Keep process alive
+      await new Promise(() => {});
+      break;
+    }
+
+    case 'ingest': {
+      const { ingestKnowledge } = await import('../src/ingest/distill.mjs');
+      let diffPath = null;
+      let textInput = null;
+      let fromGit = false;
+      let title = null;
+
+      for (let i = 1; i < args.length; i++) {
+        if (args[i] === '--diff' && args[i + 1]) {
+          diffPath = args[i + 1];
+          i++;
+        } else if (args[i] === '--text' && args[i + 1]) {
+          textInput = args[i + 1];
+          i++;
+        } else if (args[i] === '--title' && args[i + 1]) {
+          title = args[i + 1];
+          i++;
+        } else if (args[i] === '--git') {
+          fromGit = true;
+        }
+      }
+
+      let input = {};
+      if (diffPath) {
+        input.diff = fs.readFileSync(path.resolve(projectRoot, diffPath), 'utf8');
+      } else if (textInput) {
+        input.text = textInput;
+      } else {
+        // Default to Git working tree
+        fromGit = true;
+        input.fromGitWorkingTree = true;
+      }
+
+      console.log(`[EMA CLI] Ingesting knowledge into candidate queue...`);
+      const res = ingestKnowledge(input, { repoRoot: projectRoot, title });
+
+      console.log(`\n  ✅ Successfully captured candidate knowledge unit:`);
+      console.log(`     - Candidate ID:     ${res.candidateId}`);
+      console.log(`     - Title:            ${res.candidate.title}`);
+      console.log(`     - Authority Level:  ${res.candidate.authority_level} (Quarantined)`);
+      console.log(`     - Validation:       ${res.candidate.validation_state}`);
+      console.log(`     - Evidence Anchors: ${(res.candidate.evidence || []).length}`);
+      console.log(`     - Saved File:       ${path.relative(projectRoot, res.filePath)}`);
+      console.log(`\n  👉 Review or promote with:`);
+      console.log(`     ema promote ${res.candidateId} project\n`);
+      break;
+    }
+
+    case 'promote': {
+      const { promoteScope } = await import('../src/promotion/pipeline.mjs');
+      const candidateId = args[1];
+      const targetScope = args[2] || 'project';
+      if (!candidateId) {
+        console.error('[EMA CLI] Error: Please provide a candidate ID to promote. Example: ema promote <id> project');
+        process.exit(1);
+      }
+
+      console.log(`[EMA CLI] Promoting candidate '${candidateId}' to ${targetScope} scope...`);
+      const promoteRes = promoteScope(candidateId, targetScope, 'Promoted via EMA CLI', {
+        actor: 'human',
+        candidateDir: path.join(projectRoot, '.ema', 'candidates'),
+        docsDir: path.join(projectRoot, 'docs'),
+        writeToDisk: true,
+      });
+
+      if (promoteRes.success) {
+        console.log(`\n  🎉 Candidate promoted successfully!`);
+        console.log(`     - New Canonical Path: ${promoteRes.filePath}`);
+        console.log(`     - Scope:              ${promoteRes.promotedEKU.scope}`);
+        console.log(`     - Authority Level:    ${promoteRes.promotedEKU.authority_level}\n`);
+      } else {
+        console.error(`\n  ❌ Promotion failed.`);
+        process.exit(1);
+      }
+      break;
+    }
+
     case 'help':
     default: {
       console.log(`Engineering Memory Agent (EMA) CLI
 
 Usage:
-  ema index [docsDir]    Rebuild the derived SQLite + FTS5 index from Markdown docs
-  ema verify [docsDir]   Validate all knowledge units against EKU Schema v2
-  ema status             Report database health, index counts, and candidate queue
-  ema recall <query>     Execute 6-stage authoritative recall query
-  ema help               Display this help message
+  ema index [docsDir]            Rebuild derived SQLite + vector index from Markdown docs
+  ema verify [docsDir]           Validate all knowledge units against EKU Schema v2
+  ema status                     Report database health, index counts, and candidate queue
+  ema recall <query>             Execute 6-stage authoritative recall query
+  ema ui [--port 3888]           Launch interactive Visual Memory Graph Web UI
+  ema ingest [--git|--diff|--text] Auto-distill and capture knowledge into candidate queue
+  ema promote <id> [scope]       Promote candidate to canonical knowledge (project|workspace)
+  ema help                       Display this help message
 `);
       break;
     }
